@@ -36,6 +36,17 @@ Adapters depend on core. Applications such as CLI or future UI compose core and 
 
 WCF and business-specific adapters must live outside the public repository.
 
+## Future Extension Boundary
+
+ReplayLab may later support mapping extension points, but public core should not contain WCF contracts, WCF clients, or business-specific mapping rules.
+
+The intended future flow for private integrations is:
+
+1. Parse public input such as CSV into generic `ReplayMessage` payloads.
+2. Apply a private mapping layer outside the public repository.
+3. Create business contract objects such as WCF request contracts outside the public repository.
+4. Send through a private adapter outside the public repository.
+
 ## Assumptions
 
 - Separating contracts from adapters will keep the public API generic.

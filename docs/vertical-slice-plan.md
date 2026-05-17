@@ -20,6 +20,13 @@ Goal: load a tiny set of structured messages from a CSV file and convert them in
 Candidate scope:
 
 - Add a CSV parser as the first concrete parser implementation.
+- Treat the first non-empty, non-comment line as the CSV header row.
+- Ignore empty lines and lines whose first non-whitespace character is `#`.
+- Convert each parsed data row into one `ReplayMessage`.
+- Store the full row as a JSON object payload.
+- Generate message IDs from parsed data record numbers.
+- Leave headers empty by default.
+- Store parser context in metadata.
 - Use clear exceptions for invalid CSV input.
 - Add minimal parser tests.
 - Keep parsing generic and free of business mappings.
@@ -51,6 +58,6 @@ Candidate scope:
 
 ## Open Questions
 
-- What exact CSV columns should the first parser require?
 - Should filtering be implemented before real sender adapters?
 - What minimal CLI command shape should be considered stable?
+- What later mapping/configuration model should support dynamic headers and private WCF contract mapping?
