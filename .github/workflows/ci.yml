@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  restore-build-test:
+    name: Restore, build, and test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ReplayLab.sln
+
+      - name: Build
+        run: dotnet build ReplayLab.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ReplayLab.sln --configuration Release --no-build
