@@ -26,3 +26,59 @@
 5. Run focused tests.
 6. Update docs or ADRs if the design changes.
 7. Report what changed, assumptions, risks, and open questions.
+
+## GitHub Issues
+
+GitHub Issues are executable work items derived from planning artifacts.
+
+Issues should normally come from:
+
+- vertical slice plans
+- architecture briefs
+- ADR follow-ups
+- review findings
+- open questions that became actionable
+
+### Planner Behavior
+
+The planner may propose GitHub issues from planning artifacts.
+
+By default, the planner should generate issue drafts, not create issues directly.
+
+The planner may create actual GitHub issues only when explicitly asked.
+
+Issue drafts must include:
+
+- title
+- goal
+- scope
+- acceptance criteria
+- linked docs / ADRs
+- implementation notes
+- test expectations
+- risks
+- out of scope
+
+When drafting issues:
+
+- keep them small and slice-oriented
+- avoid broad "build everything" issues
+- split large issues before implementation
+- keep issues linked to the relevant planning artifact
+
+### Implementer Behavior
+
+When working from an issue:
+
+1. Read the issue description.
+2. Identify linked docs, ADRs, or planning artifacts.
+3. Inspect the repository before editing.
+4. Restate the intended slice before implementation.
+5. Keep the change scoped to the issue.
+6. If the issue is too large, propose a split instead of implementing everything.
+7. When done, summarize:
+   - files changed
+   - tests run
+   - assumptions
+   - risks
+   - follow-up issues

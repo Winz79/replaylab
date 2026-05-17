@@ -16,21 +16,21 @@ Load structured message files into generic `ReplayBatch` instances.
 
 ## Requirements
 
-- Support at least one structured public file format first.
+- Support CSV as the first structured public file format.
 - Keep parser output generic.
-- Return useful errors for invalid input.
+- Throw clear exceptions for invalid input in the first parser slice.
 - Avoid business-specific mappings.
 - Use synthetic examples in tests and docs.
 
-## Candidate Formats
+## Format Direction
 
-- JSON.
-- CSV.
+- CSV first.
+- JSON later.
 
 ## Acceptance Criteria
 
 - A parser can load a tiny sample file into `ReplayBatch`.
-- Invalid input has predictable error behavior.
+- Invalid input throws a predictable, clear exception.
 - Parser tests use synthetic data.
 - Parser implementation does not depend on sender adapters.
 
@@ -45,10 +45,11 @@ Load structured message files into generic `ReplayBatch` instances.
 ## Assumptions
 
 - File parsing should be implemented before real sender adapters.
+- CSV is the first concrete parser implementation.
 - One format is enough for the first parser slice.
 
 ## Open Questions
 
-- Should JSON or CSV be implemented first?
-- Should parser errors be exceptions, structured results, or both?
+- What exact CSV columns should the first parser require?
+- How should headers and metadata be represented in CSV?
 - Should parsers support streaming for large files in the first version?

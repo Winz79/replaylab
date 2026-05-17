@@ -24,6 +24,7 @@ Contributions should:
 - Preserve core independence.
 - Avoid business-specific assumptions.
 - Include focused tests for changed behavior.
+- Pass CI before merge once CI exists.
 - Update PRDs, BRDs, ADRs, or plans when scope or design changes.
 - Keep vertical slices small enough to review.
 
@@ -35,6 +36,7 @@ Before a first public release, the project should clarify:
 - Stable public contracts.
 - Minimal supported parser.
 - Minimal replay engine behavior.
+- CI status for pull requests.
 - CLI or library-first positioning.
 - Package naming.
 

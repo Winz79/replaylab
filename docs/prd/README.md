@@ -9,3 +9,4 @@ This directory contains numbered PRDs for ReplayLab.
 - [PRD 0005: CLI Experience](0005-cli-experience.md)
 - [PRD 0006: Local Web UI](0006-local-web-ui.md)
 - [PRD 0007: Packaging](0007-packaging.md)
+- [PRD 0008: CI/CD](0008-cicd.md)

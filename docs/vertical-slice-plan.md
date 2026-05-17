@@ -15,12 +15,12 @@ Deliverables:
 
 ## Slice 1: File Parser Spike
 
-Goal: load a tiny set of structured messages from one file format and convert them into `ReplayBatch`.
+Goal: load a tiny set of structured messages from a CSV file and convert them into `ReplayBatch`.
 
 Candidate scope:
 
-- Choose JSON or CSV as the first parser.
-- Define parser error behavior.
+- Add a CSV parser as the first concrete parser implementation.
+- Use clear exceptions for invalid CSV input.
 - Add minimal parser tests.
 - Keep parsing generic and free of business mappings.
 
@@ -51,6 +51,6 @@ Candidate scope:
 
 ## Open Questions
 
-- Should JSON or CSV be the first parser?
+- What exact CSV columns should the first parser require?
 - Should filtering be implemented before real sender adapters?
 - What minimal CLI command shape should be considered stable?

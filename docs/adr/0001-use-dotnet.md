@@ -19,6 +19,8 @@ Use .NET with a standard solution layout:
 
 The initial scaffold targets `net10.0` because the current default stable SDK available on this machine is .NET 10.
 
+After review, ReplayLab will keep `net10.0` for the next vertical slice.
+
 ## Consequences
 
 - The repository can use standard `dotnet build` and `dotnet test` workflows.
@@ -27,9 +29,9 @@ The initial scaffold targets `net10.0` because the current default stable SDK av
 
 ## Assumptions
 
-- .NET 10 is acceptable for the initial scaffold.
-- Compatibility decisions can be revisited before publishing packages.
+- .NET 10 is acceptable for the scaffold and the next concrete implementation slice.
+- Compatibility decisions can still be revisited before publishing packages.
 
 ## Open Questions
 
-- Should the first public release target a lower LTS framework for broader adoption?
+- Should the first public package release multi-target a lower LTS framework for broader adoption?
