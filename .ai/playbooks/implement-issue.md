@@ -42,6 +42,14 @@ If a pull request is required but cannot be created, explain exactly why and pro
 - Prefer `codex/<issue-or-slice-name>` unless the repository owner requests another convention.
 - Do not mix unrelated cleanup, refactors, or product direction changes into the branch.
 
+## Workflow Files
+
+Do not modify `.ai/`, playbooks, agent instructions, issue templates, or methodology files while implementing a product issue unless the issue explicitly asks for workflow changes.
+
+If workflow instructions conflict with the user request, stop and report the conflict instead of editing workflow files.
+
+Workflow changes must be handled in a dedicated issue or PR.
+
 ## Implementation
 
 - Make the smallest coherent vertical slice that satisfies the issue.
@@ -53,7 +61,7 @@ If a pull request is required but cannot be created, explain exactly why and pro
 
 ## PR Creation
 
-Always create a pull request unless explicitly told not to.
+Create a pull request unless explicitly told not to.
 
 Use a title that describes the implemented slice.
 Use `Closes #...` for every completed issue.
