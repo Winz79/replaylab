@@ -27,6 +27,27 @@
 6. Update docs or ADRs if the design changes.
 7. Report what changed, assumptions, risks, and open questions.
 
+
+## Architecture Style
+
+ReplayLab starts as a modular toolkit architecture with vertical-slice delivery.
+
+Vertical slices are delivery units. They should guide issues, PRs, implementation order, and review scope; they do not require one physical project per feature.
+
+The source layout remains modular and package-oriented for now:
+
+- `ReplayLab.Core` contains generic contracts and models and must remain independent from adapters, CLI, Web, UI, persistence, Docker, WCF, and business-specific concerns.
+- `ReplayLab.Parsers.*` projects contain parser implementations.
+- `ReplayLab.Adapters.*` projects contain sender adapter implementations.
+- `ReplayLab.Cli` and future `ReplayLab.Web` compose core, parsers, and adapters.
+
+Adapters remain separate projects that depend on core. Core must not depend on adapters.
+
+Do not introduce a full modular monolith structure unless an ADR explicitly changes the architecture direction.
+
+If a slice touches multiple projects, keep the change small, coherent, and reviewable.
+
+
 ## GitHub Issues
 
 GitHub Issues are executable work items derived from planning artifacts.
@@ -82,3 +103,5 @@ When working from an issue:
    - assumptions
    - risks
    - follow-up issues
+
+
