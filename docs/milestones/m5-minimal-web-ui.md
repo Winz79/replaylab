@@ -191,8 +191,7 @@ parsed by the existing CSV parser.
 - Parse uploaded CSV content with `CsvReplayMessageParser`.
 - Show parsed message IDs and payload previews.
 - Show clear validation or parse errors in the page.
-- Keep uploaded content in request/session workflow state only as needed for
-  the preview.
+- Keep replay results in request-scoped workflow state only as needed to render the result page.
 - Use synthetic CSV examples in tests and documentation references.
 
 **Acceptance Criteria:**
