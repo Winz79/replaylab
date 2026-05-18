@@ -70,14 +70,21 @@ WCF and business-specific adapters are intentionally excluded from this reposito
 
 ## CLI Preview
 
-The current CLI preview accepts one CSV file path, parses it with the CSV
-parser, prints a concise inspection summary, replays the messages through the
-mock sender, and prints a replay summary.
+The current CLI preview accepts either one CSV file path or an explicit CSV
+format plus a file path, parses it with the CSV parser, prints a concise
+inspection summary, replays the messages through the mock sender, and prints a
+replay summary.
 
 Run the preview against the synthetic sample:
 
 ```powershell
 dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
+```
+
+Or use the explicit M3 format option:
+
+```powershell
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --format csv samples/basic.csv
 ```
 
 Expected output shape:
@@ -94,7 +101,7 @@ Sent 2 message(s): 2 succeeded, 0 failed.
 
 The CLI returns `0` when all parsed messages are replayed successfully. It
 returns non-zero for command-level failures such as a missing file, invalid CSV,
-or replay failures.
+unsupported input format, or replay failures.
 
 ## Local Executable Publish
 
