@@ -259,6 +259,34 @@ public class CliApplicationTests
         Assert.Equal(string.Empty, error.ToString());
     }
 
+    [Fact]
+    public async Task RunAsync_returns_non_zero_when_http_sender_reports_replay_failures()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            Updated,beta
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+        var factory = new RecordingSenderFactory(
+            httpSender: new FailingReplaySender());
+
+        var exitCode = await CliApplication.RunAsync(
+            ["--sender", "http", "--endpoint-url", "https://example.test/replay", csvPath],
+            output,
+            error,
+            senderFactory: factory);
+
+        Assert.Equal(1, exitCode);
+        Assert.Equal("http", factory.SelectedSender);
+        Assert.Equal(new Uri("https://example.test/replay"), factory.EndpointUrl);
+        Assert.Contains("Sent 2 message(s): 1 succeeded, 1 failed.", output.ToString());
+        Assert.Contains("record-2: failed - Synthetic replay failure", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
     private static string CreateTempCsv(string contents, string fileNamePrefix = "")
     {
         var path = Path.Combine(Path.GetTempPath(), $"{fileNamePrefix}{Guid.NewGuid():N}.csv");
@@ -309,8 +337,13 @@ public class CliApplicationTests
         }
     }
 
-    private sealed class RecordingSenderFactory : IReplaySenderFactory
+    private sealed class RecordingSenderFactory(
+        IReplaySender? mockSender = null,
+        IReplaySender? httpSender = null) : IReplaySenderFactory
     {
+        private readonly IReplaySender _mockSender = mockSender ?? new MockReplaySender();
+        private readonly IReplaySender _httpSender = httpSender ?? new MockReplaySender();
+
         public string? SelectedSender { get; private set; }
 
         public Uri? EndpointUrl { get; private set; }
@@ -318,14 +351,14 @@ public class CliApplicationTests
         public IReplaySender CreateMockSender()
         {
             SelectedSender = "mock";
-            return new MockReplaySender();
+            return _mockSender;
         }
 
         public IReplaySender CreateHttpSender(Uri endpointUrl)
         {
             SelectedSender = "http";
             EndpointUrl = endpointUrl;
-            return new MockReplaySender();
+            return _httpSender;
         }
     }
 }
