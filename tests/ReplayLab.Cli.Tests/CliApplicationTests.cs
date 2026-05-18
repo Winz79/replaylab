@@ -235,6 +235,28 @@ public class CliApplicationTests
     }
 
     [Fact]
+    public async Task RunAsync_returns_non_zero_when_endpoint_url_is_provided_without_http_sender_selection()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(
+            ["--endpoint-url", "https://example.test/replay", csvPath],
+            output,
+            error);
+
+        Assert.Equal(2, exitCode);
+        Assert.Equal(string.Empty, output.ToString());
+        Assert.Contains("The --endpoint-url option is only valid when --sender http is selected.", error.ToString());
+        Assert.Contains("Usage: replaylab --sender http --endpoint-url <url> <file>", error.ToString());
+    }
+
+    [Fact]
     public async Task RunAsync_returns_non_zero_when_http_sender_endpoint_url_scheme_is_not_http_or_https()
     {
         var csvPath = CreateTempCsv("""

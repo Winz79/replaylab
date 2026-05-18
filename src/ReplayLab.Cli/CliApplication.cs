@@ -118,6 +118,16 @@ public static class CliApplication
         }
 
         var endpointUrl = parseResult.GetValue(endpointUrlOption);
+        if (!string.Equals(senderName, HttpSender, StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(endpointUrl))
+        {
+            return new ParsedCommand(
+                null,
+                null,
+                null,
+                "The --endpoint-url option is only valid when --sender http is selected.");
+        }
+
         if (string.Equals(senderName, HttpSender, StringComparison.OrdinalIgnoreCase) &&
             string.IsNullOrWhiteSpace(endpointUrl))
         {
