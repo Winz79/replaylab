@@ -27,6 +27,15 @@
 6. Update docs or ADRs if the design changes.
 7. Report what changed, assumptions, risks, and open questions.
 
+## Playbooks
+
+Agents should use `.ai/playbooks/` before asking for custom instructions.
+
+- Use `plan-milestone.md` for milestone planning.
+- Use `implement-issue.md` for implementation.
+- Use `review-pr.md` for PR review.
+- Use `close-milestone.md` when closing a milestone.
+
 
 ## Architecture Style
 
@@ -103,5 +112,4 @@ When working from an issue:
    - assumptions
    - risks
    - follow-up issues
-
 
