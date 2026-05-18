@@ -10,7 +10,23 @@ public sealed class CliEndToEndSmokeTests
         var repoRoot = FindRepositoryRoot();
         var samplePath = Path.Combine(repoRoot, "samples", "basic.csv");
 
-        var result = await RunCliProcessAsync(repoRoot, samplePath);
+        var result = await RunCliProcessAsync(repoRoot, [samplePath]);
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.Contains("Loaded 2 message(s).", result.StandardOutput);
+        Assert.Contains("Inspected 2 message(s).", result.StandardOutput);
+        Assert.Contains("Sent 2 message(s): 2 succeeded, 0 failed.", result.StandardOutput);
+        Assert.Contains("record-1: succeeded", result.StandardOutput);
+        Assert.Contains("record-2: succeeded", result.StandardOutput);
+    }
+
+    [Fact]
+    public async Task Cli_process_replays_valid_synthetic_csv_successfully_when_format_csv_is_explicit()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var samplePath = Path.Combine(repoRoot, "samples", "basic.csv");
+
+        var result = await RunCliProcessAsync(repoRoot, ["--format", "csv", samplePath]);
 
         Assert.Equal(0, result.ExitCode);
         Assert.Contains("Loaded 2 message(s).", result.StandardOutput);
@@ -26,7 +42,7 @@ public sealed class CliEndToEndSmokeTests
         var repoRoot = FindRepositoryRoot();
         var missingPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.csv");
 
-        var result = await RunCliProcessAsync(repoRoot, missingPath);
+        var result = await RunCliProcessAsync(repoRoot, [missingPath]);
 
         Assert.NotEqual(0, result.ExitCode);
         Assert.Equal(string.Empty, result.StandardOutput);
@@ -46,7 +62,7 @@ public sealed class CliEndToEndSmokeTests
 
         try
         {
-            var result = await RunCliProcessAsync(repoRoot, csvPath);
+            var result = await RunCliProcessAsync(repoRoot, [csvPath]);
 
             Assert.NotEqual(0, result.ExitCode);
             Assert.Equal(string.Empty, result.StandardOutput);
@@ -62,15 +78,29 @@ public sealed class CliEndToEndSmokeTests
         }
     }
 
+    [Fact]
+    public async Task Cli_process_returns_non_zero_for_unsupported_format_before_parsing()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var samplePath = Path.Combine(repoRoot, "samples", "basic.csv");
+
+        var result = await RunCliProcessAsync(repoRoot, ["--format", "json", samplePath]);
+
+        Assert.NotEqual(0, result.ExitCode);
+        Assert.Equal(string.Empty, result.StandardOutput);
+        Assert.Contains("Unsupported input format: json", result.StandardError);
+        Assert.Contains("Supported formats: csv", result.StandardError);
+    }
+
     private static async Task<CliProcessResult> RunCliProcessAsync(
         string repoRoot,
-        string inputPath)
+        IReadOnlyList<string> arguments)
     {
         var cliAssemblyPath = GetCliAssemblyPath(repoRoot);
         using var process = Process.Start(new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"\"{cliAssemblyPath}\" \"{inputPath}\"",
+            Arguments = BuildArguments(cliAssemblyPath, arguments),
             WorkingDirectory = repoRoot,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -83,6 +113,13 @@ public sealed class CliEndToEndSmokeTests
         await process.WaitForExitAsync();
 
         return new CliProcessResult(process.ExitCode, standardOutput, standardError);
+    }
+
+    private static string BuildArguments(string cliAssemblyPath, IReadOnlyList<string> arguments)
+    {
+        var escapedArguments = arguments
+            .Select(argument => $"\"{argument}\"");
+        return string.Join(" ", [$"\"{cliAssemblyPath}\"", .. escapedArguments]);
     }
 
     private static string GetCliAssemblyPath(string repoRoot)

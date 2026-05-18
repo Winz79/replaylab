@@ -6,6 +6,8 @@ namespace ReplayLab.Cli;
 
 public static class CliApplication
 {
+    private const string SupportedFormat = "csv";
+
     public static async Task<int> RunAsync(
         string[] args,
         TextWriter output,
@@ -14,13 +16,15 @@ public static class CliApplication
         IReplaySender? sender = null,
         CancellationToken cancellationToken = default)
     {
-        if (args.Length != 1)
+        var command = ParseArguments(args);
+        if (command.ErrorMessage is not null)
         {
-            await error.WriteLineAsync("Usage: replaylab <file>");
+            await error.WriteLineAsync(command.ErrorMessage);
+            await WriteUsage(error);
             return 2;
         }
 
-        var inputPath = args[0];
+        var inputPath = command.InputPath!;
         if (!File.Exists(inputPath))
         {
             await error.WriteLineAsync($"Input file was not found: {inputPath}");
@@ -59,6 +63,54 @@ public static class CliApplication
         }
     }
 
+    private static ParsedCommand ParseArguments(string[] args)
+    {
+        if (args.Length == 1 && !IsOption(args[0]))
+        {
+            return new ParsedCommand(args[0], null);
+        }
+
+        if (args.Length > 0 && string.Equals(args[0], "--format", StringComparison.Ordinal))
+        {
+            if (args.Length == 1)
+            {
+                return new ParsedCommand(null, "Missing value for --format.");
+            }
+
+            var format = args[1];
+            if (!string.Equals(format, SupportedFormat, StringComparison.OrdinalIgnoreCase))
+            {
+                return new ParsedCommand(null, $"Unsupported input format: {format}");
+            }
+
+            if (args.Length == 2)
+            {
+                return new ParsedCommand(null, "Missing input file.");
+            }
+
+            if (args.Length > 3)
+            {
+                return new ParsedCommand(null, "Too many arguments were provided.");
+            }
+
+            return IsOption(args[2])
+                ? new ParsedCommand(null, $"Unexpected option: {args[2]}")
+                : new ParsedCommand(args[2], null);
+        }
+
+        return new ParsedCommand(null, "Invalid command arguments.");
+    }
+
+    private static bool IsOption(string value) =>
+        value.Length > 0 && value[0] == '-';
+
+    private static async Task WriteUsage(TextWriter error)
+    {
+        await error.WriteLineAsync("Usage: replaylab <file>");
+        await error.WriteLineAsync($"Usage: replaylab --format {SupportedFormat} <file>");
+        await error.WriteLineAsync($"Supported formats: {SupportedFormat}");
+    }
+
     private static async Task WriteInspectionSummary(TextWriter output, ReplayBatch batch)
     {
         await output.WriteLineAsync($"Loaded {batch.Messages.Count} message(s).");
@@ -85,4 +137,6 @@ public static class CliApplication
             await output.WriteLineAsync($"- {result.MessageId}: {status}{details}");
         }
     }
+
+    private sealed record ParsedCommand(string? InputPath, string? ErrorMessage);
 }

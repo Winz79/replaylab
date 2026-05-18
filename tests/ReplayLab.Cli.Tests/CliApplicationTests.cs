@@ -29,6 +29,27 @@ public class CliApplicationTests
     }
 
     [Fact]
+    public async Task RunAsync_replays_valid_csv_when_format_csv_is_explicit()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            Updated,beta
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(["--format", "csv", csvPath], output, error);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("Loaded 2 message(s).", output.ToString());
+        Assert.Contains("Inspected 2 message(s).", output.ToString());
+        Assert.Contains("Sent 2 message(s): 2 succeeded, 0 failed.", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
+    [Fact]
     public async Task RunAsync_returns_non_zero_when_file_argument_is_missing()
     {
         using var output = new StringWriter();
@@ -38,6 +59,47 @@ public class CliApplicationTests
 
         Assert.NotEqual(0, exitCode);
         Assert.Contains("Usage: replaylab <file>", error.ToString());
+    }
+
+    [Fact]
+    public async Task RunAsync_returns_non_zero_when_format_option_is_missing_a_value()
+    {
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(["--format"], output, error);
+
+        Assert.NotEqual(0, exitCode);
+        Assert.Equal(string.Empty, output.ToString());
+        Assert.Contains("Missing value for --format.", error.ToString());
+        Assert.Contains("Supported formats: csv", error.ToString());
+        Assert.Contains("Usage: replaylab <file>", error.ToString());
+        Assert.Contains("Usage: replaylab --format csv <file>", error.ToString());
+    }
+
+    [Fact]
+    public async Task RunAsync_returns_non_zero_when_format_is_unsupported_before_parsing_or_replay()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(
+            ["--format", "json", csvPath],
+            output,
+            error,
+            parser: new ThrowingParser(),
+            sender: new ThrowingSender());
+
+        Assert.NotEqual(0, exitCode);
+        Assert.Equal(string.Empty, output.ToString());
+        Assert.Contains("Unsupported input format: json", error.ToString());
+        Assert.Contains("Supported formats: csv", error.ToString());
+        Assert.Contains("Usage: replaylab --format csv <file>", error.ToString());
     }
 
     [Fact]
@@ -125,6 +187,24 @@ public class CliApplicationTests
             return Task.FromResult(message.Id == "record-2"
                 ? new ReplayResult(false, message.Id, "Synthetic replay failure")
                 : new ReplayResult(true, message.Id));
+        }
+    }
+
+    private sealed class ThrowingParser : IMessageParser
+    {
+        public Task<ReplayBatch> ParseAsync(Stream input, CancellationToken cancellationToken = default)
+        {
+            throw new InvalidOperationException("Parser should not be called for invalid arguments.");
+        }
+    }
+
+    private sealed class ThrowingSender : IReplaySender
+    {
+        public Task<ReplayResult> SendAsync(
+            ReplayMessage message,
+            CancellationToken cancellationToken = default)
+        {
+            throw new InvalidOperationException("Sender should not be called for invalid arguments.");
         }
     }
 }
