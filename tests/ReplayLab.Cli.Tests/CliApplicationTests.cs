@@ -235,6 +235,28 @@ public class CliApplicationTests
     }
 
     [Fact]
+    public async Task RunAsync_returns_non_zero_when_http_sender_endpoint_url_scheme_is_not_http_or_https()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(
+            ["--sender", "http", "--endpoint-url", "ftp://example.test/replay", csvPath],
+            output,
+            error);
+
+        Assert.Equal(2, exitCode);
+        Assert.Equal(string.Empty, output.ToString());
+        Assert.Contains("Invalid endpoint URL: ftp://example.test/replay", error.ToString());
+        Assert.Contains("Usage: replaylab --sender http --endpoint-url <url> <file>", error.ToString());
+    }
+
+    [Fact]
     public async Task RunAsync_uses_http_sender_when_selected_and_endpoint_url_is_provided()
     {
         var csvPath = CreateTempCsv("""

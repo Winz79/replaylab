@@ -134,6 +134,15 @@ public static class CliApplication
             return new ParsedCommand(null, null, null, $"Invalid endpoint URL: {endpointUrl}");
         }
 
+        if (string.Equals(senderName, HttpSender, StringComparison.OrdinalIgnoreCase) &&
+            !string.IsNullOrWhiteSpace(endpointUrl) &&
+            Uri.TryCreate(endpointUrl, UriKind.Absolute, out var endpointUri) &&
+            !string.Equals(endpointUri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(endpointUri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            return new ParsedCommand(null, null, null, $"Invalid endpoint URL: {endpointUrl}");
+        }
+
         return new ParsedCommand(
             unmatchedTokens[0],
             senderName.ToLowerInvariant(),
