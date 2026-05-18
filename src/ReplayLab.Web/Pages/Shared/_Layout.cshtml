@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ReplayLab Web</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ReplayLab.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="shell-header">
+        <div class="shell-frame">
+            <a class="brand" asp-area="" asp-page="/Index">ReplayLab Web</a>
+            <p class="shell-caption">Local Razor Pages UI for the M5 upload, preview, and mock replay slice.</p>
+        </div>
+    </header>
+
+    <div class="shell-frame">
+        <main role="main" class="shell-main">
+            @RenderBody()
+        </main>
+    </div>
+</body>
+</html>

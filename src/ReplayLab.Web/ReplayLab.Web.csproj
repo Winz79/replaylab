@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReplayLab.Adapters.Mock\ReplayLab.Adapters.Mock.csproj" />
+    <ProjectReference Include="..\ReplayLab.Core\ReplayLab.Core.csproj" />
+    <ProjectReference Include="..\ReplayLab.Parsers.Csv\ReplayLab.Parsers.Csv.csproj" />
+  </ItemGroup>
+
+</Project>

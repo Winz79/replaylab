@@ -1,0 +1,97 @@
+@page
+@model ReplayLab.Web.Pages.IndexModel
+@{
+    ViewData["Title"] = "ReplayLab Web";
+}
+
+<section class="hero">
+    <p class="eyebrow">M5 local-only workflow</p>
+    <h1>ReplayLab Web</h1>
+    <p class="lede">
+        Upload a synthetic CSV file, preview the parsed messages, and run a mock replay without
+        changing existing CLI or adapter behavior.
+    </p>
+    <p class="local-note">
+        This Razor Pages UI is local-only and keeps uploaded CSV content in short-lived workflow state.
+    </p>
+</section>
+
+<section class="panel">
+    <div class="panel-header">
+        <div>
+            <h2>Upload CSV</h2>
+            <p>Browser upload is the only M5 input flow.</p>
+        </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" class="stack">
+        @Html.AntiForgeryToken()
+        <label class="field">
+            <span>CSV file</span>
+            <input asp-for="Upload" type="file" accept=".csv,text/csv" />
+        </label>
+        <button type="submit" class="action">Preview parsed messages</button>
+    </form>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="feedback error" role="alert">@Model.ErrorMessage</div>
+    }
+</section>
+
+@if (Model.PreviewMessages.Count > 0)
+{
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Parsed message preview</h2>
+                <p>@Model.PreviewMessages.Count message(s) parsed with the existing CSV parser.</p>
+            </div>
+
+            <form method="post" asp-page-handler="Replay">
+                @Html.AntiForgeryToken()
+                <input asp-for="UploadedCsv" type="hidden" />
+                <button type="submit" class="action secondary">Run mock replay</button>
+            </form>
+        </div>
+
+        <ul class="message-list">
+            @foreach (var message in Model.PreviewMessages)
+            {
+                <li class="message-card">
+                    <div class="message-meta">@message.Id</div>
+                    <pre>@message.Payload</pre>
+                </li>
+            }
+        </ul>
+    </section>
+}
+
+@if (Model.Summary is not null)
+{
+    <section class="panel">
+        <div class="panel-header">
+            <div>
+                <h2>Replay results</h2>
+                <p>Sent @Model.Summary.Total message(s): @Model.Summary.Succeeded succeeded, @Model.Summary.Failed failed.</p>
+            </div>
+        </div>
+
+        <ul class="result-list">
+            @foreach (var result in Model.ReplayResults)
+            {
+                <li class="result-card">
+                    <div>
+                        <strong>@result.MessageId</strong>
+                        <div class="result-status @result.Status.ToString().ToLowerInvariant()">@result.Status</div>
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(result.ErrorMessage))
+                    {
+                        <p class="result-error">@result.ErrorMessage</p>
+                    }
+                </li>
+            }
+        </ul>
+    </section>
+}
