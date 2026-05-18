@@ -96,6 +96,40 @@ The CLI returns `0` when all parsed messages are replayed successfully. It
 returns non-zero for command-level failures such as a missing file, invalid CSV,
 or replay failures.
 
+## Local Executable Publish
+
+ReplayLab's first local executable distribution path is a framework-dependent
+publish of `ReplayLab.Cli`. This keeps M2 focused on a local, repeatable output
+folder and assumes the required .NET runtime is available on the machine.
+
+Publish the CLI:
+
+```powershell
+dotnet publish src/ReplayLab.Cli/ReplayLab.Cli.csproj --configuration Release --output ./artifacts/publish/replaylab
+```
+
+Run the published executable against the synthetic sample:
+
+```powershell
+./artifacts/publish/replaylab/ReplayLab.Cli.exe samples/basic.csv
+```
+
+On non-Windows systems, run the apphost without the `.exe` extension:
+
+```bash
+./artifacts/publish/replaylab/ReplayLab.Cli samples/basic.csv
+```
+
+To publish and verify the sample output in one step:
+
+```powershell
+./eng/verify-published-cli.ps1
+```
+
+This local publish path does not add Docker images, NuGet publishing, GitHub
+release automation, a Web UI, HTTP senders, WCF/private adapters, persistence,
+or configuration DSL support.
+
 ## CSV Parser Limitations
 
 The current CSV parser is intentionally minimal. It is a first slice for loading
