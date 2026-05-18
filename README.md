@@ -1,6 +1,6 @@
 # ReplayLab
 
-ReplayLab is an early-stage .NET toolkit for loading structured replay messages and sending them through configurable adapters. The current repository is focused on the public foundation: generic core contracts, a CSV parser slice, a mock sender adapter, tests, and a placeholder CLI project.
+ReplayLab is an early-stage .NET toolkit for loading structured replay messages and sending them through configurable adapters. The current repository is focused on the public foundation: generic core contracts, a CSV parser slice, a mock sender adapter, tests, and a first CLI preview.
 
 ## What ReplayLab Is
 
@@ -27,7 +27,7 @@ Implemented today:
 - `ReplayLab.Core` with generic replay models and contracts.
 - `ReplayLab.Parsers.Csv` with a deliberately small first CSV parser slice.
 - `ReplayLab.Adapters.Mock` with a sender adapter for tests and local development.
-- `ReplayLab.Cli` as a placeholder console entry point.
+- `ReplayLab.Cli` with a first usable CSV-to-mock-sender preview flow.
 - xUnit tests for core, the CSV parser, and the mock adapter.
 - GitHub Actions CI for restore, build, and test.
 
@@ -67,6 +67,34 @@ Private integrations belong outside this repository. A private integration can c
 4. Send through a private adapter outside the public repository.
 
 WCF and business-specific adapters are intentionally excluded from this repository.
+
+## CLI Preview
+
+The current CLI preview accepts one CSV file path, parses it with the CSV
+parser, prints a concise inspection summary, replays the messages through the
+mock sender, and prints a replay summary.
+
+Run the preview against the synthetic sample:
+
+```powershell
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
+```
+
+Expected output shape:
+
+```text
+Loaded 2 message(s).
+Inspected 2 message(s).
+- record-1: payload 70 character(s)
+- record-2: payload 70 character(s)
+Sent 2 message(s): 2 succeeded, 0 failed.
+- record-1: succeeded
+- record-2: succeeded
+```
+
+The CLI returns `0` when all parsed messages are replayed successfully. It
+returns non-zero for command-level failures such as a missing file, invalid CSV,
+or replay failures.
 
 ## CSV Parser Limitations
 
