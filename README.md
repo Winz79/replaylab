@@ -70,7 +70,8 @@ WCF and business-specific adapters are intentionally excluded from this reposito
 
 ## CSV Parser Limitations
 
-The current CSV parser is a first slice, not a complete RFC 4180 implementation.
+The current CSV parser is intentionally minimal. It is a first slice for loading
+tiny structured replay inputs, not a complete RFC 4180 implementation.
 
 Current behavior and limitations:
 
@@ -78,13 +79,21 @@ Current behavior and limitations:
 - Blank lines are ignored.
 - Lines whose first non-whitespace character is `#` are ignored as comments.
 - Each data row is split on commas.
-- Quoted fields are rejected.
+- Quoted fields are not supported in the first slice and are rejected.
 - Escaped quotes are not supported.
 - Embedded commas inside fields are not supported.
 - Embedded newlines inside fields are not supported.
+- Full RFC 4180 compliance is not currently supported.
 - Header names are used as JSON property names exactly as written.
 - Duplicate header names are not detected; later values overwrite earlier values in the generated payload object.
 - All payload values are serialized as strings.
+- Each parsed message uses the whole CSV row as a JSON payload object.
+- `ReplayMessage.Headers` remains empty by default.
+- Dynamic header mapping from CSV columns is deferred to a later mapping/configuration feature.
+- Private, proprietary, customer-specific, and business-specific mappings are out of scope for this repository.
+
+Synthetic sample files live in `samples/`. They are generic examples only and
+avoid quoted fields, embedded commas, and business-specific data.
 
 ## Build and Test
 
