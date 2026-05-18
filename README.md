@@ -1,2 +1,104 @@
-# replaylab
-Lightweight replay/testing toolkit for loading structured messages and replaying them through configurable adapters.
+# ReplayLab
+
+ReplayLab is an early-stage .NET toolkit for loading structured replay messages and sending them through configurable adapters. The current repository is focused on the public foundation: generic core contracts, a CSV parser slice, a mock sender adapter, tests, and a placeholder CLI project.
+
+## What ReplayLab Is
+
+- A small, open-source-friendly replay/testing foundation.
+- A set of generic message, batch, parser, and sender contracts.
+- A place for public parser and adapter packages that do not depend on business-specific systems.
+- A testable scaffold for future vertical slices.
+
+## What ReplayLab Is Not
+
+- It is not a production replay engine yet.
+- It does not provide a UI.
+- It does not provide Docker assets.
+- It does not include an HTTP sender.
+- It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
+- It does not contain private mapping rules or business contract models.
+
+## Current Status
+
+ReplayLab is a foundation scaffold. The solution currently targets `net10.0` and is pinned with `global.json` to the installed .NET SDK line used for this repository.
+
+Implemented today:
+
+- `ReplayLab.Core` with generic replay models and contracts.
+- `ReplayLab.Parsers.Csv` with a deliberately small first CSV parser slice.
+- `ReplayLab.Adapters.Mock` with a sender adapter for tests and local development.
+- `ReplayLab.Cli` as a placeholder console entry point.
+- xUnit tests for core, the CSV parser, and the mock adapter.
+- GitHub Actions CI for restore, build, and test.
+
+## Architecture Overview
+
+The dependency direction is intentionally simple:
+
+```text
+ReplayLab.Core
+  ^          ^
+  |          |
+Parsers   Adapters
+  ^
+  |
+Applications such as CLI or future composition hosts
+```
+
+`ReplayLab.Core` owns generic contracts and models:
+
+- `ReplayMessage`
+- `ReplayBatch`
+- `ReplayResult`
+- `IMessageParser`
+- `IReplaySender`
+
+Parser and adapter projects depend on core. Core must not depend on parser implementations, sender implementations, UI, Docker, WCF, persistence, or business-specific packages.
+
+## Public vs Private Adapter Boundary
+
+Public ReplayLab adapters should stay generic and reusable. They may depend on public protocols, public data formats, or local test utilities, but they should not encode private business semantics.
+
+Private integrations belong outside this repository. A private integration can compose ReplayLab like this:
+
+1. Parse public input into generic `ReplayMessage` values.
+2. Apply private mapping rules outside the public repository.
+3. Create private business contract objects outside the public repository.
+4. Send through a private adapter outside the public repository.
+
+WCF and business-specific adapters are intentionally excluded from this repository.
+
+## CSV Parser Limitations
+
+The current CSV parser is a first slice, not a complete RFC 4180 implementation.
+
+Current behavior and limitations:
+
+- The first non-empty, non-comment line is treated as the header row.
+- Blank lines are ignored.
+- Lines whose first non-whitespace character is `#` are ignored as comments.
+- Each data row is split on commas.
+- Quoted fields are rejected.
+- Escaped quotes are not supported.
+- Embedded commas inside fields are not supported.
+- Embedded newlines inside fields are not supported.
+- Header names are used as JSON property names exactly as written.
+- Duplicate header names are not detected; later values overwrite earlier values in the generated payload object.
+- All payload values are serialized as strings.
+
+## Build and Test
+
+Use the pinned SDK from `global.json`:
+
+```powershell
+dotnet --info
+dotnet restore ReplayLab.sln
+dotnet build ReplayLab.sln --configuration Release --no-restore
+dotnet test ReplayLab.sln --configuration Release --no-build
+```
+
+For a single command during local development:
+
+```powershell
+dotnet test ReplayLab.sln
+```
