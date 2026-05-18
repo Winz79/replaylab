@@ -35,7 +35,7 @@ public sealed class SequentialReplayEngine
                     Elapsed = stopwatch.Elapsed
                 });
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }

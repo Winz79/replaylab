@@ -123,6 +123,38 @@ public class SequentialReplayEngineTests
         Assert.Equal(["message-1"], sender.SentMessageIds);
     }
 
+    [Fact]
+    public async Task ReplayAsync_captures_sender_cancellation_when_replay_token_was_not_canceled()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("message-1", "{}"),
+            new ReplayMessage("message-2", "{}"),
+            new ReplayMessage("message-3", "{}")
+        };
+        var sender = new RecordingReplaySender(message =>
+        {
+            if (message.Id == "message-2")
+            {
+                throw new TaskCanceledException("Sender timed out");
+            }
+
+            return Task.FromResult(new ReplayResult(true, message.Id));
+        });
+        var engine = new SequentialReplayEngine(sender);
+
+        var results = await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Equal(["message-1", "message-2", "message-3"], sender.SentMessageIds);
+        Assert.Equal(3, results.Count);
+        Assert.False(results[1].Success);
+        Assert.Equal(ReplayResultStatus.Failed, results[1].Status);
+        Assert.Equal("Sender timed out", results[1].ErrorMessage);
+        Assert.Equal(typeof(TaskCanceledException).FullName, results[1].ExceptionType);
+        Assert.Equal("message-2", results[1].MessageId);
+        Assert.True(results[2].Success);
+    }
+
     private sealed class RecordingReplaySender(
         Func<ReplayMessage, Task<ReplayResult>>? send = null) : IReplaySender
     {
