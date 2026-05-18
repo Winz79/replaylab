@@ -65,18 +65,18 @@ public static class CliApplication
 
     private static ParsedCommand ParseArguments(string[] args)
     {
-        if (args.Length == 1 && !IsOption(args[0]))
+        if (args.Length == 1)
         {
+            if (string.Equals(args[0], "--format", StringComparison.Ordinal))
+            {
+                return new ParsedCommand(null, "Missing value for --format.");
+            }
+
             return new ParsedCommand(args[0], null);
         }
 
         if (args.Length > 0 && string.Equals(args[0], "--format", StringComparison.Ordinal))
         {
-            if (args.Length == 1)
-            {
-                return new ParsedCommand(null, "Missing value for --format.");
-            }
-
             var format = args[1];
             if (!string.Equals(format, SupportedFormat, StringComparison.OrdinalIgnoreCase))
             {
@@ -93,16 +93,11 @@ public static class CliApplication
                 return new ParsedCommand(null, "Too many arguments were provided.");
             }
 
-            return IsOption(args[2])
-                ? new ParsedCommand(null, $"Unexpected option: {args[2]}")
-                : new ParsedCommand(args[2], null);
+            return new ParsedCommand(args[2], null);
         }
 
         return new ParsedCommand(null, "Invalid command arguments.");
     }
-
-    private static bool IsOption(string value) =>
-        value.Length > 0 && value[0] == '-';
 
     private static async Task WriteUsage(TextWriter error)
     {
