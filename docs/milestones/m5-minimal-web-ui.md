@@ -65,7 +65,10 @@ configuration, or private-adapter boundaries.
 - Browser CSV upload is the only M5 input flow.
 - Use the existing CSV parser.
 - Use the existing mock sender.
-- Do not persist uploaded files, parsed messages, or replay results.
+- Keep uploaded CSV contents, parsed messages, and replay results in short-lived
+  local workflow state only when needed for the upload → preview → replay flow.
+- Do not add durable persistence, database storage, uploaded file storage,
+  saved replay history, background processing, or multi-user workflow state.
 - Keep product behavior outside the Web UI unchanged.
 
 ### Success Criteria
@@ -191,7 +194,9 @@ parsed by the existing CSV parser.
 - Parse uploaded CSV content with `CsvReplayMessageParser`.
 - Show parsed message IDs and payload previews.
 - Show clear validation or parse errors in the page.
-- Keep replay results in request-scoped workflow state only as needed to render the result page.
+- Keep uploaded content in short-lived local workflow state only as needed for
+  the upload → preview flow.
+- Do not persist uploaded files or parsed messages to disk or a database.
 - Use synthetic CSV examples in tests and documentation references.
 
 **Acceptance Criteria:**
@@ -255,8 +260,9 @@ existing mock replay flow and see per-message results.
 - Run replay only for messages produced by the browser CSV upload flow.
 - Show per-message replay status and message IDs.
 - Show a concise success/failure summary.
-- Keep replay results in local request/session workflow state only as needed to
+- Keep replay results in short-lived local workflow state only as needed to
   render the result page.
+- Do not persist replay results, saved history, or background job state.
 
 **Acceptance Criteria:**
 

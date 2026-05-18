@@ -26,8 +26,11 @@ The app is local-only. Users upload a CSV file through the browser, the app
 parses it with the existing CSV parser, replays messages through the existing
 mock sender, and shows preview and replay results in the browser.
 
-M5 will not add persistence. Uploaded CSV contents, parsed messages, and replay
-results are request-scoped workflow data only for the local UI slice.
+M5 will not add durable persistence. Uploaded CSV contents, parsed messages,
+and replay results may be kept in short-lived local workflow state only when
+needed to support the upload → preview → replay flow. M5 must not add database
+storage, uploaded file storage, saved replay history, background processing, or
+multi-user workflow state.
 
 ## Rationale
 
@@ -38,8 +41,8 @@ replay, and result display.
 
 Using the existing CSV parser and mock sender keeps M5 focused on UI
 composition rather than new replay semantics. Keeping the app local-only and
-stateless avoids premature decisions about authentication, storage, deployment,
-multi-user behavior, and long-running jobs.
+limited to short-lived workflow state avoids premature decisions about
+authentication, storage, deployment, multi-user behavior, and long-running jobs.
 
 ## Consequences
 
@@ -51,7 +54,8 @@ multi-user behavior, and long-running jobs.
   workflow.
 - Defer HTTP sender exposure in the UI even if the HTTP sender exists in the
   solution.
-- Do not add persistence or background processing for M5.
+- Do not add durable persistence, saved history, uploaded file storage,
+  database storage, multi-user workflow state, or background processing for M5.
 
 ## Alternatives Considered
 
