@@ -1,3 +1,4 @@
+using ReplayLab.Adapters.Mock;
 using ReplayLab.Cli;
 using ReplayLab.Core;
 
@@ -196,6 +197,68 @@ public class CliApplicationTests
         Assert.Equal(string.Empty, error.ToString());
     }
 
+    [Fact]
+    public async Task RunAsync_returns_non_zero_when_sender_name_is_unsupported()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(["--sender", "ftp", csvPath], output, error);
+
+        Assert.Equal(2, exitCode);
+        Assert.Equal(string.Empty, output.ToString());
+        Assert.Contains("Unsupported sender: ftp", error.ToString());
+        Assert.Contains("--sender", error.ToString());
+    }
+
+    [Fact]
+    public async Task RunAsync_returns_non_zero_when_http_sender_is_missing_endpoint_url()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(["--sender", "http", csvPath], output, error);
+
+        Assert.Equal(2, exitCode);
+        Assert.Equal(string.Empty, output.ToString());
+        Assert.Contains("The --endpoint-url option is required when --sender http is selected.", error.ToString());
+    }
+
+    [Fact]
+    public async Task RunAsync_uses_http_sender_when_selected_and_endpoint_url_is_provided()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """);
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+        var factory = new RecordingSenderFactory();
+
+        var exitCode = await CliApplication.RunAsync(
+            ["--sender", "http", "--endpoint-url", "https://example.test/replay", csvPath],
+            output,
+            error,
+            senderFactory: factory);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal("http", factory.SelectedSender);
+        Assert.Equal(new Uri("https://example.test/replay"), factory.EndpointUrl);
+        Assert.Contains("Sent 1 message(s): 1 succeeded, 0 failed.", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
     private static string CreateTempCsv(string contents, string fileNamePrefix = "")
     {
         var path = Path.Combine(Path.GetTempPath(), $"{fileNamePrefix}{Guid.NewGuid():N}.csv");
@@ -243,6 +306,26 @@ public class CliApplicationTests
             CancellationToken cancellationToken = default)
         {
             throw new InvalidOperationException("Sender should not be called for invalid arguments.");
+        }
+    }
+
+    private sealed class RecordingSenderFactory : IReplaySenderFactory
+    {
+        public string? SelectedSender { get; private set; }
+
+        public Uri? EndpointUrl { get; private set; }
+
+        public IReplaySender CreateMockSender()
+        {
+            SelectedSender = "mock";
+            return new MockReplaySender();
+        }
+
+        public IReplaySender CreateHttpSender(Uri endpointUrl)
+        {
+            SelectedSender = "http";
+            EndpointUrl = endpointUrl;
+            return new MockReplaySender();
         }
     }
 }

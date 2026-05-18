@@ -14,7 +14,7 @@ ReplayLab is an early-stage .NET toolkit for loading structured replay messages 
 - It is not a production replay engine yet.
 - It does not provide a UI.
 - It does not provide Docker assets.
-- It does not include an HTTP sender.
+- It does not include a production-ready HTTP sender.
 - It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
 - It does not contain private mapping rules or business contract models.
 
@@ -27,7 +27,8 @@ Implemented today:
 - `ReplayLab.Core` with generic replay models and contracts.
 - `ReplayLab.Parsers.Csv` with a deliberately small first CSV parser slice.
 - `ReplayLab.Adapters.Mock` with a sender adapter for tests and local development.
-- `ReplayLab.Cli` with a first usable CSV-to-mock-sender preview flow.
+- `ReplayLab.Adapters.Http` with a minimal HTTP POST preview sender.
+- `ReplayLab.Cli` with CSV-to-mock and CSV-to-HTTP preview flows.
 - xUnit tests for core, the CSV parser, and the mock adapter.
 - GitHub Actions CI for restore, build, and test.
 
@@ -70,10 +71,10 @@ WCF and business-specific adapters are intentionally excluded from this reposito
 
 ## CLI Preview
 
-The current CLI preview accepts either one CSV file path or an explicit CSV
-format plus a file path, parses it with the CSV parser, prints a concise
-inspection summary, replays the messages through the mock sender, and prints a
-replay summary.
+The current CLI preview accepts one CSV file path, an explicit CSV format plus
+a file path, or an HTTP sender selection with an endpoint URL. It parses the
+CSV input, prints a concise inspection summary, replays the messages through
+the selected sender, and prints a replay summary.
 
 Run the preview against the synthetic sample:
 
@@ -87,6 +88,21 @@ Or use the explicit M3 format option:
 dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --format csv samples/basic.csv
 ```
 
+Use the HTTP preview sender against a local endpoint:
+
+```powershell
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --sender http --endpoint-url http://localhost:5087/ samples/basic.csv
+```
+
+The HTTP preview is intentionally narrow:
+
+- sender selection is `mock` or `http`
+- mock remains the default sender
+- HTTP sends `POST` requests only
+- the request body is `ReplayMessage.Payload`
+- the default request `Content-Type` is `application/json`
+- method selection, header mapping, body mapping, response capture, auth, certificates, retries, config files, and Docker remain out of scope for M4
+
 Expected output shape:
 
 ```text
@@ -99,9 +115,34 @@ Sent 2 message(s): 2 succeeded, 0 failed.
 - record-2: succeeded
 ```
 
+Expected HTTP success output shape:
+
+```text
+Loaded 2 message(s).
+Inspected 2 message(s).
+- record-1: payload 70 character(s)
+- record-2: payload 70 character(s)
+Sent 2 message(s): 2 succeeded, 0 failed.
+- record-1: succeeded
+- record-2: succeeded
+```
+
+Expected HTTP failure output shape:
+
+```text
+Loaded 2 message(s).
+Inspected 2 message(s).
+- record-1: payload 70 character(s)
+- record-2: payload 70 character(s)
+Sent 2 message(s): 0 succeeded, 2 failed.
+- record-1: failed - [platform-specific connection error]
+- record-2: failed - [platform-specific connection error]
+```
+
 The CLI returns `0` when all parsed messages are replayed successfully. It
 returns non-zero for command-level failures such as a missing file, invalid CSV,
-unsupported input format, or replay failures.
+unsupported input format, unsupported sender, missing endpoint URL, or replay
+failures.
 
 ## Local Executable Publish
 
@@ -151,6 +192,8 @@ or configuration DSL support.
 
 Both command shapes keep the mock sender as the default sender. Unsupported
 formats fail early with a clear non-zero CLI error before parsing or replay.
+Unsupported senders and missing HTTP endpoint URLs also fail early with exit
+code `2`.
 
 ## CSV Parser Limitations
 

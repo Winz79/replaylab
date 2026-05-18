@@ -135,6 +135,32 @@ public sealed class CliEndToEndSmokeTests
         Assert.Contains("Usage: replaylab --format csv <file>", result.StandardError);
     }
 
+    [Fact]
+    public async Task Cli_process_returns_non_zero_for_unsupported_sender()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var samplePath = Path.Combine(repoRoot, "samples", "basic.csv");
+
+        var result = await RunCliProcessAsync(repoRoot, ["--sender", "ftp", samplePath]);
+
+        Assert.Equal(2, result.ExitCode);
+        Assert.Equal(string.Empty, result.StandardOutput);
+        Assert.Contains("Unsupported sender: ftp", result.StandardError);
+    }
+
+    [Fact]
+    public async Task Cli_process_returns_non_zero_when_http_sender_is_missing_endpoint_url()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var samplePath = Path.Combine(repoRoot, "samples", "basic.csv");
+
+        var result = await RunCliProcessAsync(repoRoot, ["--sender", "http", samplePath]);
+
+        Assert.Equal(2, result.ExitCode);
+        Assert.Equal(string.Empty, result.StandardOutput);
+        Assert.Contains("The --endpoint-url option is required when --sender http is selected.", result.StandardError);
+    }
+
     private static async Task<CliProcessResult> RunCliProcessAsync(
         string repoRoot,
         IReadOnlyList<string> arguments)
