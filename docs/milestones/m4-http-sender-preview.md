@@ -27,6 +27,7 @@ adapter concepts.
   - `docs/adr/0002-separate-core-from-adapters.md`
   - `docs/adr/0004-architecture-style.md`
   - `docs/adr/0005-distribution-strategy.md`
+  - `docs/adr/0006-cli-parsing-strategy.md`
 - Recent completed work:
   - M3 added `replaylab --format csv <file>` while keeping
     `replaylab <file>`.
@@ -34,10 +35,10 @@ adapter concepts.
     unsupported format validation, M3 usage docs, and synthetic examples.
   - Recent merged PRs include M3 command-shape coverage, M3 sample usage, and
     documentation cleanup before M4 planning.
-- Open dependency:
-  - GitHub issue #31, "Decision: define CLI parsing strategy before adding more
-    options", should remain the first M4 issue because sender selection is the
-    next CLI option pressure point.
+- Resolved dependency:
+  - `docs/adr/0006-cli-parsing-strategy.md` records that ReplayLab should adopt
+    `System.CommandLine` before implementing M4 sender selection such as
+    `--sender http`.
 
 ## Revised M4 Scope
 
@@ -50,7 +51,8 @@ adapter concepts.
 - Default `Content-Type` of `application/json`.
 - Per-message `ReplayResult` values for HTTP success, non-success status codes,
   request exceptions, and cancellation.
-- CLI sender selection after issue #31 resolves the parsing strategy.
+- CLI sender selection after `docs/adr/0006-cli-parsing-strategy.md` is in
+  place.
 - A local synthetic preview workflow using public sample data.
 
 ### Out Of Scope
@@ -77,7 +79,8 @@ adapter concepts.
   `ReplayLab.Adapters.Http`.
 - M4 should reuse the M3 command/configuration direction and should not invent a
   second configuration model.
-- Any CLI parsing change needed for sender selection should follow issue #31.
+- Any CLI parsing change needed for sender selection should follow
+  `docs/adr/0006-cli-parsing-strategy.md`.
 - Tests should not require external network services. HTTP behavior should be
   covered with an in-process `HttpMessageHandler` test double or local fixture.
 - HTTP result semantics should stay inside the minimal adapter issue unless a
@@ -103,8 +106,6 @@ creates a reusable precedent.
 
 Candidate decisions:
 
-- CLI parsing strategy before adding sender options. This may close or supersede
-  issue #31.
 - Core result model change, only if the minimal HTTP sender cannot report useful
   status information through existing `ReplayResult` fields.
 
@@ -123,11 +124,10 @@ Non-candidates for M4:
 
 ### Slice 1: CLI Parsing Decision
 
-Resolve issue #31 before adding sender selection.
+This slice is resolved by `docs/adr/0006-cli-parsing-strategy.md`.
 
-This slice should decide whether M4 can keep manual parsing for one small HTTP
-sender option plus endpoint URL, or whether the project should adopt a
-command-line parsing package first.
+M4 should adopt `System.CommandLine` before adding sender selection rather than
+extend the current manual parser.
 
 ### Slice 2: Minimal HTTP POST Sender
 
@@ -182,7 +182,7 @@ Keep M5 and M6 directional only.
 
 - `docs/prd/0005-cli-experience.md`
 - `docs/retrospectives/m3-configurable-replay-inputs.md`
-- GitHub issue #31
+- `docs/adr/0006-cli-parsing-strategy.md`
 
 **Implementation Notes:**
 
@@ -412,7 +412,8 @@ synthetic data and public tooling only.
 
 ## Recommended Sequence
 
-1. Resolve issue #31 and record the CLI parsing strategy.
+1. Follow `docs/adr/0006-cli-parsing-strategy.md` for CLI parser migration
+   before sender selection work.
 2. Add the minimal HTTP POST adapter with result semantics covered in adapter
    tests.
 3. Add CLI sender selection using the chosen parsing approach.
