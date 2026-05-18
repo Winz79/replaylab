@@ -37,6 +37,34 @@ public sealed class CliEndToEndSmokeTests
     }
 
     [Fact]
+    public async Task Cli_process_accepts_single_file_argument_that_starts_with_dash()
+    {
+        var repoRoot = FindRepositoryRoot();
+        var csvPath = Path.Combine(Path.GetTempPath(), $"-{Guid.NewGuid():N}.csv");
+        await File.WriteAllTextAsync(csvPath, """
+            kind,name
+            Created,alpha
+            """);
+
+        try
+        {
+            var result = await RunCliProcessAsync(repoRoot, [csvPath]);
+
+            Assert.Equal(0, result.ExitCode);
+            Assert.Contains("Loaded 1 message(s).", result.StandardOutput);
+            Assert.Contains("Sent 1 message(s): 1 succeeded, 0 failed.", result.StandardOutput);
+            Assert.Equal(string.Empty, result.StandardError);
+        }
+        finally
+        {
+            if (File.Exists(csvPath))
+            {
+                File.Delete(csvPath);
+            }
+        }
+    }
+
+    [Fact]
     public async Task Cli_process_returns_non_zero_for_missing_input_file()
     {
         var repoRoot = FindRepositoryRoot();

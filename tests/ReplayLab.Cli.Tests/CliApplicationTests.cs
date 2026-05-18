@@ -50,6 +50,44 @@ public class CliApplicationTests
     }
 
     [Fact]
+    public async Task RunAsync_accepts_single_file_argument_that_starts_with_dash()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """, fileNamePrefix: "-sample-");
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync([csvPath], output, error);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("Loaded 1 message(s).", output.ToString());
+        Assert.Contains("Sent 1 message(s): 1 succeeded, 0 failed.", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
+    [Fact]
+    public async Task RunAsync_accepts_explicit_format_with_file_argument_that_starts_with_dash()
+    {
+        var csvPath = CreateTempCsv("""
+            kind,name
+            Created,alpha
+            """, fileNamePrefix: "-sample-");
+        await using var context = new TempFileContext(csvPath);
+        using var output = new StringWriter();
+        using var error = new StringWriter();
+
+        var exitCode = await CliApplication.RunAsync(["--format", "csv", csvPath], output, error);
+
+        Assert.Equal(0, exitCode);
+        Assert.Contains("Loaded 1 message(s).", output.ToString());
+        Assert.Contains("Sent 1 message(s): 1 succeeded, 0 failed.", output.ToString());
+        Assert.Equal(string.Empty, error.ToString());
+    }
+
+    [Fact]
     public async Task RunAsync_returns_non_zero_when_file_argument_is_missing()
     {
         using var output = new StringWriter();
@@ -158,9 +196,9 @@ public class CliApplicationTests
         Assert.Equal(string.Empty, error.ToString());
     }
 
-    private static string CreateTempCsv(string contents)
+    private static string CreateTempCsv(string contents, string fileNamePrefix = "")
     {
-        var path = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.csv");
+        var path = Path.Combine(Path.GetTempPath(), $"{fileNamePrefix}{Guid.NewGuid():N}.csv");
         File.WriteAllText(path, contents);
         return path;
     }
