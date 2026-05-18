@@ -29,9 +29,10 @@
 
 ## Playbooks
 
-Agents should use `.ai/playbooks/` before asking for custom instructions.
+Agents should use `.ai/playbooks/` before asking for custom instructions or inventing a new workflow.
 
 - Use `plan-milestone.md` for milestone planning.
+- Use `create-issue-from-plan.md` when turning reviewed issue drafts into GitHub issues.
 - Use `implement-issue.md` for implementation.
 - Use `review-pr.md` for PR review.
 - Use `close-milestone.md` when closing a milestone.
@@ -112,4 +113,3 @@ When working from an issue:
    - assumptions
    - risks
    - follow-up issues
-
