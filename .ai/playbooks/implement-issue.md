@@ -10,11 +10,45 @@ Use this when implementing a GitHub issue or a small issue batch.
 4. Restate the intended vertical slice in a short task plan.
 5. If the issue is too large or unclear, propose a split or ask for the missing decision before implementing.
 
+## Completion Requirement
+
+The task is not complete until:
+
+- scope matches the issue or issue batch
+- changes are implemented
+- focused verification has been run or explicitly skipped with a reason
+- the diff is reviewable and avoids unrelated changes
+- changes are committed
+- if a dedicated branch is being used, the branch is pushed
+- if the user has not explicitly told you not to create one, a pull request is created
+- if a pull request is created, it links every completed issue with `Closes #...`
+- if a pull request is created, the PR body includes:
+  - linked issue or issue batch
+  - summary
+  - files changed
+  - verification performed
+  - assumptions
+  - risks
+  - out of scope
+  - follow-up issues or drafts, if needed
+
+Do not stop after local edits.
+Do not stop after summarizing changes.
+If a pull request is required but cannot be created, explain exactly why and provide the command the user should run.
+
 ## Branch
 
 - Use one branch per issue or tightly related issue batch.
 - Prefer `codex/<issue-or-slice-name>` unless the repository owner requests another convention.
 - Do not mix unrelated cleanup, refactors, or product direction changes into the branch.
+
+## Workflow Files
+
+Do not modify `.ai/`, playbooks, agent instructions, issue templates, or methodology files while implementing a product issue unless the issue explicitly asks for workflow changes.
+
+If workflow instructions conflict with the user request, stop and report the conflict instead of editing workflow files.
+
+Workflow changes must be handled in a dedicated issue or PR.
 
 ## Implementation
 
@@ -24,21 +58,9 @@ Use this when implementing a GitHub issue or a small issue batch.
 - Update docs or ADRs only when the implementation changes design, architecture, or user-facing workflow.
 - Avoid speculative abstractions and broad rewrites.
 
-## PR
+## PR Creation
 
-The PR description should include:
+Create a pull request unless explicitly told not to.
 
-- linked issue or issue batch
-- summary of the slice
-- verification performed
-- assumptions
-- risks
-- out of scope
-- follow-up issues or drafts, if needed
-
-## Done Criteria
-
-- Scope matches the issue.
-- Focused verification has been run or explicitly marked not required.
-- The diff is reviewable and avoids unrelated changes.
-- Remaining assumptions and risks are stated.
+Use a title that describes the implemented slice.
+Use `Closes #...` for every completed issue.
