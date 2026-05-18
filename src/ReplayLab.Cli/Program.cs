@@ -1,1 +1,3 @@
-Console.WriteLine("ReplayLab CLI placeholder. Replay features are not implemented yet.");
+using ReplayLab.Cli;
+
+Environment.ExitCode = await CliApplication.RunAsync(args, Console.Out, Console.Error);
