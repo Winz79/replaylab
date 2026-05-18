@@ -121,10 +121,22 @@ Run the published executable against the synthetic sample:
 ./artifacts/publish/replaylab/ReplayLab.Cli.exe samples/basic.csv
 ```
 
+The same M3 explicit format command also works with the published executable:
+
+```powershell
+./artifacts/publish/replaylab/ReplayLab.Cli.exe --format csv samples/basic.csv
+```
+
 On non-Windows systems, run the apphost without the `.exe` extension:
 
 ```bash
 ./artifacts/publish/replaylab/ReplayLab.Cli samples/basic.csv
+```
+
+Or use the explicit M3 format option:
+
+```bash
+./artifacts/publish/replaylab/ReplayLab.Cli --format csv samples/basic.csv
 ```
 
 To publish and verify the sample output in one step:
@@ -136,6 +148,9 @@ To publish and verify the sample output in one step:
 This local publish path does not add Docker images, NuGet publishing, GitHub
 release automation, a Web UI, HTTP senders, WCF/private adapters, persistence,
 or configuration DSL support.
+
+Both command shapes keep the mock sender as the default sender. Unsupported
+formats fail early with a clear non-zero CLI error before parsing or replay.
 
 ## CSV Parser Limitations
 

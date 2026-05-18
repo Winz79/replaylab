@@ -120,6 +120,21 @@ public sealed class CliEndToEndSmokeTests
         Assert.Contains("Supported formats: csv", result.StandardError);
     }
 
+    [Fact]
+    public async Task Cli_process_returns_non_zero_when_format_option_is_missing_a_value()
+    {
+        var repoRoot = FindRepositoryRoot();
+
+        var result = await RunCliProcessAsync(repoRoot, ["--format"]);
+
+        Assert.NotEqual(0, result.ExitCode);
+        Assert.Equal(string.Empty, result.StandardOutput);
+        Assert.Contains("Missing value for --format.", result.StandardError);
+        Assert.Contains("Supported formats: csv", result.StandardError);
+        Assert.Contains("Usage: replaylab <file>", result.StandardError);
+        Assert.Contains("Usage: replaylab --format csv <file>", result.StandardError);
+    }
+
     private static async Task<CliProcessResult> RunCliProcessAsync(
         string repoRoot,
         IReadOnlyList<string> arguments)

@@ -10,8 +10,14 @@ documentation, manual parser checks, and future smoke tests.
 - no embedded newlines
 - generic column names and values only
 
-`basic.csv` is also sufficient for the current M3 explicit input format flow,
-so no second sample is required yet.
+`basic.csv` is also sufficient for the current M3 command shapes, so no second
+sample is required yet.
+
+Run the CLI from source with the compatibility command:
+
+```powershell
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
+```
 
 Run the CLI from source with the explicit CSV format:
 
@@ -24,11 +30,13 @@ local executable output:
 
 ```powershell
 dotnet publish src/ReplayLab.Cli/ReplayLab.Cli.csproj --configuration Release --output ./artifacts/publish/replaylab
+./artifacts/publish/replaylab/ReplayLab.Cli.exe samples/basic.csv
 ./artifacts/publish/replaylab/ReplayLab.Cli.exe --format csv samples/basic.csv
 ```
 
 On non-Windows systems, run the apphost without the `.exe` extension:
 
 ```bash
+./artifacts/publish/replaylab/ReplayLab.Cli samples/basic.csv
 ./artifacts/publish/replaylab/ReplayLab.Cli --format csv samples/basic.csv
 ```
