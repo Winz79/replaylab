@@ -25,6 +25,7 @@
     </div>
 
     <form method="post" enctype="multipart/form-data" class="stack">
+        @Html.AntiForgeryToken()
         <label class="field">
             <span>CSV file</span>
             <input asp-for="Upload" type="file" accept=".csv,text/csv" />
@@ -48,6 +49,7 @@
             </div>
 
             <form method="post" asp-page-handler="Replay">
+                @Html.AntiForgeryToken()
                 <input asp-for="UploadedCsv" type="hidden" />
                 <button type="submit" class="action secondary">Run mock replay</button>
             </form>

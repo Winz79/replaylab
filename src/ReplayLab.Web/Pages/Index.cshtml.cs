@@ -7,7 +7,6 @@ using ReplayLab.Parsers.Csv;
 
 namespace ReplayLab.Web.Pages;
 
-[IgnoreAntiforgeryToken]
 public sealed class IndexModel : PageModel
 {
     private readonly CsvReplayMessageParser _parser = new();
@@ -41,7 +40,8 @@ public sealed class IndexModel : PageModel
         using var reader = new StreamReader(Upload.OpenReadStream(), Encoding.UTF8, leaveOpen: false);
         UploadedCsv = await reader.ReadToEndAsync(cancellationToken);
 
-        return await LoadPreviewAsync(UploadedCsv, cancellationToken);
+        await LoadPreviewStateAsync(UploadedCsv, cancellationToken);
+        return Page();
     }
 
     public async Task<IActionResult> OnPostReplayAsync(CancellationToken cancellationToken)
@@ -52,10 +52,10 @@ public sealed class IndexModel : PageModel
             return Page();
         }
 
-        var previewResult = await LoadPreviewAsync(UploadedCsv, cancellationToken);
-        if (previewResult is not PageResult)
+        var previewLoaded = await LoadPreviewStateAsync(UploadedCsv, cancellationToken);
+        if (!previewLoaded)
         {
-            return previewResult;
+            return Page();
         }
 
         var engine = new SequentialReplayEngine(new MockReplaySender());
@@ -70,23 +70,24 @@ public sealed class IndexModel : PageModel
         return Page();
     }
 
-    private async Task<IActionResult> LoadPreviewAsync(string csv, CancellationToken cancellationToken)
+    private async Task<bool> LoadPreviewStateAsync(string csv, CancellationToken cancellationToken)
     {
+        ReplayResults = [];
+        Summary = null;
+
         try
         {
             await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
             var batch = await _parser.ParseAsync(stream, cancellationToken);
             PreviewMessages = batch.Messages;
             ErrorMessage = null;
-            return Page();
+            return true;
         }
         catch (CsvParseException exception)
         {
             PreviewMessages = [];
-            ReplayResults = [];
-            Summary = null;
             ErrorMessage = $"CSV parse failed: {exception.Message}";
-            return Page();
+            return false;
         }
     }
 
