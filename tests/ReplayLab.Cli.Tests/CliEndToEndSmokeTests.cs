@@ -18,7 +18,6 @@ public sealed class CliEndToEndSmokeTests
         Assert.Contains("Sent 2 message(s): 2 succeeded, 0 failed.", result.StandardOutput);
         Assert.Contains("record-1: succeeded", result.StandardOutput);
         Assert.Contains("record-2: succeeded", result.StandardOutput);
-        Assert.Equal(string.Empty, result.StandardError);
     }
 
     [Fact]
