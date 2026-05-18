@@ -68,3 +68,36 @@ Only if justified, prepare lightweight release artifact guidance. Do not add rel
 - GitHub release artifacts after versioning expectations are clear.
 - NuGet package or .NET tool distribution after public package boundaries are reviewed.
 - Broader target framework compatibility before a public package release.
+
+## Follow-Up Issue Draft: CI Release Artifact Publishing
+
+Title: Release: publish local executable artifacts from CI
+
+Goal: Add a CI-driven release artifact path after the local `dotnet publish`
+workflow is proven and versioning expectations are clear.
+
+Scope:
+
+- Decide whether release artifacts should remain framework-dependent or become
+  runtime-specific, self-contained, or single-file.
+- Define artifact naming, version source, and retention expectations.
+- Publish `ReplayLab.Cli` artifacts from CI for accepted release events only.
+- Document how maintainers validate and download the generated artifacts.
+
+Acceptance criteria:
+
+- CI produces downloadable `ReplayLab.Cli` artifacts for the chosen release
+  trigger.
+- Artifact contents match the documented publish strategy.
+- The release artifact workflow runs without private infrastructure or secrets
+  beyond standard repository automation.
+- Documentation explains how the generated artifacts relate to the local M2
+  publish command.
+
+Out of scope:
+
+- Implementing this release artifact workflow in M2.
+- NuGet publishing or .NET global tool distribution.
+- Docker images.
+- Web UI packaging.
+- HTTP sender, WCF/private adapters, persistence, or configuration DSL work.
