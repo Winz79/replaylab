@@ -15,6 +15,7 @@ Current usage:
 Milestone docs currently in this folder:
 
 - [M2: Local Executable Distribution](m2-local-executable-distribution.md)
+- [M4: HTTP Sender Preview](m4-http-sender-preview.md)
 
 M4 planning should add or update documents here rather than expanding
 `docs/roadmap.md` into a detailed plan.
