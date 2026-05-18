@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayLab.Parsers.Csv", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayLab.Parsers.Csv.Tests", "tests\ReplayLab.Parsers.Csv.Tests\ReplayLab.Parsers.Csv.Tests.csproj", "{30B6BA23-75F5-4359-8A1E-671508ECAAF4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayLab.Cli.Tests", "tests\ReplayLab.Cli.Tests\ReplayLab.Cli.Tests.csproj", "{FC4B7684-652E-4952-9F82-B9FC912EE762}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -115,6 +117,18 @@ Global
 		{30B6BA23-75F5-4359-8A1E-671508ECAAF4}.Release|x64.Build.0 = Release|Any CPU
 		{30B6BA23-75F5-4359-8A1E-671508ECAAF4}.Release|x86.ActiveCfg = Release|Any CPU
 		{30B6BA23-75F5-4359-8A1E-671508ECAAF4}.Release|x86.Build.0 = Release|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Debug|x64.Build.0 = Debug|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Debug|x86.Build.0 = Debug|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Release|x64.ActiveCfg = Release|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Release|x64.Build.0 = Release|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Release|x86.ActiveCfg = Release|Any CPU
+		{FC4B7684-652E-4952-9F82-B9FC912EE762}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -127,5 +141,6 @@ Global
 		{5E6C0009-655E-4354-AEDA-35630D25527B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{EDC82882-0BA2-421B-A2FD-05808F7C686A} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{30B6BA23-75F5-4359-8A1E-671508ECAAF4} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{FC4B7684-652E-4952-9F82-B9FC912EE762} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
