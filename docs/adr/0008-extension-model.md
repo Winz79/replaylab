@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed - M6 extension model implementation is complete across issues #56,
+Accepted - M6 extension model implementation is complete across issues #56,
 #57, #58, and #59. NuGet packaging for `ReplayLab.Core` is packageable and
 pack verified. Publication is intentionally out of scope.
 
