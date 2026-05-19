@@ -9,6 +9,13 @@ Use this when closing a milestone after implementation work is complete.
 3. List deferred, dropped, or changed scope explicitly.
 4. Check that docs and ADRs reflect final decisions.
 
+## Close GitHub Milestone
+
+1. Check for an existing GitHub milestone for the current milestone number.
+2. If a milestone exists and all issues are closed, close it using `gh milestone close <number>`.
+3. If a milestone exists but issues remain open, verify they should be deferred or moved to a future milestone before closing.
+4. If no milestone exists, skip this step and proceed.
+
 ## Release Steps
 
 - Create or confirm the release tag when requested by the repository owner.
