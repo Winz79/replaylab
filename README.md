@@ -15,7 +15,7 @@ ReplayLab is a .NET replay/testing toolkit for loading structured replay message
 - It does not include Docker assets.
 - It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
 - It does not contain private mapping rules or business contract models.
-- M7 owns hostable CLI and Web entry point packages.
+- Hostable CLI and Web entry points are planned for M7.
 
 ## Current Status
 
@@ -75,7 +75,14 @@ WCF and business-specific adapters are intentionally excluded from this reposito
 
 ## Build A Private Adapter
 
-M6 makes private adapters a supported extension path without moving private integration code into this repo: reference `ReplayLab.Core`, implement `IReplaySender`, optionally implement `IMessageParser`, add a project-local `IServiceCollection` extension, and own the composition root in M6.
+M6 makes private adapters a supported extension path without moving private integration code into this repo.
+
+- Reference `ReplayLab.Core`.
+- Implement `IReplaySender`.
+- Optionally implement `IMessageParser`.
+- Add a project-local `IServiceCollection` extension.
+- Own the composition root.
+- Hostable CLI and Web entry points are planned for M7.
 
 ## Packageable Core
 
