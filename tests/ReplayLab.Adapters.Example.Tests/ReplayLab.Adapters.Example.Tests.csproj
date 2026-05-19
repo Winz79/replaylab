@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReplayLab.Core\ReplayLab.Core.csproj" />
-    <ProjectReference Include="..\..\src\ReplayLab.Adapters.Mock\ReplayLab.Adapters.Mock.csproj" />
+    <ProjectReference Include="..\..\src\ReplayLab.Adapters.Example\ReplayLab.Adapters.Example.csproj" />
   </ItemGroup>
 
 </Project>
