@@ -9,9 +9,9 @@ public class SequentialReplayEngineTests
     {
         var messages = new[]
         {
-            new ReplayMessage("message-1", "{}"),
-            new ReplayMessage("message-2", "{}"),
-            new ReplayMessage("message-3", "{}")
+            new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-3", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
         };
         var sender = new RecordingReplaySender();
         var engine = new SequentialReplayEngine(sender);
@@ -33,14 +33,23 @@ public class SequentialReplayEngineTests
     {
         var messages = new[]
         {
-            new ReplayMessage("message-1", "{}"),
-            new ReplayMessage("message-2", "{}"),
-            new ReplayMessage("message-3", "{}")
+            new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-3", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
         };
         var sender = new RecordingReplaySender(message =>
             message.Id == "message-2"
-                ? Task.FromResult(new ReplayResult(false, message.Id, "Rejected by sender"))
-                : Task.FromResult(new ReplayResult(true, message.Id)));
+                ? Task.FromResult(new ReplayResult
+                {
+                    Success = false,
+                    MessageId = message.Id,
+                    ErrorMessage = "Rejected by sender"
+                })
+                : Task.FromResult(new ReplayResult
+                {
+                    Success = true,
+                    MessageId = message.Id
+                }));
         var engine = new SequentialReplayEngine(sender);
 
         var results = await engine.ReplayAsync(new ReplayBatch(messages));
@@ -59,9 +68,9 @@ public class SequentialReplayEngineTests
     {
         var messages = new[]
         {
-            new ReplayMessage("message-1", "{}"),
-            new ReplayMessage("message-2", "{}"),
-            new ReplayMessage("message-3", "{}")
+            new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-3", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
         };
         var sender = new RecordingReplaySender(message =>
         {
@@ -70,7 +79,11 @@ public class SequentialReplayEngineTests
                 throw new InvalidOperationException("Sender exploded");
             }
 
-            return Task.FromResult(new ReplayResult(true, message.Id));
+            return Task.FromResult(new ReplayResult
+            {
+                Success = true,
+                MessageId = message.Id
+            });
         });
         var engine = new SequentialReplayEngine(sender);
 
@@ -107,13 +120,17 @@ public class SequentialReplayEngineTests
         using var cancellation = new CancellationTokenSource();
         var messages = new[]
         {
-            new ReplayMessage("message-1", "{}"),
-            new ReplayMessage("message-2", "{}")
+            new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
         };
         var sender = new RecordingReplaySender(message =>
         {
             cancellation.Cancel();
-            return Task.FromResult(new ReplayResult(true, message.Id));
+            return Task.FromResult(new ReplayResult
+            {
+                Success = true,
+                MessageId = message.Id
+            });
         });
         var engine = new SequentialReplayEngine(sender);
 
@@ -128,9 +145,9 @@ public class SequentialReplayEngineTests
     {
         var messages = new[]
         {
-            new ReplayMessage("message-1", "{}"),
-            new ReplayMessage("message-2", "{}"),
-            new ReplayMessage("message-3", "{}")
+            new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-3", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
         };
         var sender = new RecordingReplaySender(message =>
         {
@@ -139,7 +156,11 @@ public class SequentialReplayEngineTests
                 throw new TaskCanceledException("Sender timed out");
             }
 
-            return Task.FromResult(new ReplayResult(true, message.Id));
+            return Task.FromResult(new ReplayResult
+            {
+                Success = true,
+                MessageId = message.Id
+            });
         });
         var engine = new SequentialReplayEngine(sender);
 
@@ -159,7 +180,11 @@ public class SequentialReplayEngineTests
         Func<ReplayMessage, Task<ReplayResult>>? send = null) : IReplaySender
     {
         private readonly Func<ReplayMessage, Task<ReplayResult>> _send =
-            send ?? (message => Task.FromResult(new ReplayResult(true, message.Id)));
+            send ?? (message => Task.FromResult(new ReplayResult
+            {
+                Success = true,
+                MessageId = message.Id
+            }));
 
         public List<string> SentMessageIds { get; } = [];
 

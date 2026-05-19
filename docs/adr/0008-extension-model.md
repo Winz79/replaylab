@@ -2,7 +2,8 @@
 
 ## Status
 
-Proposed — implementation begins with issue #56.
+Proposed — contract hardening implemented with issue #56.
+DI helpers, example adapter, and NuGet packaging remain for issues #57, #58, #59.
 
 ## Context
 
@@ -37,22 +38,27 @@ Private projects implement `IReplaySender` and/or `IMessageParser`. They
 consume the rest. They do not reimplement `SequentialReplayEngine` unless they
 need a different execution model.
 
-### 2. Contract Hardening (Breaking Changes Accepted In M6)
+### 2. Contract Hardening (Breaking Changes for M6)
 
-M6 accepts breaking changes to `ReplayLab.Core` where they make the extension
-surface cleaner. All breaking changes will be recorded in this ADR as
-implementation progresses (issues #56 onward).
+M6 implemented breaking changes to `ReplayLab.Core` to make the extension
+surface cleaner. These changes are recorded below as implemented in issue #56.
 
-Planned breaking changes for M6:
+Implemented breaking changes:
 
-- `ReplayResult` constructor parameter names normalized to standard camelCase
-  consistently (e.g. `exceptionType` not `ExceptionType`).
-- `ReplayResult` simplified to use `init`-only properties without a
-  multi-parameter constructor where possible.
-- Nullability intent made explicit on `ReplayMessage.Headers` and
-  `ReplayMessage.Metadata`.
+- `ReplayResult` constructor was removed and replaced with object initializer syntax.
+  - All usages updated to use `{ Success = ..., MessageId = ... }` pattern.
+  - Properties remain `init`-only, preserving immutability.
+  - `Status` is now a computed get-only property derived from `Success`, ensuring consistency.
+  - This removes the constructor vs init ambiguity and prevents inconsistent state.
 
-This section will be updated as issue #56 is implemented.
+- `ReplayMessage.Headers` and `ReplayMessage.Metadata` changed from nullable optional
+  parameters to required non-nullable parameters.
+  - Changed from `IReadOnlyDictionary<string, string>?` to `IReadOnlyDictionary<string, string>`.
+  - This clarifies intent: parsers should provide empty dictionaries when no headers/metadata
+    are applicable, rather than passing null.
+
+All call sites throughout the codebase and tests have been updated to match
+these new signatures.
 
 ### 3. DI Registration Pattern
 

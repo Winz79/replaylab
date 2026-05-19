@@ -33,15 +33,19 @@ public sealed class HttpReplaySender : IReplaySender
 
             if (response.IsSuccessStatusCode)
             {
-                return new ReplayResult(
-                    Success: true,
-                    MessageId: message.Id);
+                return new ReplayResult
+                {
+                    Success = true,
+                    MessageId = message.Id
+                };
             }
 
-            return new ReplayResult(
-                Success: false,
-                MessageId: message.Id,
-                ErrorMessage: $"HTTP request failed with status code {(int)response.StatusCode} ({response.ReasonPhrase ?? response.StatusCode.ToString()}).");
+            return new ReplayResult
+            {
+                Success = false,
+                MessageId = message.Id,
+                ErrorMessage = $"HTTP request failed with status code {(int)response.StatusCode} ({response.ReasonPhrase ?? response.StatusCode.ToString()})."
+            };
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -49,14 +53,15 @@ public sealed class HttpReplaySender : IReplaySender
         }
         catch (Exception exception)
         {
-            return new ReplayResult(
-                Success: false,
-                MessageId: message.Id,
-                ErrorMessage: exception.Message,
-                status: ReplayResultStatus.Failed,
-                exceptionType: exception.GetType().FullName,
-                exceptionMessage: exception.Message,
-                exceptionDetails: exception.ToString());
+            return new ReplayResult
+            {
+                Success = false,
+                MessageId = message.Id,
+                ErrorMessage = exception.Message,
+                ExceptionType = exception.GetType().FullName,
+                ExceptionMessage = exception.Message,
+                ExceptionDetails = exception.ToString()
+            };
         }
     }
 }
