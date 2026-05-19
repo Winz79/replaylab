@@ -1,6 +1,6 @@
 # ReplayLab
 
-ReplayLab is an early-stage .NET toolkit for loading structured replay messages and sending them through configurable adapters. The public repo now covers the M1-M6 foundation: generic core contracts, CSV parsing, sequential replay, mock and HTTP adapters, a CLI, a minimal Web UI, and the extension surface needed for private adapters outside this repository.
+ReplayLab is a .NET replay/testing toolkit for loading structured replay messages and sending them through configurable adapters. The public repo now covers the completed M1-M6 foundation: ReplayLab.Core contracts, CSV parsing, sequential replay, mock and HTTP adapters, a CLI, a local Web UI, DI registration helpers, and the extension model for private adapters outside this repository.
 
 ## What ReplayLab Is
 
@@ -15,7 +15,7 @@ ReplayLab is an early-stage .NET toolkit for loading structured replay messages 
 - It does not include Docker assets.
 - It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
 - It does not contain private mapping rules or business contract models.
-- It does not yet provide hostable CLI or Web entry point packages; that boundary is deferred to M7.
+- M7 owns hostable CLI and Web entry point packages.
 
 ## Current Status
 
@@ -30,11 +30,11 @@ Implemented today:
 - `ReplayLab.Adapters.Http` for minimal HTTP POST replay.
 - `ReplayLab.Adapters.Example` as a fictional reference implementation for extension authors.
 - DI registration helpers in parser and adapter projects.
-- `ReplayLab.Cli` and `ReplayLab.Web` as current composition hosts.
+- `ReplayLab.Cli` and `ReplayLab.Web`.
 - `ReplayLab.Core` package metadata verified with `dotnet pack` at version `0.6.0`.
 - GitHub Actions CI for restore, build, and test.
 
-For the completed M6 extension model and rationale, see [ADR 0008](docs/adr/0008-extension-model.md) and the [M6 milestone guide](docs/milestones/m6-private-adapter-extension-model.md).
+For the completed M6 extension model and rationale, see [ADR 0008](docs/adr/0008-extension-model.md), the [M6 milestone guide](docs/milestones/m6-private-adapter-extension-model.md), [PRD 0008](docs/prd/0008-private-adapter-extension-model.md), and [the roadmap](docs/roadmap.md).
 
 ## Architecture Overview
 
@@ -47,7 +47,7 @@ ReplayLab.Core
 Parsers   Adapters
   ^
   |
-Applications such as CLI, Web, or other composition hosts
+Applications such as CLI and local Web UI
 ```
 
 `ReplayLab.Core` owns generic contracts and models:
@@ -75,16 +75,16 @@ WCF and business-specific adapters are intentionally excluded from this reposito
 
 ## Build A Private Adapter
 
-M6 makes private adapters a supported extension path without moving private integration code into this repo. Private projects own their own composition root in M6; hostable CLI/Web entry points remain M7 work.
+M6 makes private adapters a supported extension path without moving private integration code into this repo: reference `ReplayLab.Core`, implement `IReplaySender`, optionally implement `IMessageParser`, add a project-local `IServiceCollection` extension, and own the composition root in M6.
 
 ## Packageable Core
 
-`ReplayLab.Core` is packageable and pack verified at version `0.6.0`. That means the package can be produced locally; it does not mean it is published.
+`ReplayLab.Core` is packageable and pack verified at version `0.6.0`. Packageable and pack verified does not mean published.
 
 Create the package locally:
 
 ```powershell
-dotnet pack src/ReplayLab.Core/ReplayLab.Core.csproj --configuration Release
+dotnet pack src/ReplayLab.Core -c Release
 ```
 
 Reference it from a private adapter project:
