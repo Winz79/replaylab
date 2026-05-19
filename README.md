@@ -1,6 +1,6 @@
 # ReplayLab
 
-ReplayLab is an early-stage .NET toolkit for loading structured replay messages and sending them through configurable adapters. The current repository is focused on the public foundation: generic core contracts, a CSV parser slice, a mock sender adapter, tests, and a first CLI preview.
+ReplayLab is an early-stage .NET toolkit for loading structured replay messages and sending them through configurable adapters. The public repo now covers the M1-M6 foundation: generic core contracts, CSV parsing, sequential replay, mock and HTTP adapters, a CLI, a minimal Web UI, and the extension surface needed for private adapters outside this repository.
 
 ## What ReplayLab Is
 
@@ -11,26 +11,30 @@ ReplayLab is an early-stage .NET toolkit for loading structured replay messages 
 
 ## What ReplayLab Is Not
 
-- It is not a production replay engine yet.
-- It does not provide a UI.
-- It does not provide Docker assets.
-- It does not include a production-ready HTTP sender.
+- It is not a production replay platform yet.
+- It does not include Docker assets.
 - It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
 - It does not contain private mapping rules or business contract models.
+- It does not yet provide hostable CLI or Web entry point packages; that boundary is deferred to M7.
 
 ## Current Status
 
-ReplayLab is a foundation scaffold. The solution currently targets `net10.0` and is pinned with `global.json` to the installed .NET SDK line used for this repository.
+ReplayLab has completed M1-M6. The solution targets `net10.0` and is pinned with `global.json` to the SDK line used for this repository.
 
 Implemented today:
 
 - `ReplayLab.Core` with generic replay models and contracts.
 - `ReplayLab.Parsers.Csv` with a deliberately small first CSV parser slice.
-- `ReplayLab.Adapters.Mock` with a sender adapter for tests and local development.
-- `ReplayLab.Adapters.Http` with a minimal HTTP POST preview sender.
-- `ReplayLab.Cli` with CSV-to-mock and CSV-to-HTTP preview flows.
-- xUnit tests for core, the CSV parser, and the mock adapter.
+- `SequentialReplayEngine` for generic replay orchestration.
+- `ReplayLab.Adapters.Mock` for tests and local development.
+- `ReplayLab.Adapters.Http` for minimal HTTP POST replay.
+- `ReplayLab.Adapters.Example` as a fictional reference implementation for extension authors.
+- DI registration helpers in parser and adapter projects.
+- `ReplayLab.Cli` and `ReplayLab.Web` as current composition hosts.
+- `ReplayLab.Core` package metadata verified with `dotnet pack` at version `0.6.0`.
 - GitHub Actions CI for restore, build, and test.
+
+For the completed M6 extension model and rationale, see [ADR 0008](docs/adr/0008-extension-model.md) and the [M6 milestone guide](docs/milestones/m6-private-adapter-extension-model.md).
 
 ## Architecture Overview
 
@@ -43,7 +47,7 @@ ReplayLab.Core
 Parsers   Adapters
   ^
   |
-Applications such as CLI or future composition hosts
+Applications such as CLI, Web, or other composition hosts
 ```
 
 `ReplayLab.Core` owns generic contracts and models:
@@ -69,6 +73,26 @@ Private integrations belong outside this repository. A private integration can c
 
 WCF and business-specific adapters are intentionally excluded from this repository.
 
+## Build A Private Adapter
+
+M6 makes private adapters a supported extension path without moving private integration code into this repo. Private projects own their own composition root in M6; hostable CLI/Web entry points remain M7 work.
+
+## Packageable Core
+
+`ReplayLab.Core` is packageable and pack verified at version `0.6.0`. That means the package can be produced locally; it does not mean it is published.
+
+Create the package locally:
+
+```powershell
+dotnet pack src/ReplayLab.Core/ReplayLab.Core.csproj --configuration Release
+```
+
+Reference it from a private adapter project:
+
+```xml
+<PackageReference Include="ReplayLab.Core" Version="0.6.0" />
+```
+
 ## CLI Preview
 
 The current CLI preview accepts one CSV file path, an explicit CSV format plus
@@ -82,7 +106,7 @@ Run the preview against the synthetic sample:
 dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
 ```
 
-Or use the explicit M3 format option:
+Or use the explicit format option:
 
 ```powershell
 dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --format csv samples/basic.csv
@@ -101,7 +125,7 @@ The HTTP preview is intentionally narrow:
 - HTTP sends `POST` requests only
 - the request body is `ReplayMessage.Payload`
 - the default request `Content-Type` is `application/json`
-- method selection, header mapping, body mapping, response capture, auth, certificates, retries, config files, and Docker remain out of scope for M4
+- method selection, header mapping, body mapping, response capture, auth, certificates, retries, config files, and Docker remain out of scope for the current HTTP adapter
 
 Expected output shape:
 
@@ -146,9 +170,9 @@ failures.
 
 ## Local Executable Publish
 
-ReplayLab's first local executable distribution path is a framework-dependent
-publish of `ReplayLab.Cli`. This keeps M2 focused on a local, repeatable output
-folder and assumes the required .NET runtime is available on the machine.
+ReplayLab's current local executable distribution path is a framework-dependent
+publish of `ReplayLab.Cli`. This keeps distribution local and repeatable and
+assumes the required .NET runtime is available on the machine.
 
 Publish the CLI:
 
@@ -162,7 +186,7 @@ Run the published executable against the synthetic sample:
 ./artifacts/publish/replaylab/ReplayLab.Cli.exe samples/basic.csv
 ```
 
-The same M3 explicit format command also works with the published executable:
+The same explicit format command also works with the published executable:
 
 ```powershell
 ./artifacts/publish/replaylab/ReplayLab.Cli.exe --format csv samples/basic.csv
@@ -174,7 +198,7 @@ On non-Windows systems, run the apphost without the `.exe` extension:
 ./artifacts/publish/replaylab/ReplayLab.Cli samples/basic.csv
 ```
 
-Or use the explicit M3 format option:
+Or use the explicit format option:
 
 ```bash
 ./artifacts/publish/replaylab/ReplayLab.Cli --format csv samples/basic.csv
@@ -187,8 +211,8 @@ To publish and verify the sample output in one step:
 ```
 
 This local publish path does not add Docker images, NuGet publishing, GitHub
-release automation, a Web UI, HTTP senders, WCF/private adapters, persistence,
-or configuration DSL support.
+release automation, WCF/private adapters, persistence, or configuration DSL
+support.
 
 Both command shapes keep the mock sender as the default sender. Unsupported
 formats fail early with a clear non-zero CLI error before parsing or replay.
