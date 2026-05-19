@@ -4,6 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <PackageId>ReplayLab.Core</PackageId>
+    <Version>0.6.0</Version>
+    <Authors>Winz79</Authors>
+    <Description>Generic replay engine contracts and models for building replay and testing toolkits.</Description>
+    <RepositoryUrl>https://github.com/sebastienwitz/replaylab</RepositoryUrl>
+    <PackageTags>replay;testing;dotnet;contracts;core</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
