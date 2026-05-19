@@ -9,7 +9,7 @@ public class MockReplaySenderSmokeTests
     public async Task SendAsync_returns_successful_replay_result()
     {
         var sender = new MockReplaySender();
-        var message = new ReplayMessage("message-1", "{}");
+        var message = new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>());
 
         var result = await sender.SendAsync(message);
 

@@ -8,8 +8,10 @@ public sealed class MockReplaySender : IReplaySender
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        return Task.FromResult(new ReplayResult(
-            Success: true,
-            MessageId: message.Id));
+        return Task.FromResult(new ReplayResult
+        {
+            Success = true,
+            MessageId = message.Id
+        });
     }
 }

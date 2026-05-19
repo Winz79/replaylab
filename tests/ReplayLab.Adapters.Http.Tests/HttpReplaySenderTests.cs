@@ -14,13 +14,13 @@ public class HttpReplaySenderTests
         using var client = new HttpClient(handler);
         var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")));
 
-        var result = await sender.SendAsync(new ReplayMessage("record-1", """{"kind":"Created"}"""));
+        var result = await sender.SendAsync(new ReplayMessage("record-1", """{\"kind\":\"Created\"}""", new Dictionary<string, string>(), new Dictionary<string, string>()));
 
         Assert.True(result.Success);
         Assert.Equal(HttpMethod.Post, handler.Method);
         Assert.Equal("https://example.test/replay", handler.RequestUri!.ToString());
         Assert.Equal("application/json", handler.ContentType);
-        Assert.Equal("""{"kind":"Created"}""", handler.Body);
+        Assert.Equal("""{\"kind\":\"Created\"}""", handler.Body);
     }
 
     [Fact]
@@ -30,7 +30,7 @@ public class HttpReplaySenderTests
         using var client = new HttpClient(handler);
         var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")));
 
-        var result = await sender.SendAsync(new ReplayMessage("record-1", "{}"));
+        var result = await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
 
         Assert.False(result.Success);
         Assert.Contains("400", result.ErrorMessage);
@@ -44,7 +44,7 @@ public class HttpReplaySenderTests
         using var client = new HttpClient(handler);
         var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")));
 
-        var result = await sender.SendAsync(new ReplayMessage("record-1", "{}"));
+        var result = await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
 
         Assert.False(result.Success);
         Assert.Equal(typeof(HttpRequestException).FullName, result.ExceptionType);
@@ -66,7 +66,7 @@ public class HttpReplaySenderTests
         cancellation.Cancel();
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
-            sender.SendAsync(new ReplayMessage("record-1", "{}"), cancellation.Token));
+            sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()), cancellation.Token));
     }
 
     private sealed class RecordingHttpMessageHandler(

@@ -358,8 +358,17 @@ public class CliApplicationTests
             CancellationToken cancellationToken = default)
         {
             return Task.FromResult(message.Id == "record-2"
-                ? new ReplayResult(false, message.Id, "Synthetic replay failure")
-                : new ReplayResult(true, message.Id));
+                ? new ReplayResult
+                {
+                    Success = false,
+                    MessageId = message.Id,
+                    ErrorMessage = "Synthetic replay failure"
+                }
+                : new ReplayResult
+                {
+                    Success = true,
+                    MessageId = message.Id
+                });
         }
     }
 

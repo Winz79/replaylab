@@ -31,7 +31,6 @@ public sealed class SequentialReplayEngine
                 results.Add(result with
                 {
                     MessageId = message.Id,
-                    Status = result.Success ? ReplayResultStatus.Succeeded : ReplayResultStatus.Failed,
                     Elapsed = stopwatch.Elapsed
                 });
             }
@@ -43,15 +42,16 @@ public sealed class SequentialReplayEngine
             {
                 stopwatch.Stop();
 
-                results.Add(new ReplayResult(
-                    Success: false,
-                    MessageId: message.Id,
-                    ErrorMessage: exception.Message,
-                    status: ReplayResultStatus.Failed,
-                    elapsed: stopwatch.Elapsed,
-                    exceptionType: exception.GetType().FullName,
-                    exceptionMessage: exception.Message,
-                    exceptionDetails: exception.ToString()));
+                results.Add(new ReplayResult
+                {
+                    Success = false,
+                    MessageId = message.Id,
+                    ErrorMessage = exception.Message,
+                    Elapsed = stopwatch.Elapsed,
+                    ExceptionType = exception.GetType().FullName,
+                    ExceptionMessage = exception.Message,
+                    ExceptionDetails = exception.ToString()
+                });
             }
         }
 
