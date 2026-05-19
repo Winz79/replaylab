@@ -119,10 +119,16 @@ the extension guide.
 
 ### Slice 5: Write Extension Guide And Docs
 
-Write `docs/adr/0008-extension-model.md`, `docs/prd/0008-private-adapter-extension-model.md`,
-and the extension guide section inside this milestone doc. Include architecture
-diagram (Core as stable hub, private adapter depending only on Core) and flow
-diagram (parser → engine → private adapter → result).
+Write the extension guide section inside this milestone doc. Update
+`docs/adr/0008-extension-model.md` to reflect all actual decisions made in
+Slices 1–4. Update `docs/prd/0008-private-adapter-extension-model.md` if
+needed. Include architecture diagram (Core as stable hub, private adapter
+depending only on Core) and flow diagram (parser → engine → private adapter →
+result).
+
+Note: ADR 0008 and PRD 0008 are created in the planning PR as proposed docs.
+The extension guide and diagram content are produced as part of this slice,
+after implementation is complete.
 
 ## Issue Drafts
 

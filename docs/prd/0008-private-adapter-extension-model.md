@@ -14,8 +14,10 @@ dependency.
 
 - Developers who need to build a private sender adapter (WCF, messaging bus,
   business-specific HTTP endpoint) without modifying or forking the public repo.
-- Teams who want to use the ReplayLab replay engine and CLI/Web entry points
-  with their own private adapters.
+- Teams who want to implement `IReplaySender` and `IMessageParser` against
+  stable public contracts and compose them in their own composition root (M6).
+  Using the ReplayLab CLI and Web entry points with private adapters via DI is
+  M7 scope.
 - Contributors validating that the public contracts are clean and generic enough
   to extend against.
 
@@ -38,7 +40,7 @@ dependency.
 - A private project can add `<PackageReference Include="ReplayLab.Core" />`
   and implement `IReplaySender` without cloning this repo.
 - The example adapter compiles, its tests pass, and it depends only on
-  `ReplayLab.Core`.
+  `ReplayLab.Core` and `Microsoft.Extensions.DependencyInjection.Abstractions`.
 - DI registration extension methods exist in Mock, Http, Csv, and Example
   projects.
 - `ReplayLab.Core` has no dependency on

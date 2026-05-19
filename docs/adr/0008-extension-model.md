@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Proposed — implementation begins with issue #56.
 
 ## Context
 
@@ -10,15 +10,15 @@ M1–M5 established the core replay model, CSV parser, sequential replay engine,
 mock sender, HTTP sender, CLI, and Web UI. All of these live in the public repo
 and are composed internally.
 
-No mechanism existed for a private project to extend ReplayLab without forking
-or cloning the public repo. The public contracts in `ReplayLab.Core` had minor
+No mechanism exists for a private project to extend ReplayLab without forking
+or cloning the public repo. The public contracts in `ReplayLab.Core` have minor
 inconsistencies (casing, nullable ambiguity, constructor vs init confusion) that
-made the extension surface unclear. No DI registration helpers existed. No
-NuGet package was published.
+make the extension surface unclear. No DI registration helpers exist. No NuGet
+package has been published.
 
-M6 addresses all of this by hardening the public contracts, adding DI
-registration helpers per adapter/parser project, adding a compilable example
-adapter, and publishing `ReplayLab.Core` as a NuGet package.
+M6 will address this by hardening the public contracts, adding DI registration
+helpers per adapter/parser project, adding a compilable example adapter, and
+preparing `ReplayLab.Core` for NuGet packaging.
 
 ## Decisions
 
@@ -40,18 +40,19 @@ need a different execution model.
 ### 2. Contract Hardening (Breaking Changes Accepted In M6)
 
 M6 accepts breaking changes to `ReplayLab.Core` where they make the extension
-surface cleaner. All breaking changes are recorded in this ADR.
+surface cleaner. All breaking changes will be recorded in this ADR as
+implementation progresses (issues #56 onward).
 
-Breaking changes made in M6:
+Planned breaking changes for M6:
 
-- `ReplayResult` constructor parameter casing normalized to PascalCase
-  consistently.
+- `ReplayResult` constructor parameter names normalized to standard camelCase
+  consistently (e.g. `exceptionType` not `ExceptionType`).
 - `ReplayResult` simplified to use `init`-only properties without a
   multi-parameter constructor where possible.
 - Nullability intent made explicit on `ReplayMessage.Headers` and
   `ReplayMessage.Metadata`.
 
-Any further breaking changes discovered during implementation are appended here.
+This section will be updated as issue #56 is implemented.
 
 ### 3. DI Registration Pattern
 
@@ -70,27 +71,28 @@ Each extension method references only
 
 ### 4. Example Adapter
 
-`ReplayLab.Adapters.Example` is added to the solution as a thin, fictional
-sender adapter (`FileReplaySender`) that depends only on `ReplayLab.Core`. It
-is explicitly labelled as an extension pattern reference, not a production
-adapter. It lives in `src/ReplayLab.Adapters.Example` and is part of
+`ReplayLab.Adapters.Example` will be added to the solution (issue #58) as a
+thin, fictional sender adapter (`FileReplaySender`) that depends on
+`ReplayLab.Core` and `Microsoft.Extensions.DependencyInjection.Abstractions`.
+It is explicitly labelled as an extension pattern reference, not a production
+adapter. It will live in `src/ReplayLab.Adapters.Example` and be part of
 `ReplayLab.sln`.
 
 ### 5. NuGet Packaging Scope For M6
 
-`ReplayLab.Core` is prepared for NuGet publication in M6. Standard `.csproj`
-metadata is added and `dotnet pack` is verified to produce a valid package.
-Actual publication to NuGet.org is a separate operational step outside this
-milestone.
+`ReplayLab.Core` will be prepared for NuGet packaging in M6 (issue #59).
+Standard `.csproj` metadata will be added and `dotnet pack` will be verified to
+produce a valid package. Actual publication to NuGet.org is a separate
+operational step outside this milestone scope.
 
 Packaging for `ReplayLab.Cli`, `ReplayLab.Web`, parser projects, and adapter
 projects is deferred to M7.
 
 ### 6. Version Strategy
 
-`ReplayLab.Core` starts at version `1.0.0`. This implies a public API stability
-commitment from this point forward. Breaking changes after M6 require a major
-version bump and a new ADR entry.
+`ReplayLab.Core` will start at version `1.0.0` once M6 packaging is complete.
+This implies a public API stability commitment from that point forward. Breaking
+changes after M6 require a major version bump and a new ADR entry.
 
 ### 7. Consumption Model
 
@@ -112,22 +114,24 @@ Keeping DI helpers out of Core preserves Core's dependency-free status. Each
 adapter/parser project self-registers, which is the standard .NET library
 pattern and keeps the extension model opt-in.
 
-Publishing Core only in M6 keeps packaging scope small while proving the
-consumption model. CLI and Web entry points require a larger refactor (they are
-currently entry points, not libraries) and belong in M7.
+Preparing Core for NuGet packaging in M6 keeps packaging scope small while
+proving the consumption model. CLI and Web entry points require a larger refactor
+(they are currently entry points, not libraries) and belong in M7.
 
 Accepting breaking changes in M6 is intentional — this is the last milestone
 before external adopters are expected to depend on the public contracts.
 
 ## Consequences
 
-- Private projects can reference `ReplayLab.Core` as a NuGet package and
-  implement `IReplaySender` without cloning this repo.
-- Each adapter and parser project gains a dependency on
+Once M6 is complete:
+
+- Private projects will be able to reference `ReplayLab.Core` as a NuGet
+  package and implement `IReplaySender` without cloning this repo.
+- Each adapter and parser project will gain a dependency on
   `Microsoft.Extensions.DependencyInjection.Abstractions`.
-- `ReplayLab.Adapters.Example` is part of the solution and is built and tested
+- `ReplayLab.Adapters.Example` will be part of the solution and built and tested
   with every `dotnet test ReplayLab.sln` run.
-- Any future breaking changes to `ReplayLab.Core` require a major version bump.
+- Any future breaking changes to `ReplayLab.Core` will require a major version bump.
 
 ## Alternatives Considered
 
