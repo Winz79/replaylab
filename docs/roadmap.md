@@ -5,19 +5,20 @@
 M1, M2, M3, M4, and M5 are complete.
 
 M6 is the current milestone. It hardens the public contracts, adds DI
-registration helpers, adds a compilable example adapter, and publishes
-`ReplayLab.Core` as a NuGet package to make private adapter development
+registration helpers, adds a compilable example adapter, and makes
+`ReplayLab.Core` packageable and pack verified so private adapter development is
 concretely possible.
 
 M7 will refactor CLI and Web into hostable entry points so private projects
-can compose their own adapters with the public entry points.
+can compose their own adapters with hostable entry points instead of the current
+repo-owned application shells.
 
 ## Summary Of Active Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
-| M6 | Private Adapter Extension Model | Harden public contracts, add DI helpers per adapter/parser project, add compilable example adapter, publish ReplayLab.Core as NuGet package. |
-| M7 | Hostable Entry Points | Refactor CLI and Web into hostable libraries. Private projects register their adapters and call ReplayLabHost.RunCli() or ReplayLabHost.RunWeb(). |
+| M6 | Private Adapter Extension Model | Harden public contracts, add DI helpers per adapter/parser project, add compilable example adapter, make ReplayLab.Core packageable and pack verified at version 0.6.0. |
+| M7 | Hostable Entry Points | Refactor CLI and Web into hostable entry points. Private projects register their adapters and call ReplayLabHost.RunCli() or ReplayLabHost.RunWeb(). |
 
 
 ## M4: HTTP Sender Preview
@@ -72,12 +73,13 @@ Developers can inspect payloads and replay results faster when CLI summaries are
 Make it concretely possible for any developer to build a private ReplayLab
 adapter outside the public repo by hardening the public contracts, providing DI
 registration helpers, adding a compilable example adapter, and publishing
-`ReplayLab.Core` as a NuGet package.
+`ReplayLab.Core` packageable and pack verified as a NuGet package.
 
 ### User Value
 
 Developers can build private sender adapters and parsers against a stable,
-published `ReplayLab.Core` contract without forking or cloning this repo.
+packageable and pack verified `ReplayLab.Core` contract without forking or
+cloning this repo.
 
 ### Outcome
 
@@ -111,7 +113,7 @@ points, and get a fully working CLI and Web UI without modifying this repo.
 ### User Value
 
 Teams can ship their own ReplayLab-powered CLI and Web UI by composing private
-adapters with the public entry points via DI registration.
+adapters with hostable entry points via DI registration.
 
 ### Possible Scope
 

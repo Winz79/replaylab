@@ -5,11 +5,17 @@
 Make it concretely possible for any developer to build a private ReplayLab
 adapter outside the public repo by hardening the public contracts, providing DI
 registration helpers in each adapter and parser project, adding a compilable
-example adapter that proves the extension seam, and publishing `ReplayLab.Core`
-as a NuGet package.
+example adapter that proves the extension seam, and making `ReplayLab.Core`
+packageable as a NuGet package.
 
 M6 is the foundation that a private adapter author needs today. Hostable CLI
 and Web entry points are deferred to M7.
+
+## Status
+
+Complete - M6 docs are finalized after issues #56, #57, #58, and #59. Core is
+packageable and pack verified at version `0.6.0`; publication remains out of
+scope.
 
 ## Planning Inputs
 
@@ -47,7 +53,7 @@ and Web entry points are deferred to M7.
 - `ReplayLab.Adapters.Example` ships as a thin, fictional, compilable sender
   adapter (`FileReplaySender`) with tests, proving the extension seam works
   end-to-end.
-- `ReplayLab.Core` is published as a NuGet package. A private project can add a
+- `ReplayLab.Core` is packageable and pack verified. A private project can add a
   `<PackageReference>` and implement `IReplaySender` without cloning this repo.
 - An extension guide, ADR, and PRD document the public contracts, DI
   registration pattern, and composition boundaries.
@@ -315,7 +321,7 @@ sender adapter that depends only on `ReplayLab.Core`.
 
 ### Draft 4: Add NuGet packaging metadata to ReplayLab.Core
 
-**Goal:** Make `ReplayLab.Core` publishable as a NuGet package so private
+**Goal:** Make `ReplayLab.Core` packageable as a NuGet package so private
 projects can reference it without cloning this repo.
 
 **Scope:**
@@ -438,3 +444,60 @@ boundaries, and how to get started with a private adapter.
    stable contracts.
 5. Write extension guide and docs (Draft 5) — written last to reflect actual
    decisions.
+
+## Extension Guide
+
+### Architecture
+
+```mermaid
+flowchart LR
+  Core[ReplayLab.Core\nStable contracts and models]
+  Private[Private adapter project\nIReplaySender / optional IMessageParser]
+  Di[Adapter-local DI extensions\nIServiceCollection registration]
+  Cli[ReplayLab.Cli\nCurrent consumer]
+  Web[ReplayLab.Web\nCurrent consumer]
+  M7[M7 hostable entry points\nFuture composition boundary]
+
+  Core --> Private
+  Private --> Di
+  Cli --> Core
+  Web --> Core
+  Cli -. future .-> M7
+  Web -. future .-> M7
+```
+
+M6-supported private adapter projects depend on `ReplayLab.Core` and, where
+needed, `Microsoft.Extensions.DependencyInjection.Abstractions` for their own
+registration helpers. They own their composition root in M6. CLI and Web remain
+current repo consumers in M6 and are the items that become hostable entry points
+in M7.
+
+### Flow
+
+```mermaid
+flowchart LR
+  Parser[Parser]
+  Engine[SequentialReplayEngine]
+  Adapter[Private sender adapter]
+  Result[ReplayResult]
+
+  Parser --> Engine --> Adapter --> Result
+```
+
+### How To Start A Private Adapter
+
+1. Create a private class library project outside this repository.
+2. Add a reference to `ReplayLab.Core`.
+   - During local development: `<ProjectReference Include="..\ReplayLab.Core\ReplayLab.Core.csproj" />`
+   - In a private consumer project: `<PackageReference Include="ReplayLab.Core" Version="0.6.0" />`
+3. Implement `IReplaySender` and, if needed, `IMessageParser`.
+4. Add a project-local `IServiceCollection` extension method to register the adapter.
+5. Resolve `SequentialReplayEngine` from the container and drive replay through the private adapter.
+6. Keep CLI and Web composition out of scope until M7 hostable entry points are introduced.
+
+### Boundary Rules
+
+- `ReplayLab.Core` stays generic and dependency-light.
+- DI helpers stay in adapter/parser projects, not in Core.
+- Packageable means `dotnet pack` works; it does not mean publication happened.
+- M7 is the place for hostable CLI/Web entry points, not this milestone.

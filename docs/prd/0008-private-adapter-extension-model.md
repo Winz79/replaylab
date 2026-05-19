@@ -2,13 +2,13 @@
 
 ## Status
 
-Draft
+Complete
 
 ## Purpose
 
 Define how developers can extend ReplayLab with private sender adapters and
 parsers outside the public repository, using the public contracts as a stable
-dependency.
+packageable dependency.
 
 ## Users
 
@@ -23,8 +23,8 @@ dependency.
 
 ## Requirements
 
-- `ReplayLab.Core` must be available as a NuGet package so private projects can
-  reference it without cloning the repo.
+- `ReplayLab.Core` must be packageable as a NuGet package so private projects
+  can reference it without cloning the repo.
 - `IReplaySender` and `IMessageParser` must be unambiguous, stable, and
   sufficient for a private implementation to depend on.
 - Each public adapter and parser project must expose `IServiceCollection`
@@ -37,7 +37,7 @@ dependency.
 
 ## Acceptance Criteria
 
-- A private project can add `<PackageReference Include="ReplayLab.Core" />`
+- A private project can add `<PackageReference Include="ReplayLab.Core" Version="0.6.0" />`
   and implement `IReplaySender` without cloning this repo.
 - The example adapter compiles, its tests pass, and it depends only on
   `ReplayLab.Core` and `Microsoft.Extensions.DependencyInjection.Abstractions`.
@@ -45,7 +45,14 @@ dependency.
   projects.
 - `ReplayLab.Core` has no dependency on
   `Microsoft.Extensions.DependencyInjection`.
-- The extension guide is complete and accurate.
+- The extension guide is complete and accurate, with clear M6-supported and
+  M7-boundary wording.
+
+## Summary
+
+M6 documentation is finalized around the packageable, pack-verified
+`ReplayLab.Core` extension model. The guide distinguishes M6-supported private
+adapter consumption from M7 hostable CLI/Web entry points.
 
 ## Out Of Scope
 
