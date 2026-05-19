@@ -2,35 +2,45 @@
 
 ## Status
 
-Accepted
+Accepted (Superseded by Implementation)
 
 ## Context
 
-M5 introduces the first ReplayLab Web UI. The roadmap and PRD 0006 describe a
-future local interface for inspecting and replaying messages, but the first web
-milestone needs a smaller architecture boundary so UI work does not pull the
+M5 introduced the first ReplayLab Web UI. The roadmap and PRD 0006 described a
+future local interface for inspecting and replaying messages. The first web
+milestone needed a smaller architecture boundary so UI work did not pull the
 project into hosting, persistence, authentication, private adapters, or a broad
 frontend redesign.
 
-ReplayLab already has the core replay model, CSV parser, sequential replay
-engine, and mock sender needed for a local inspection workflow. M5 should prove
+ReplayLab already had the core replay model, CSV parser, sequential replay
+engine, and mock sender needed for a local inspection workflow. M5 proved
 that these existing pieces can be composed from a browser UI before adding more
 sender surfaces or workflow concepts.
 
 ## Decision
 
-M5 Web UI will be implemented as `src/ReplayLab.Web`, an ASP.NET Core Razor
+M5 Web UI was implemented as `src/ReplayLab.Web`, an ASP.NET Core Razor
 Pages app.
 
 The app is local-only. Users upload a CSV file through the browser, the app
 parses it with the existing CSV parser, replays messages through the existing
 mock sender, and shows preview and replay results in the browser.
 
-M5 will not add durable persistence. Uploaded CSV contents, parsed messages,
-and replay results may be kept in short-lived local workflow state only when
-needed to support the upload → preview → replay flow. M5 must not add database
+M5 did not add durable persistence. Uploaded CSV contents, parsed messages,
+and replay results were kept in short-lived local workflow state only when
+needed to support the upload → preview → replay flow. M5 did not add database
 storage, uploaded file storage, saved replay history, background processing, or
 multi-user workflow state.
+
+## Outcome
+
+M5 shipped with:
+- Razor Pages app in `src/ReplayLab.Web`
+- Browser CSV upload and parsed message preview
+- Tabulator.js data table (replaced initial card-based approach via issue #50)
+- Mock replay execution from the UI with per-message results
+- No persistence - short-lived workflow state only
+- HTTP sender not exposed in UI (deferred to future milestone)
 
 ## Rationale
 

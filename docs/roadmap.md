@@ -2,18 +2,14 @@
 
 ## Current Position
 
-M1, M2, and M3 are complete.
+M1, M2, M3, M4, and M5 are complete.
 
-M4 is the current planning milestone. It should focus on the first generic non-mock sender: an HTTP Sender Preview.
-
-M5 and M6 are directional roadmap candidates only. They should remain lightweight until M4 is planned and executed.
+M6 is the current planning milestone. It should focus on documenting the private adapter extension model for ReplayLab.
 
 ## Summary Of Post-M2 Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
-| M4 | HTTP Sender Preview | Add the first generic non-mock sender once input configuration and CLI shape are clearer. |
-| M5 | Minimal Web UI | Add local visual inspection only after CLI and configuration concepts have settled. |
 | M6 | Private Adapter Extension Model | Document and validate extension boundaries for private adapters without implementing WCF or business-specific adapters in the public repo. |
 
 
@@ -27,32 +23,18 @@ Introduce the first generic non-mock sender by sending replay messages to an HTT
 
 Developers can validate ReplayLab against local test services, request inspectors, or mock HTTP endpoints without writing adapter code.
 
-### Possible Scope
+### Outcome
 
 - Basic HTTP sender adapter using public .NET HTTP primitives.
 - Configurable method, URL, headers, and body mapping from generic `ReplayMessage` values.
 - Local-only sample using a synthetic endpoint or documented test receiver.
 - CLI selection of mock sender versus HTTP sender.
 - Clear result reporting for status code, success, and failure.
+- System.CommandLine adoption for CLI growth.
 
-### Explicit Out Of Scope
+### Status
 
-- Authentication schemes beyond simple public examples.
-- Certificate management.
-- Retry policy framework.
-- Hosted service or long-running daemon.
-- WCF, customer endpoints, private adapters, or business-specific mappings.
-- Web UI.
-
-### Main Risks
-
-- HTTP configuration can become a general integration framework too early.
-- Error handling and retries may expand beyond preview needs.
-- Sender configuration could expose weaknesses in the M3 input configuration model.
-
-### Dependency On Previous Milestones
-
-M4 should depend on M3's chosen configuration shape so sender selection and sender settings do not invent a second configuration model.
+**Complete** - M4 shipped with HTTP sender adapter, CLI sender selection, and local HTTP preview documentation.
 
 ## M5: Minimal Web UI
 
@@ -64,32 +46,17 @@ Provide a local visual interface for loading, inspecting, selecting, and replayi
 
 Developers can inspect payloads and replay results faster when CLI summaries are not enough.
 
-### Possible Scope
+### Outcome
 
-- Local-only app or host for loading configured replay inputs.
-- Message list, payload inspection, and replay result summary.
-- Basic selection or filtering if the CLI/config model already supports it.
-- Mock sender and possibly HTTP sender composition if M4 has stabilized.
-- Documentation that positions the Web UI as optional.
+- Local-only ASP.NET Core Razor Pages app in `src/ReplayLab.Web`.
+- Browser CSV upload and parsed message preview.
+- Tabulator-based data table workflow (replaced initial card-based UI).
+- Mock replay execution from the UI with per-message results.
+- No persistence - short-lived workflow state only.
 
-### Explicit Out Of Scope
+### Status
 
-- Web UI before CLI/configuration stability.
-- Hosted service.
-- User accounts.
-- Persistence by default.
-- Business-specific dashboards.
-- Private adapter implementation.
-
-### Main Risks
-
-- UI work could force premature product decisions about filtering, persistence, and workflows.
-- The project could become UI-led before the core replay flow is stable.
-- Packaging the UI could distract from the local executable story.
-
-### Dependency On Previous Milestones
-
-M5 should depend on M3's configuration model and should ideally follow M4 only if HTTP sender behavior is small and stable enough to expose safely.
+**Complete** - M5 shipped with local Razor Pages app, CSV upload/preview, and mock replay execution.
 
 ## M6: Private Adapter Extension Model
 
@@ -135,3 +102,5 @@ M6 should depend on M4's generic sender learning and M5's composition needs, if 
 | M1 | Local CLI Replay Preview |
 | M2 | Local Executable Distribution |
 | M3 | Configurable Replay Inputs |
+| M4 | HTTP Sender Preview |
+| M5 | Minimal Web UI |

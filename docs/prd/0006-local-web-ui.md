@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft
+Superseded by M5 Implementation
 
 ## Purpose
 
