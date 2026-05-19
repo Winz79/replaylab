@@ -2,22 +2,24 @@
 
 ## Status
 
-Proposed — contract hardening implemented with issue #56.
-DI helpers, example adapter, and NuGet packaging remain for issues #57, #58, #59.
+Proposed - M6 extension model implementation is complete across issues #56,
+#57, #58, and #59. NuGet packaging for `ReplayLab.Core` is packageable and
+pack verified. Publication is intentionally out of scope.
 
 ## Context
 
-M1–M5 established the core replay model, CSV parser, sequential replay engine,
+M1-M5 established the core replay model, CSV parser, sequential replay engine,
 mock sender, HTTP sender, CLI, and Web UI. All of these live in the public repo
 and are composed internally.
 
-No mechanism exists for a private project to extend ReplayLab without forking
-or cloning the public repo. The public contracts in `ReplayLab.Core` have minor
+No mechanism existed for a private project to extend ReplayLab without forking
+or cloning the public repo. The public contracts in `ReplayLab.Core` had minor
 inconsistencies (casing, nullable ambiguity, constructor vs init confusion) that
-make the extension surface unclear. No DI registration helpers exist. No NuGet
-package has been published.
+made the extension surface unclear. DI registration helpers and an example
+adapter were also missing. For packaging, `ReplayLab.Core` needed explicit
+NuGet metadata and pack verification.
 
-M6 will address this by hardening the public contracts, adding DI registration
+M6 addresses this by hardening the public contracts, adding DI registration
 helpers per adapter/parser project, adding a compilable example adapter, and
 preparing `ReplayLab.Core` for NuGet packaging.
 
@@ -27,12 +29,12 @@ preparing `ReplayLab.Core` for NuGet packaging.
 
 The following types in `ReplayLab.Core` are the stable public extension surface:
 
-- `IReplaySender` — implement this to create a custom sender adapter.
-- `IMessageParser` — implement this to create a custom parser.
-- `ReplayMessage` — consume this as the generic message model.
-- `ReplayResult` — produce and consume this as the replay result model.
-- `ReplayBatch` — consume this as the parsed message collection.
-- `SequentialReplayEngine` — use this to drive replay through any `IReplaySender`.
+- `IReplaySender` - implement this to create a custom sender adapter.
+- `IMessageParser` - implement this to create a custom parser.
+- `ReplayMessage` - consume this as the generic message model.
+- `ReplayResult` - produce and consume this as the replay result model.
+- `ReplayBatch` - consume this as the parsed message collection.
+- `SequentialReplayEngine` - use this to drive replay through any `IReplaySender`.
 
 Private projects implement `IReplaySender` and/or `IMessageParser`. They
 consume the rest. They do not reimplement `SequentialReplayEngine` unless they
@@ -66,28 +68,28 @@ Each adapter and parser project provides its own `IServiceCollection` extension
 methods. `ReplayLab.Core` does not gain a dependency on
 `Microsoft.Extensions.DependencyInjection` or its abstractions.
 
-- `ReplayLab.Adapters.Mock` — `AddMockReplaySender(this IServiceCollection)`
-- `ReplayLab.Adapters.Http` — `AddHttpReplaySender(this IServiceCollection, ...)`
-- `ReplayLab.Parsers.Csv` — `AddCsvMessageParser(this IServiceCollection)`
-- `ReplayLab.Adapters.Example` — `AddExampleReplaySender(this IServiceCollection)`
-- Wherever `SequentialReplayEngine` lives — `AddSequentialReplayEngine(this IServiceCollection)`
+- `ReplayLab.Adapters.Mock` - `AddMockReplaySender(this IServiceCollection)`
+- `ReplayLab.Adapters.Http` - `AddHttpReplaySender(this IServiceCollection, ...)`
+- `ReplayLab.Parsers.Csv` - `AddCsvMessageParser(this IServiceCollection)`
+- `ReplayLab.Adapters.Example` - `AddExampleReplaySender(this IServiceCollection)`
+- Wherever `SequentialReplayEngine` lives - `AddSequentialReplayEngine(this IServiceCollection)`
 
 Each extension method references only
 `Microsoft.Extensions.DependencyInjection.Abstractions`.
 
 ### 4. Example Adapter
 
-`ReplayLab.Adapters.Example` will be added to the solution (issue #58) as a
+`ReplayLab.Adapters.Example` was added to the solution (issue #58) as a
 thin, fictional sender adapter (`FileReplaySender`) that depends on
 `ReplayLab.Core` and `Microsoft.Extensions.DependencyInjection.Abstractions`.
 It is explicitly labelled as an extension pattern reference, not a production
-adapter. It will live in `src/ReplayLab.Adapters.Example` and be part of
+adapter. It lives in `src/ReplayLab.Adapters.Example` and is part of
 `ReplayLab.sln`.
 
 ### 5. NuGet Packaging Scope For M6
 
-`ReplayLab.Core` will be prepared for NuGet packaging in M6 (issue #59).
-Standard `.csproj` metadata will be added and `dotnet pack` will be verified to
+`ReplayLab.Core` is prepared for NuGet packaging in M6 (issue #59).
+Standard `.csproj` metadata is added and `dotnet pack` is verified to
 produce a valid package. Actual publication to NuGet.org is a separate
 operational step outside this milestone scope.
 
@@ -96,20 +98,26 @@ projects is deferred to M7.
 
 ### 6. Version Strategy
 
-`ReplayLab.Core` will start at version `1.0.0` once M6 packaging is complete.
-This implies a public API stability commitment from that point forward. Breaking
-changes after M6 require a major version bump and a new ADR entry.
+`ReplayLab.Core` starts at version `0.6.0` for the M6 packageable state.
+Pre-1.0 was chosen because the extension surface is hardened but long-term
+public API stability commitments are still intentionally conservative at this
+stage. Moving to `1.0.0` should happen only when maintainers explicitly declare
+stable public API guarantees.
 
 ### 7. Consumption Model
 
 A private adapter project should:
 
-1. Add `<PackageReference Include="ReplayLab.Core" Version="1.0.0" />` (or a
-   local project reference during development).
-2. Implement `IReplaySender` (and optionally `IMessageParser`).
-3. Use the project's own `IServiceCollection` extension method to register its
+1. Use a local project reference during in-repo development:
+   `<ProjectReference Include="..\ReplayLab.Core\ReplayLab.Core.csproj" />`.
+2. Use a package reference for private adapters outside this repository:
+   `<PackageReference Include="ReplayLab.Core" Version="0.6.0" />`.
+3. Configure a package source that points to a local package folder or private
+   feed.
+4. Implement `IReplaySender` (and optionally `IMessageParser`).
+5. Use the project's own `IServiceCollection` extension method to register its
    adapter.
-4. Use `SequentialReplayEngine` from the DI container to drive replay.
+6. Use `SequentialReplayEngine` from the DI container to drive replay.
 
 Hostable CLI and Web entry points are M7 scope. In M6, the private project
 owns its own composition root.
@@ -124,7 +132,7 @@ Preparing Core for NuGet packaging in M6 keeps packaging scope small while
 proving the consumption model. CLI and Web entry points require a larger refactor
 (they are currently entry points, not libraries) and belong in M7.
 
-Accepting breaking changes in M6 is intentional — this is the last milestone
+Accepting breaking changes in M6 is intentional - this is the last milestone
 before external adopters are expected to depend on the public contracts.
 
 ## Consequences
@@ -137,7 +145,8 @@ Once M6 is complete:
   `Microsoft.Extensions.DependencyInjection.Abstractions`.
 - `ReplayLab.Adapters.Example` will be part of the solution and built and tested
   with every `dotnet test ReplayLab.sln` run.
-- Any future breaking changes to `ReplayLab.Core` will require a major version bump.
+- Any future breaking changes to `ReplayLab.Core` require explicit versioning
+  discipline and ADR documentation before release.
 
 ## Alternatives Considered
 
@@ -174,6 +183,6 @@ hostable requires a non-trivial refactor that belongs in its own milestone (M7).
 - Do not add DI dependencies to `ReplayLab.Core`.
 - Any breaking change to public contracts after M6 requires a major version bump
   and a new ADR entry.
-- The example adapter exists to demonstrate the extension pattern — do not grow
+- The example adapter exists to demonstrate the extension pattern - do not grow
   it into a production adapter.
 - M7 owns the hostable entry point refactor. Do not start that work in M6.
