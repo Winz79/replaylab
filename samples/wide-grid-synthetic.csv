@@ -1,0 +1,26 @@
+eventType,entityId,region,priority,owner,state,amount,currency,channel,createdAt,updatedAt,attempt,correlationId,sourceSystem,notes
+Created,ENT-0001,North,High,Team-A,Queued,125.40,USD,Api,2026-05-01T08:00:00Z,2026-05-01T08:04:00Z,1,CORR-0001,Synthetic-A,baseline record
+Updated,ENT-0002,South,Medium,Team-B,Ready,220.00,EUR,Batch,2026-05-01T08:05:00Z,2026-05-01T08:09:00Z,1,CORR-0002,Synthetic-B,wide column validation
+Deleted,ENT-0003,West,Low,Team-C,Skipped,18.75,GBP,Manual,2026-05-01T08:10:00Z,2026-05-01T08:11:00Z,2,CORR-0003,Synthetic-C,selection check
+Created,ENT-0004,East,High,Team-D,Ready,980.10,USD,Api,2026-05-01T08:15:00Z,2026-05-01T08:18:00Z,1,CORR-0004,Synthetic-D,horizontal scroll check
+Updated,ENT-0005,Central,Medium,Team-A,Queued,42.00,JPY,Batch,2026-05-01T08:20:00Z,2026-05-01T08:25:00Z,3,CORR-0005,Synthetic-A,filter target alpha
+Created,ENT-0006,North,Low,Team-B,Ready,310.55,USD,Manual,2026-05-01T08:25:00Z,2026-05-01T08:28:00Z,1,CORR-0006,Synthetic-B,sort target beta
+Updated,ENT-0007,South,High,Team-C,Queued,77.70,EUR,Api,2026-05-01T08:30:00Z,2026-05-01T08:33:00Z,2,CORR-0007,Synthetic-C,column resize check
+Deleted,ENT-0008,West,Medium,Team-D,Ready,640.90,GBP,Batch,2026-05-01T08:35:00Z,2026-05-01T08:39:00Z,1,CORR-0008,Synthetic-D,visibility menu check
+Created,ENT-0009,East,Low,Team-A,Skipped,15.00,USD,Manual,2026-05-01T08:40:00Z,2026-05-01T08:42:00Z,4,CORR-0009,Synthetic-A,row status check
+Updated,ENT-0010,Central,High,Team-B,Ready,512.35,JPY,Api,2026-05-01T08:45:00Z,2026-05-01T08:49:00Z,1,CORR-0010,Synthetic-B,dense grid sample
+Created,ENT-0011,North,Medium,Team-C,Queued,88.80,USD,Batch,2026-05-01T08:50:00Z,2026-05-01T08:55:00Z,2,CORR-0011,Synthetic-C,vertical scroll check
+Deleted,ENT-0012,South,Low,Team-D,Ready,720.00,EUR,Manual,2026-05-01T08:55:00Z,2026-05-01T08:57:00Z,1,CORR-0012,Synthetic-D,synthetic only
+Updated,ENT-0013,West,High,Team-A,Queued,64.25,GBP,Api,2026-05-01T09:00:00Z,2026-05-01T09:03:00Z,3,CORR-0013,Synthetic-A,filter target gamma
+Created,ENT-0014,East,Medium,Team-B,Ready,430.00,USD,Batch,2026-05-01T09:05:00Z,2026-05-01T09:08:00Z,1,CORR-0014,Synthetic-B,column width sample
+Updated,ENT-0015,Central,Low,Team-C,Skipped,27.90,JPY,Manual,2026-05-01T09:10:00Z,2026-05-01T09:14:00Z,2,CORR-0015,Synthetic-C,row selection sample
+Created,ENT-0016,North,High,Team-D,Ready,905.15,USD,Api,2026-05-01T09:15:00Z,2026-05-01T09:18:00Z,1,CORR-0016,Synthetic-D,wide table sample
+Deleted,ENT-0017,South,Medium,Team-A,Queued,134.50,EUR,Batch,2026-05-01T09:20:00Z,2026-05-01T09:24:00Z,4,CORR-0017,Synthetic-A,scroll validation
+Updated,ENT-0018,West,Low,Team-B,Ready,59.99,GBP,Manual,2026-05-01T09:25:00Z,2026-05-01T09:28:00Z,1,CORR-0018,Synthetic-B,header filter sample
+Created,ENT-0019,East,High,Team-C,Queued,810.20,USD,Api,2026-05-01T09:30:00Z,2026-05-01T09:35:00Z,2,CORR-0019,Synthetic-C,sorting sample
+Updated,ENT-0020,Central,Medium,Team-D,Ready,245.00,JPY,Batch,2026-05-01T09:35:00Z,2026-05-01T09:39:00Z,1,CORR-0020,Synthetic-D,last column resize sample
+Created,ENT-0021,North,Low,Team-A,Skipped,19.95,USD,Manual,2026-05-01T09:40:00Z,2026-05-01T09:41:00Z,5,CORR-0021,Synthetic-A,synthetic row 21
+Deleted,ENT-0022,South,High,Team-B,Ready,678.30,EUR,Api,2026-05-01T09:45:00Z,2026-05-01T09:48:00Z,1,CORR-0022,Synthetic-B,synthetic row 22
+Updated,ENT-0023,West,Medium,Team-C,Queued,90.10,GBP,Batch,2026-05-01T09:50:00Z,2026-05-01T09:54:00Z,2,CORR-0023,Synthetic-C,synthetic row 23
+Created,ENT-0024,East,Low,Team-D,Ready,301.00,USD,Manual,2026-05-01T09:55:00Z,2026-05-01T09:58:00Z,1,CORR-0024,Synthetic-D,synthetic row 24
+Updated,ENT-0025,Central,High,Team-A,Queued,712.45,JPY,Api,2026-05-01T10:00:00Z,2026-05-01T10:04:00Z,3,CORR-0025,Synthetic-A,synthetic row 25
