@@ -64,10 +64,10 @@
   };
 
   const columns = [
-    { ...baseColumn, title: "Message ID", field: "__id", width: 125, frozen: true, visible: false },
-    { ...baseColumn, title: "Status", field: "__status", width: 115, formatter: statusFormatter },
-    { ...baseColumn, title: "Result", field: "__result", width: 140, visible: false },
-    { ...baseColumn, title: "Error", field: "__error", width: 220, visible: false },
+    { ...baseColumn, title: "Message ID", field: "_msgId", width: 125, frozen: true, visible: false },
+    { ...baseColumn, title: "Status", field: "_status", width: 115, formatter: statusFormatter },
+    { ...baseColumn, title: "Result", field: "_result", width: 140, visible: false },
+    { ...baseColumn, title: "Error", field: "_error", width: 220, visible: false },
     ...csvColumns.map((column) => ({
       ...baseColumn,
       title: column,
@@ -81,7 +81,7 @@
     data: rows,
     columns,
     height: "100%",
-    index: "__id",
+    index: "_msgId",
     layout: "fitData",
     nestedFieldSeparator: false,
     placeholder: "Load a CSV file to populate the replay grid.",
@@ -170,7 +170,7 @@
       const input = document.createElement("input");
       input.type = "hidden";
       input.name = "SelectedMessageIds";
-      input.value = row.__id;
+      input.value = row._msgId;
       selectedFields.appendChild(input);
     }
   }
@@ -211,7 +211,7 @@
   }
 
   function isSucceeded(row) {
-    return String(row.__status || "").toLowerCase() === "succeeded";
+    return String(row._status || "").toLowerCase() === "succeeded";
   }
 
   function showResendWarning() {

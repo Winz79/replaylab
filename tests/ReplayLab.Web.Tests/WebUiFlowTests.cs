@@ -58,8 +58,8 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
         Assert.DoesNotContain("Preview parsed messages", html);
 
         var gridState = ReadGridState(html);
-        Assert.Equal("record-1", gridState.Rows[0]["__id"]?.GetValue<string>());
-        Assert.Equal("pending", gridState.Rows[0]["__status"]?.GetValue<string>());
+        Assert.Equal("record-1", gridState.Rows[0]["_msgId"]?.GetValue<string>());
+        Assert.Equal("pending", gridState.Rows[0]["_status"]?.GetValue<string>());
         Assert.Equal("Created", gridState.Rows[0]["kind"]?.GetValue<string>());
         Assert.Equal("alpha", gridState.Rows[0]["name"]?.GetValue<string>());
         Assert.Equal(["kind", "name"], gridState.CsvColumns);
@@ -117,9 +117,9 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
         Assert.DoesNotContain("Replay results", html);
 
         var gridState = ReadGridState(html);
-        Assert.Equal("succeeded", FindRow(gridState, "record-1")["__status"]?.GetValue<string>());
-        Assert.Equal("pending", FindRow(gridState, "record-2")["__status"]?.GetValue<string>());
-        Assert.Equal("succeeded", FindRow(gridState, "record-3")["__status"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(gridState, "record-1")["_status"]?.GetValue<string>());
+        Assert.Equal("pending", FindRow(gridState, "record-2")["_status"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(gridState, "record-3")["_status"]?.GetValue<string>());
         Assert.Equal([], gridState.SelectedIds);
         Assert.Contains("0 selected / 3 row(s)", html);
         Assert.Matches("<button[^>]+id=\"replay-selected\"[^>]+disabled", html);
@@ -139,7 +139,7 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Contains("Select at least one row to replay.", html);
         Assert.DoesNotContain("Sent 1 selected row(s):", html);
-        Assert.Equal("pending", FindRow(ReadGridState(html), "record-1")["__status"]?.GetValue<string>());
+        Assert.Equal("pending", FindRow(ReadGridState(html), "record-1")["_status"]?.GetValue<string>());
     }
 
     [Fact]
@@ -167,8 +167,8 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
 
         var warningGridState = ReadGridState(warningHtml);
         Assert.Equal(["record-1"], warningGridState.SelectedIds);
-        Assert.Equal("succeeded", FindRow(warningGridState, "record-1")["__status"]?.GetValue<string>());
-        Assert.Equal("pending", FindRow(warningGridState, "record-2")["__status"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(warningGridState, "record-1")["_status"]?.GetValue<string>());
+        Assert.Equal("pending", FindRow(warningGridState, "record-2")["_status"]?.GetValue<string>());
 
         using var confirmedResponse = await client.PostAsync(
             "/?handler=Replay",
@@ -180,8 +180,8 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
 
         var confirmedGridState = ReadGridState(confirmedHtml);
         Assert.Equal([], confirmedGridState.SelectedIds);
-        Assert.Equal("succeeded", FindRow(confirmedGridState, "record-1")["__status"]?.GetValue<string>());
-        Assert.Equal("pending", FindRow(confirmedGridState, "record-2")["__status"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(confirmedGridState, "record-1")["_status"]?.GetValue<string>());
+        Assert.Equal("pending", FindRow(confirmedGridState, "record-2")["_status"]?.GetValue<string>());
     }
 
     [Fact]
@@ -206,8 +206,8 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
 
         var secondGridState = ReadGridState(secondHtml);
         Assert.Equal([], secondGridState.SelectedIds);
-        Assert.Equal("succeeded", FindRow(secondGridState, "record-1")["__status"]?.GetValue<string>());
-        Assert.Equal("succeeded", FindRow(secondGridState, "record-2")["__status"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(secondGridState, "record-1")["_status"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(secondGridState, "record-2")["_status"]?.GetValue<string>());
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
         Assert.Contains("record-1", html);
         Assert.DoesNotContain("record-2", html);
         Assert.DoesNotContain("Sent 2 selected row(s): 2 succeeded, 0 failed.", html);
-        Assert.Equal("pending", FindRow(ReadGridState(html), "record-1")["__status"]?.GetValue<string>());
+        Assert.Equal("pending", FindRow(ReadGridState(html), "record-1")["_status"]?.GetValue<string>());
     }
 
     [Fact]
@@ -371,7 +371,7 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexMo
 
     private static JsonObject FindRow(GridState gridState, string messageId)
     {
-        return gridState.Rows.Single(row => row["__id"]?.GetValue<string>() == messageId);
+        return gridState.Rows.Single(row => row["_msgId"]?.GetValue<string>() == messageId);
     }
 
     private sealed record GridState(JsonObject[] Rows, string[] CsvColumns, string[] SelectedIds, string RawJson);

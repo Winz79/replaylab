@@ -195,10 +195,10 @@ public sealed class IndexModel : PageModel
 
             var row = new Dictionary<string, string?>(StringComparer.Ordinal)
             {
-                ["__id"] = message.Id,
-                ["__status"] = result?.Status.ToString().ToLowerInvariant() ?? priorState?.Status ?? "pending",
-                ["__result"] = result?.Status.ToString() ?? priorState?.Result ?? string.Empty,
-                ["__error"] = result?.ErrorMessage ?? priorState?.Error ?? string.Empty,
+                ["_msgId"] = message.Id,
+                ["_status"] = result?.Status.ToString().ToLowerInvariant() ?? priorState?.Status ?? "pending",
+                ["_result"] = result?.Status.ToString() ?? priorState?.Result ?? string.Empty,
+                ["_error"] = result?.ErrorMessage ?? priorState?.Error ?? string.Empty,
             };
 
             var payloadValues = DeserializePayload(message.Payload);
@@ -235,16 +235,16 @@ public sealed class IndexModel : PageModel
             var priorRows = new Dictionary<string, PriorRowState>(StringComparer.Ordinal);
             foreach (var row in rows.EnumerateArray())
             {
-                var id = ReadStringProperty(row, "__id");
+                var id = ReadStringProperty(row, "_msgId");
                 if (string.IsNullOrWhiteSpace(id))
                 {
                     continue;
                 }
 
                 priorRows[id] = new PriorRowState(
-                    Status: ReadStringProperty(row, "__status"),
-                    Result: ReadStringProperty(row, "__result"),
-                    Error: ReadStringProperty(row, "__error"));
+                    Status: ReadStringProperty(row, "_status"),
+                    Result: ReadStringProperty(row, "_result"),
+                    Error: ReadStringProperty(row, "_error"));
             }
 
             return priorRows;
