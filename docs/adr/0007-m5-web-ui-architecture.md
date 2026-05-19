@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted (Superseded by Implementation)
+Accepted
 
 ## Context
 
