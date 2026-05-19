@@ -4,13 +4,20 @@
 
 M1, M2, M3, M4, and M5 are complete.
 
-M6 is the current planning milestone. It should focus on documenting the private adapter extension model for ReplayLab.
+M6 is the current milestone. It hardens the public contracts, adds DI
+registration helpers, adds a compilable example adapter, and publishes
+`ReplayLab.Core` as a NuGet package to make private adapter development
+concretely possible.
 
-## Summary Of Post-M2 Roadmap
+M7 will refactor CLI and Web into hostable entry points so private projects
+can compose their own adapters with the public entry points.
+
+## Summary Of Active Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
-| M6 | Private Adapter Extension Model | Document and validate extension boundaries for private adapters without implementing WCF or business-specific adapters in the public repo. |
+| M6 | Private Adapter Extension Model | Harden public contracts, add DI helpers per adapter/parser project, add compilable example adapter, publish ReplayLab.Core as NuGet package. |
+| M7 | Hostable Entry Points | Refactor CLI and Web into hostable libraries. Private projects register their adapters and call ReplayLabHost.RunCli() or ReplayLabHost.RunWeb(). |
 
 
 ## M4: HTTP Sender Preview
@@ -62,38 +69,62 @@ Developers can inspect payloads and replay results faster when CLI summaries are
 
 ### Goal
 
-Define how private integrations can extend ReplayLab outside the public repository without adding WCF, proprietary contracts, or business-specific mapping code to the public repo.
+Make it concretely possible for any developer to build a private ReplayLab
+adapter outside the public repo by hardening the public contracts, providing DI
+registration helpers, adding a compilable example adapter, and publishing
+`ReplayLab.Core` as a NuGet package.
 
 ### User Value
 
-Teams can understand how to keep private replay needs separate while still benefiting from the public core, parser, CLI, and generic adapter surfaces.
+Developers can build private sender adapters and parsers against a stable,
+published `ReplayLab.Core` contract without forking or cloning this repo.
 
-### Possible Scope
+### Outcome
 
-- Public extension guidance for private adapter composition.
-- Example boundaries for mapping from generic `ReplayMessage` values to private contract objects outside the repo.
-- Adapter capability metadata discussion if needed by M4 or M5.
-- Documentation checks that prove public contracts remain generic.
-- Private-adapter examples described as boundaries and flow diagrams, not implementation code.
+- Public contracts in `ReplayLab.Core` hardened (breaking changes accepted).
+- `IServiceCollection` extension methods added to each adapter and parser project.
+- `ReplayLab.Adapters.Example` with `FileReplaySender` as a compilable proof of the extension seam.
+- `ReplayLab.Core` NuGet packaging metadata added and `dotnet pack` verified.
+- Extension guide, ADR 0008, and PRD 0008 documenting the public contracts, DI pattern, and composition boundaries.
 
 ### Explicit Out Of Scope
 
 - WCF implementation in the public repo.
 - Private business contract models.
 - Customer data or proprietary payload examples.
-- Private mapping rules.
-- Certificate-specific implementation.
-- Public package commitments not already accepted through distribution planning.
+- Hostable CLI or Web entry points (M7).
+- NuGet publishing for CLI, Web, parsers, or adapters (M7).
+- AppHost or desktop entry point.
 
-### Main Risks
+### Status
 
-- Extension guidance could accidentally encode private architecture.
-- Capability metadata could overcomplicate the public adapter contract.
-- Users may expect official support for private integrations that belong outside the repo.
+In progress — see `docs/milestones/m6-private-adapter-extension-model.md`.
+
+## M7: Hostable Entry Points
+
+### Goal
+
+Refactor `ReplayLab.Cli` and `ReplayLab.Web` into hostable libraries so a
+private project can register its own adapters, call into the ReplayLab entry
+points, and get a fully working CLI and Web UI without modifying this repo.
+
+### User Value
+
+Teams can ship their own ReplayLab-powered CLI and Web UI by composing private
+adapters with the public entry points via DI registration.
+
+### Possible Scope
+
+- Refactor `ReplayLab.Cli` startup to be callable as a library
+  (`ReplayLabHost.RunCli(args, services)`).
+- Refactor `ReplayLab.Web` startup similarly.
+- Publish CLI and Web as NuGet packages.
+- Private project sets up a host, registers its adapters, calls into ReplayLab.
+- AppHost/desktop entry point if scope permits.
 
 ### Dependency On Previous Milestones
 
-M6 should depend on M4's generic sender learning and M5's composition needs, if the Web UI proceeds. It can be pulled earlier only as documentation if private extension pressure starts influencing public design.
+M7 depends on M6's stable contracts and DI registration pattern.
 
 ## Completed Milestones
 
@@ -104,3 +135,9 @@ M6 should depend on M4's generic sender learning and M5's composition needs, if 
 | M3 | Configurable Replay Inputs |
 | M4 | HTTP Sender Preview |
 | M5 | Minimal Web UI |
+
+## Future Milestones
+
+| Milestone | Candidate Direction |
+| --- | --- |
+| M7 | Hostable Entry Points |
