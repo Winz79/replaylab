@@ -1,14 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\ReplayLab.Adapters.Http\ReplayLab.Adapters.Http.csproj" />
-    <ProjectReference Include="..\ReplayLab.Adapters.Mock\ReplayLab.Adapters.Mock.csproj" />
     <ProjectReference Include="..\ReplayLab.Core\ReplayLab.Core.csproj" />
-    <ProjectReference Include="..\ReplayLab.Parsers.Csv\ReplayLab.Parsers.Csv.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.7" />
+    <ProjectReference Include="..\ReplayLab.Cli.Hosting\ReplayLab.Cli.Hosting.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
