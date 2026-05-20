@@ -261,11 +261,13 @@ surface.
 - add a generic sample that registers adapters/parsers through DI
 - invoke the hostable entry points from a private-style composition root
 - keep the sample synthetic and business-agnostic
+- demonstrate both CLI and Web consumption through `samples/ReplayLab.HostSample`
 
 **Acceptance Criteria:**
 
 - the sample demonstrates private composition without modifying ReplayLab code
 - the sample stays generic and free of business-specific types
+- the sample proves CLI DI consumption and Web external hosting/mounting
 
 ### Draft 5: Document private consumption model
 
@@ -277,6 +279,17 @@ points after M7.
 - describe service-registration expectations
 - describe composition-root ownership
 - describe M7-supported scenarios and deferred scenarios
+- reference `samples/ReplayLab.HostSample` as the practical example
+
+**Delivered M7 consumption model:**
+
+- CLI hosts can register parser and sender services through DI and pass the
+  provider to `ReplayLab.Cli.Hosting`.
+- Web hosts can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and
+  `MapReplayLabWeb()`.
+- The current Web workflow remains hostable, but it still uses its existing
+  internal CSV parser and mock sender path; external Web parser/sender DI
+  consumption is not part of M7.
 
 **Acceptance Criteria:**
 
