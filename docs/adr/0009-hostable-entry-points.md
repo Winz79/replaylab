@@ -36,9 +36,73 @@ Direction:
 - keep ReplayLab responsible for generic CLI and Web workflow behavior
 - keep business-specific composition out of the public repo
 
-This ADR accepts the architecture direction for M7, not the exact implementation
-signatures. Exact CLI API shape, exact Web API shape, package boundaries, and
-packaging timing are resolved below for the next M7 slices.
+## Accepted Host Shape
+
+### CLI Host API Shape
+
+The reusable CLI surface should live in a hostable library project, not in the
+repo-owned executable shell. The API should be a thin async runner that accepts
+the CLI arguments, output writers, and an externally owned service provider:
+
+```csharp
+public static Task<int> RunAsync(
+    string[] args,
+    TextWriter output,
+    TextWriter error,
+    IServiceProvider services,
+    CancellationToken cancellationToken = default)
+```
+
+ReplayLab owns the generic argument parsing and replay workflow. The private host
+owns DI and registers the concrete parser and sender services that the runner
+resolves.
+
+### Web Host API Shape
+
+The reusable Web surface should live in a hostable library project that exposes
+ASP.NET Core composition hooks instead of building the host itself:
+
+```csharp
+IServiceCollection AddReplayLabWeb(this IServiceCollection services)
+IEndpointRouteBuilder MapReplayLabWeb(this IEndpointRouteBuilder endpoints)
+```
+
+The private host owns `WebApplicationBuilder`, service registration, and app
+lifetime. ReplayLab owns the generic pages/endpoints and request handling logic.
+
+### Composition-Root Ownership
+
+Private projects own the composition root in M7. That means they own:
+
+- `HostApplicationBuilder` or `WebApplicationBuilder`
+- service registration order
+- configuration and logging setup
+- environment-specific wiring
+
+ReplayLab hostable APIs only consume the provider and map workflow behavior. They
+do not create the service provider, register private adapters, or hide the host
+boundary behind a second composition root.
+
+### Project And Package Boundaries
+
+M7 should introduce companion hostable library projects for the reusable API
+surface:
+
+- `ReplayLab.Cli.Hosting` for the CLI runner
+- `ReplayLab.Web.Hosting` for the Web composition hooks
+
+The current `ReplayLab.Cli` and `ReplayLab.Web` projects should remain the
+repo-owned runnable shells that exercise those hostable libraries. They are not
+the public reusable surface themselves.
+
+This keeps the hostable boundary clear while preserving the current app entry
+points for the public repo.
+
+### Packaging Timing
+
+Packaging is later, after the M7 hostable APIs are validated. M7 should define
+the package/project boundary and extract the reusable surface, but it should not
+add release/publish automation or try to solve distribution at the same time.
 
 ## Options Considered
 
