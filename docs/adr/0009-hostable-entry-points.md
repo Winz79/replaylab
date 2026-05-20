@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 
@@ -26,7 +26,7 @@ CLI and Web workflow behavior reusable.
 
 ## Decision Direction
 
-ReplayLab should move toward hostable CLI and Web entry points in M7.
+ReplayLab will expose hostable CLI and Web entry points in M7.
 
 Direction:
 
@@ -36,8 +36,9 @@ Direction:
 - keep ReplayLab responsible for generic CLI and Web workflow behavior
 - keep business-specific composition out of the public repo
 
-This direction is proposed architecture guidance for M7, not an implementation
-decision on the exact API shape yet.
+This ADR accepts the architecture direction for M7, not the exact implementation
+signatures. Exact CLI API shape, exact Web API shape, package boundaries, and
+packaging timing remain open implementation questions for the first M7 slice.
 
 ## Options Considered
 
@@ -50,7 +51,7 @@ to reuse ReplayLab CLI/Web behavior cleanly.
 
 ### 2. Expose hostable entry APIs
 
-Preferred direction.
+Accepted direction.
 
 This keeps ReplayLab responsible for generic workflow behavior while allowing
 private hosts to own service registration and composition.
@@ -59,8 +60,9 @@ private hosts to own service registration and composition.
 
 Possible packaging direction, but not the architectural decision itself.
 
-This may become part of M7 or later packaging work, but the first decision is
-the hostable boundary and API surface, not the final distribution mechanism.
+This may become part of M7 or later packaging work, but the accepted decision is
+the hostable boundary and architecture direction, not the final distribution
+mechanism.
 
 ### 4. Implement Desktop AppHost now
 
