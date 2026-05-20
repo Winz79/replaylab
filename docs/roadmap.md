@@ -6,7 +6,9 @@ M1, M2, M3, M4, M5, and M6 are complete.
 
 M7 is the current milestone. It will refactor `ReplayLab.Cli` and
 `ReplayLab.Web` into hostable entry points so private projects can compose their
-own adapters and parsers through DI without modifying the public repo.
+own adapters and parsers through DI without modifying the public repo. The
+reusable host surface is expected to live in companion host libraries, while the
+current app projects remain runnable shells.
 
 M6 established the extension model boundary for private projects. In M6,
 private projects own their own composition root. M7 is the next step that makes
@@ -17,7 +19,7 @@ CLI and Web consumption hostable.
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
 | M6 | Private Adapter Extension Model | Complete. Public contracts hardened, DI helpers added per adapter/parser project, example adapter added, ReplayLab.Core packageable and pack verified at version 0.6.0. |
-| M7 | Hostable Entry Points | Current milestone. Refactor CLI and Web into hostable entry points so private projects can register their adapters and parsers through DI and call ReplayLab entry points without modifying this repo. |
+| M7 | Hostable Entry Points | Current milestone. Define and extract hostable CLI/Web surfaces into companion host libraries so private projects can register their adapters and parsers through DI and call ReplayLab workflows without modifying this repo. |
 
 ## Post-M6 Candidate Tracks
 

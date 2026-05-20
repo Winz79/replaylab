@@ -24,20 +24,21 @@ registration helpers, `ReplayLab.Adapters.Example`, and packageable
 M6 explicitly kept private projects responsible for their own composition root.
 ADR 0008 and PRD 0008 both define hostable CLI and Web entry points as M7 work.
 ADR 0009 captures the accepted hostable entry point architecture direction for
-M7 while leaving exact API shape and packaging details open for the first M7
-slice. M7 therefore starts from a stable public extension seam and focuses on
+M7. M7 therefore starts from a stable public extension seam and focuses on
 making the existing CLI and Web experiences reusable without pulling
 business-specific composition into the public repo.
 
 ## Scope
 
-- Define the hostable architecture for `ReplayLab.Cli` and `ReplayLab.Web`.
-- Extract a hostable CLI entry point with a stable API surface.
-- Extract a hostable Web entry point with a stable API surface.
+- Define the hostable architecture for CLI and Web entry points.
+- Define the reusable API surface for a hostable CLI runner.
+- Define the reusable API surface for hostable Web composition hooks.
 - Define ownership of the composition root between ReplayLab and private hosts.
 - Define how a private project registers adapters/parsers and calls the hostable
   entry points.
 - Document the private consumption model for hostable entry points.
+- Keep the runnable `ReplayLab.Cli` and `ReplayLab.Web` shells separate from the
+  reusable hostable API surface.
 - Keep the hostable model generic and free of business-specific adapter logic.
 
 ## Explicit Non-Goals
@@ -69,11 +70,15 @@ ReplayLab should separate app startup shells from reusable hostable behavior.
 
 Candidate direction:
 
-- Introduce a hostable entry abstraction for CLI that accepts arguments plus a
-  service-registration/composition hook rather than assuming repo-owned startup.
-- Introduce a hostable entry abstraction for Web that lets a private project add
-  ReplayLab Web behavior into its own ASP.NET Core host or call a focused boot
-  surface.
+- Introduce `ReplayLab.Cli.Hosting` as the reusable CLI surface. It should own a
+  thin `RunAsync(string[] args, TextWriter output, TextWriter error,
+  IServiceProvider services, CancellationToken cancellationToken = default)`
+  runner and leave DI creation to the caller.
+- Introduce `ReplayLab.Web.Hosting` as the reusable Web surface. It should own
+  ASP.NET Core composition hooks such as `AddReplayLabWeb` and
+  `MapReplayLabWeb`.
+- Keep `ReplayLab.Cli` and `ReplayLab.Web` as thin repo-owned shells that prove
+  the hostable libraries still run the current public workflows.
 - Keep ReplayLab responsible for generic CLI/Web workflow behavior while the
   private project remains responsible for registering private adapters, parsers,
   and any private configuration.
@@ -102,6 +107,7 @@ Private project composition root
 - define the boundary between repo-owned workflow logic and private composition
 - define CLI and Web host API shape
 - define ownership of service registration and startup
+- define the companion library/project boundary for the reusable host surface
 
 ### Slice 2: Extract Hostable CLI Entry Point
 
@@ -131,7 +137,7 @@ Private project composition root
 - `docs/adr/0009-hostable-entry-points.md` as the accepted hostable entry point
   architecture direction for CLI and Web
 - Composition root ownership and DI boundary between ReplayLab and private hosts
-- Packaging and reusable API surface for hostable CLI/Web entry points
+- Packaging later, after the hostable API shape is validated
 
 ADR 0009 accepts the architecture direction in this planning phase. Any
 follow-up ADR work should stay focused on unresolved API shape, packaging
@@ -160,6 +166,8 @@ Do not create or update PRD files in this planning PR.
   extension-model boundaries.
 - CLI/Web hostability does not add business-specific types or private adapter
   assumptions to public ReplayLab projects.
+- The reusable hostable surface is documented as companion libraries, not as a
+  new packaging/release initiative.
 - M7 documentation clearly distinguishes included scope from deferred parser,
   Web UX, and desktop-shell candidates.
 
