@@ -6,6 +6,12 @@ Refactor `ReplayLab.Cli` and `ReplayLab.Web` into hostable entry points so a
 private project can register its own adapters and parsers through DI and call
 ReplayLab entry points without modifying the public repo.
 
+## Status
+
+Complete - M7 delivered the hostable CLI runner, Web hosting hooks, sample
+composition proof, and consumption-model docs. See the retrospective at
+`docs/retrospectives/m7-hostable-entry-points.md`.
+
 ## User Value
 
 - Teams can compose ReplayLab-powered CLI and Web experiences around their own
