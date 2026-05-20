@@ -281,6 +281,16 @@ points after M7.
 - describe M7-supported scenarios and deferred scenarios
 - reference `samples/ReplayLab.HostSample` as the practical example
 
+**Delivered M7 consumption model:**
+
+- CLI hosts can register parser and sender services through DI and pass the
+  provider to `ReplayLab.Cli.Hosting`.
+- Web hosts can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and
+  `MapReplayLabWeb()`.
+- The current Web workflow remains hostable, but it still uses its existing
+  internal CSV parser and mock sender path; external Web parser/sender DI
+  consumption is not part of M7.
+
 **Acceptance Criteria:**
 
 - M7 documentation is clear enough for a private project author to follow

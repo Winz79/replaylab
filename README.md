@@ -92,7 +92,11 @@ M7 adds hostable entry points for external projects.
 - `ReplayLab.Web.Hosting` exposes ASP.NET Core composition hooks.
 - `samples/ReplayLab.HostSample` demonstrates an external-style composition root.
 
-External hosts own their service registration and app startup. They register parser and sender services through DI, then call the hostable ReplayLab entry points.
+External hosts own their service registration and app startup.
+
+For CLI hosting, external projects can register parser and sender services through DI and pass the provider to `ReplayLab.Cli.Hosting`.
+
+For Web hosting, external projects can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and `MapReplayLabWeb()`. The current Web workflow is hostable, but still uses its existing internal CSV parser and mock sender path; external Web parser/sender DI consumption is not part of M7.
 
 For the accepted architecture and current scope boundaries, see [ADR 0009](docs/adr/0009-hostable-entry-points.md), the [M7 milestone](docs/milestones/m7-hostable-entry-points.md), and [the sample README](samples/README.md).
 
