@@ -15,7 +15,7 @@ ReplayLab is a .NET replay/testing toolkit for loading structured replay message
 - It does not include Docker assets.
 - It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
 - It does not contain private mapping rules or business contract models.
-- Hostable CLI and Web entry points are planned for M7.
+- Hostable CLI and Web entry points are documented in M7.
 
 ## Current Status
 
@@ -82,7 +82,19 @@ M6 makes private adapters a supported extension path without moving private inte
 - Optionally implement `IMessageParser`.
 - Add a project-local `IServiceCollection` extension.
 - Own the composition root.
-- Hostable CLI and Web entry points are planned for M7.
+- See the hostable CLI and Web entry points documented in M7.
+
+## Hostable Entry Points
+
+M7 adds hostable entry points for external projects.
+
+- `ReplayLab.Cli.Hosting` exposes the reusable CLI runner.
+- `ReplayLab.Web.Hosting` exposes ASP.NET Core composition hooks.
+- `samples/ReplayLab.HostSample` demonstrates an external-style composition root.
+
+External hosts own their service registration and app startup. They register parser and sender services through DI, then call the hostable ReplayLab entry points.
+
+For the accepted architecture and current scope boundaries, see [ADR 0009](docs/adr/0009-hostable-entry-points.md), the [M7 milestone](docs/milestones/m7-hostable-entry-points.md), and [the sample README](samples/README.md).
 
 ## Packageable Core
 
