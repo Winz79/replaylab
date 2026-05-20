@@ -2,36 +2,46 @@
 
 ## Current Position
 
-M1, M2, M3, M4, M5, and M6 are complete.
+M1 through M7 are complete.
 
-M7 is the current milestone. It will refactor `ReplayLab.Cli` and
-`ReplayLab.Web` into hostable entry points so private projects can compose their
-own adapters and parsers through DI without modifying the public repo. The
-reusable host surface is expected to live in companion host libraries, while the
-current app projects remain runnable shells.
-
-M6 established the extension model boundary for private projects. In M6,
-private projects own their own composition root. M7 is the next step that makes
-CLI and Web consumption hostable.
+M7 refactored `ReplayLab.Cli` and `ReplayLab.Web` into hostable entry points so
+private projects can compose around ReplayLab without modifying the public repo.
+CLI hostability consumes externally registered parser and sender services through
+DI. Web hostability exposes `AddReplayLabWeb()` and `MapReplayLabWeb()`, but the
+current Web workflow still uses the internal CSV parser and mock sender path.
+External Web parser/sender DI consumption is deferred.
 
 ## Summary Of Active Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
 | M6 | Private Adapter Extension Model | Complete. Public contracts hardened, DI helpers added per adapter/parser project, example adapter added, ReplayLab.Core packageable and pack verified at version 0.6.0. |
-| M7 | Hostable Entry Points | Current milestone. Define and extract hostable CLI/Web surfaces into companion host libraries so private projects can register their adapters and parsers through DI and call ReplayLab workflows without modifying this repo. |
+| M7 | Hostable Entry Points | Complete. Hostable CLI runner, Web hosting hooks, external host sample, and consumption-model docs delivered. Web parser/sender DI consumption remains deferred follow-up scope. |
 
-## Post-M6 Candidate Tracks
+## Post-M7 Candidate Tracks
 
 The following discovery issues are future candidate milestones or candidate
-tracks. They are not part of M7 unless explicitly promoted later.
+tracks. They remain discovery/candidate tracks unless explicitly promoted later.
 
-- `#69` RFC-compliant CSV parser strategy is a parser-quality candidate that is
-  independent from M7 hostable entry points.
-- `#68` editable Web grid values before replay is a Web UX/product candidate
-  that is independent from M7 hostable entry points.
+- Web External Composition is a newly identified post-M7 platform/architecture
+  candidate from the M7 limitation. It would make `ReplayLab.Web.Hosting`
+  consume parser/sender/workflow services from DI where the Web workflow requires
+  them.
+- `#69` RFC-compliant CSV parser strategy is a parser-quality candidate.
+- `#68` editable Web grid values before replay is a Web UX/product candidate.
 - `#70` Desktop AppHost with WebView2 and self-hosted Web UI is a
-  desktop/product-shell candidate that depends on M7 hostable Web entry points.
+  desktop/product-shell candidate that depends on M7 hostable Web entry points
+  and likely benefits from Web External Composition first.
+
+Candidate milestone direction, not final commitment:
+
+- Candidate M8: Web External Composition.
+- Candidate M9: Parser Quality / RFC-compliant CSV or Editable Replay Workspace,
+  depending on whether robustness or UX value is prioritized.
+- Candidate later: Desktop AppHost / Product Shell.
+
+See `docs/business-analysis/post-m7-product-direction.md` for the current
+post-M7 business analysis.
 
 
 ## M4: HTTP Sender Preview
@@ -152,7 +162,8 @@ M7 depends on M6's stable contracts and DI registration pattern.
 
 ### Status
 
-Planned — see `docs/milestones/m7-hostable-entry-points.md`.
+Complete — see `docs/milestones/m7-hostable-entry-points.md` and
+`docs/retrospectives/m7-hostable-entry-points.md`.
 
 ## Completed Milestones
 
@@ -164,12 +175,14 @@ Planned — see `docs/milestones/m7-hostable-entry-points.md`.
 | M4 | HTTP Sender Preview |
 | M5 | Minimal Web UI |
 | M6 | Private Adapter Extension Model |
+| M7 | Hostable Entry Points |
 
 ## Future Milestones
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| M7 | Hostable Entry Points |
+| Candidate M8 | Web External Composition |
+| Candidate M9 | Parser Quality / RFC-compliant CSV or Editable Replay Workspace |
 | Future candidate track | CSV parser quality / RFC-compliant CSV strategy |
 | Future candidate track | Editable replay workspace / Web grid editing |
 | Future candidate track | Desktop AppHost / product shell |
