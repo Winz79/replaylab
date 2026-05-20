@@ -2,23 +2,34 @@
 
 ## Current Position
 
-M1, M2, M3, M4, and M5 are complete.
+M1, M2, M3, M4, M5, and M6 are complete.
 
-M6 is the current milestone. It hardens the public contracts, adds DI
-registration helpers, adds a compilable example adapter, and makes
-`ReplayLab.Core` packageable and pack verified so private adapter development is
-concretely possible.
+M7 is the current milestone. It will refactor `ReplayLab.Cli` and
+`ReplayLab.Web` into hostable entry points so private projects can compose their
+own adapters and parsers through DI without modifying the public repo.
 
-M7 will refactor CLI and Web into hostable entry points so private projects
-can compose their own adapters with hostable entry points instead of the current
-repo-owned application shells.
+M6 established the extension model boundary for private projects. In M6,
+private projects own their own composition root. M7 is the next step that makes
+CLI and Web consumption hostable.
 
 ## Summary Of Active Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
-| M6 | Private Adapter Extension Model | Harden public contracts, add DI helpers per adapter/parser project, add compilable example adapter, make ReplayLab.Core packageable and pack verified at version 0.6.0. |
-| M7 | Hostable Entry Points | Refactor CLI and Web into hostable entry points. Private projects register their adapters and call ReplayLabHost.RunCli() or ReplayLabHost.RunWeb(). |
+| M6 | Private Adapter Extension Model | Complete. Public contracts hardened, DI helpers added per adapter/parser project, example adapter added, ReplayLab.Core packageable and pack verified at version 0.6.0. |
+| M7 | Hostable Entry Points | Current milestone. Refactor CLI and Web into hostable entry points so private projects can register their adapters and parsers through DI and call ReplayLab entry points without modifying this repo. |
+
+## Post-M6 Candidate Tracks
+
+The following discovery issues are future candidate milestones or candidate
+tracks. They are not part of M7 unless explicitly promoted later.
+
+- `#69` RFC-compliant CSV parser strategy is a parser-quality candidate that is
+  independent from M7 hostable entry points.
+- `#68` editable Web grid values before replay is a Web UX/product candidate
+  that is independent from M7 hostable entry points.
+- `#70` Desktop AppHost with WebView2 and self-hosted Web UI is a
+  desktop/product-shell candidate that depends on M7 hostable Web entry points.
 
 
 ## M4: HTTP Sender Preview
@@ -100,7 +111,7 @@ cloning this repo.
 
 ### Status
 
-In progress — see `docs/milestones/m6-private-adapter-extension-model.md`.
+Complete — see `docs/milestones/m6-private-adapter-extension-model.md`.
 
 ## M7: Hostable Entry Points
 
@@ -117,16 +128,29 @@ adapters with hostable entry points via DI registration.
 
 ### Possible Scope
 
-- Refactor `ReplayLab.Cli` startup to be callable as a library
-  (`ReplayLabHost.RunCli(args, services)`).
-- Refactor `ReplayLab.Web` startup similarly.
-- Publish CLI and Web as NuGet packages.
-- Private project sets up a host, registers its adapters, calls into ReplayLab.
-- AppHost/desktop entry point if scope permits.
+- Refactor `ReplayLab.Cli` startup into a hostable entry point.
+- Refactor `ReplayLab.Web` startup into a hostable entry point.
+- Define the composition model and ownership boundary for private hosts.
+- Document how private projects register adapters/parsers and consume the
+  hostable entry points.
+
+### Explicit Out Of Scope
+
+- Editable Web grid values before replay (`#68`).
+- RFC-compliant CSV parser strategy (`#69`).
+- Desktop AppHost with WebView2 and self-hosted Web UI (`#70`).
+- New parser library adoption.
+- WebView2 desktop shell work.
+- Product UX expansion beyond current CLI/Web workflows.
+- Business-specific adapters.
 
 ### Dependency On Previous Milestones
 
 M7 depends on M6's stable contracts and DI registration pattern.
+
+### Status
+
+Planned — see `docs/milestones/m7-hostable-entry-points.md`.
 
 ## Completed Milestones
 
@@ -137,9 +161,13 @@ M7 depends on M6's stable contracts and DI registration pattern.
 | M3 | Configurable Replay Inputs |
 | M4 | HTTP Sender Preview |
 | M5 | Minimal Web UI |
+| M6 | Private Adapter Extension Model |
 
 ## Future Milestones
 
-| Milestone | Candidate Direction |
+| Milestone Or Track | Candidate Direction |
 | --- | --- |
 | M7 | Hostable Entry Points |
+| Future candidate track | CSV parser quality / RFC-compliant CSV strategy |
+| Future candidate track | Editable replay workspace / Web grid editing |
+| Future candidate track | Desktop AppHost / product shell |
