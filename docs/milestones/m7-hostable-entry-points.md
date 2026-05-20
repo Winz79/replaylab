@@ -24,8 +24,7 @@ registration helpers, `ReplayLab.Adapters.Example`, and packageable
 M6 explicitly kept private projects responsible for their own composition root.
 ADR 0008 and PRD 0008 both define hostable CLI and Web entry points as M7 work.
 ADR 0009 captures the accepted hostable entry point architecture direction for
-M7 while leaving exact API shape and packaging details open for the first M7
-slice. M7 therefore starts from a stable public extension seam and focuses on
+M7. M7 therefore starts from a stable public extension seam and focuses on
 making the existing CLI and Web experiences reusable without pulling
 business-specific composition into the public repo.
 
@@ -131,7 +130,7 @@ Private project composition root
 - `docs/adr/0009-hostable-entry-points.md` as the accepted hostable entry point
   architecture direction for CLI and Web
 - Composition root ownership and DI boundary between ReplayLab and private hosts
-- Packaging and reusable API surface for hostable CLI/Web entry points
+- Packaging later, after the hostable API shape is validated
 
 ADR 0009 accepts the architecture direction in this planning phase. Any
 follow-up ADR work should stay focused on unresolved API shape, packaging
