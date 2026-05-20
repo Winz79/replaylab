@@ -19,6 +19,8 @@ Milestone docs currently in this folder:
 - [M5: Minimal Web UI](m5-minimal-web-ui.md)
 - [M6: Private Adapter Extension Model](m6-private-adapter-extension-model.md)
 - [M7: Hostable Entry Points](m7-hostable-entry-points.md)
+- [M8: Web External Composition](m8-web-external-composition.md)
+- [Future Candidate Milestones](future-candidate-milestones.md)
 
 Milestone planning should add or update documents here rather than expanding
 `docs/roadmap.md` into a detailed plan.

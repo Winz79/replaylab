@@ -17,31 +17,38 @@ External Web parser/sender DI consumption is deferred.
 | --- | --- | --- |
 | M6 | Private Adapter Extension Model | Complete. Public contracts hardened, DI helpers added per adapter/parser project, example adapter added, ReplayLab.Core packageable and pack verified at version 0.6.0. |
 | M7 | Hostable Entry Points | Complete. Hostable CLI runner, Web hosting hooks, external host sample, and consumption-model docs delivered. Web parser/sender DI consumption remains deferred follow-up scope. |
+| M8 | Web External Composition | Recommended next milestone. Make `ReplayLab.Web.Hosting` consume host-provided parser/sender/workflow services through DI while preserving current Web defaults. |
+
+## Post-M7 Planning Package
+
+- [Post-M7 Product Direction](business-analysis/post-m7-product-direction.md)
+- [Post-M7 Artifact Map](business-analysis/post-m7-artifact-map.md)
+- [M8: Web External Composition](milestones/m8-web-external-composition.md)
+- [Future Candidate Milestones](milestones/future-candidate-milestones.md)
 
 ## Post-M7 Candidate Tracks
 
 The following discovery issues are future candidate milestones or candidate
 tracks. They remain discovery/candidate tracks unless explicitly promoted later.
 
-- Web External Composition is a newly identified post-M7 platform/architecture
-  candidate from the M7 limitation. It would make `ReplayLab.Web.Hosting`
-  consume parser/sender/workflow services from DI where the Web workflow requires
-  them.
-- `#69` RFC-compliant CSV parser strategy is a parser-quality candidate.
-- `#68` editable Web grid values before replay is a Web UX/product candidate.
-- `#70` Desktop AppHost with WebView2 and self-hosted Web UI is a
-  desktop/product-shell candidate that depends on M7 hostable Web entry points
-  and likely benefits from Web External Composition first.
+- M8 Web External Composition is the recommended next milestone. It closes the
+  main M7 limitation by making the Web workflow consume host-provided services
+  from DI while keeping current CSV/mock defaults.
+- M9A Parser Quality / RFC-compliant CSV (`#69`) and M9B Editable Replay
+  Workspace (`#68`) are competing or alternative next candidates after M8.
+- Desktop AppHost / Product Shell (`#70`) is a later candidate that depends on
+  M8 and likely benefits from either Parser Quality or Editable Replay Workspace.
 
-Candidate milestone direction, not final commitment:
+Candidate milestone direction, not final commitment unless explicitly accepted:
 
-- Candidate M8: Web External Composition.
-- Candidate M9: Parser Quality / RFC-compliant CSV or Editable Replay Workspace,
-  depending on whether robustness or UX value is prioritized.
-- Candidate later: Desktop AppHost / Product Shell.
+- Recommended M8: Web External Composition.
+- Candidate M9A: Parser Quality / RFC-compliant CSV.
+- Candidate M9B: Editable Replay Workspace.
+- Candidate M10: Desktop AppHost / Product Shell.
 
 See `docs/business-analysis/post-m7-product-direction.md` for the current
-post-M7 business analysis.
+post-M7 business analysis and `docs/business-analysis/post-m7-artifact-map.md`
+for recommended future BRD/PRD/ADR timing.
 
 
 ## M4: HTTP Sender Preview
@@ -181,8 +188,7 @@ Complete — see `docs/milestones/m7-hostable-entry-points.md` and
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| Candidate M8 | Web External Composition |
-| Candidate M9 | Parser Quality / RFC-compliant CSV or Editable Replay Workspace |
-| Future candidate track | CSV parser quality / RFC-compliant CSV strategy |
-| Future candidate track | Editable replay workspace / Web grid editing |
-| Future candidate track | Desktop AppHost / product shell |
+| Recommended M8 | Web External Composition |
+| Candidate M9A | Parser Quality / RFC-compliant CSV |
+| Candidate M9B | Editable Replay Workspace |
+| Candidate M10 | Desktop AppHost / Product Shell |
