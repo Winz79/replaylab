@@ -1,6 +1,8 @@
+using ReplayLab.Web.Hosting;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+builder.Services.AddReplayLabWeb();
 
 var app = builder.Build();
 
@@ -9,9 +11,9 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
 }
 
-app.UseStaticFiles();
 app.UseRouting();
-app.MapRazorPages();
+app.MapStaticAssets();
+app.MapReplayLabWeb();
 
 app.Run();
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReplayLab.Adapters.Mock\ReplayLab.Adapters.Mock.csproj" />
+    <ProjectReference Include="..\ReplayLab.Core\ReplayLab.Core.csproj" />
+    <ProjectReference Include="..\ReplayLab.Parsers.Csv\ReplayLab.Parsers.Csv.csproj" />
+  </ItemGroup>
+
+</Project>

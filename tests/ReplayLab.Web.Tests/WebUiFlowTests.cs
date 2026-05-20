@@ -4,15 +4,15 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc.Testing;
-using ReplayLab.Web.Pages;
+using ReplayLab.Web;
 
 namespace ReplayLab.Web.Tests;
 
-public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<IndexModel>>
+public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly WebApplicationFactory<IndexModel> _factory;
+    private readonly WebApplicationFactory<Program> _factory;
 
-    public WebUiFlowTests(WebApplicationFactory<IndexModel> factory)
+    public WebUiFlowTests(WebApplicationFactory<Program> factory)
     {
         _factory = factory;
     }
