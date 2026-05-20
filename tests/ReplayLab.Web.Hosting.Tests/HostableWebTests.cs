@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using ReplayLab.Web.Hosting;
 
@@ -28,6 +30,23 @@ public sealed class HostableWebTests
     }
 
     [Fact]
+    public async Task Minimal_host_serves_static_web_assets_from_hosting_library()
+    {
+        await using var app = await CreateAppAsync();
+        using var client = app.GetTestClient();
+
+        using var cssResponse = await client.GetAsync("/_content/ReplayLab.Web.Hosting/css/site.css");
+        using var jsResponse = await client.GetAsync("/_content/ReplayLab.Web.Hosting/js/replay-grid.js");
+        using var tabulatorCssResponse = await client.GetAsync("/_content/ReplayLab.Web.Hosting/lib/tabulator/css/tabulator.min.css");
+        using var tabulatorJsResponse = await client.GetAsync("/_content/ReplayLab.Web.Hosting/lib/tabulator/js/tabulator.min.js");
+
+        Assert.Equal(HttpStatusCode.OK, cssResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, jsResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, tabulatorCssResponse.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, tabulatorJsResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task Minimal_host_runs_upload_and_replay_flow_without_replaylab_web_program()
     {
         await using var app = await CreateAppAsync();
@@ -48,13 +67,17 @@ public sealed class HostableWebTests
 
     private static async Task<WebApplication> CreateAppAsync()
     {
-        var builder = WebApplication.CreateBuilder();
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+        {
+            EnvironmentName = Environments.Development
+        });
         builder.WebHost.UseTestServer();
+        builder.WebHost.UseStaticWebAssets();
         builder.Services.AddReplayLabWeb();
 
         var app = builder.Build();
-        app.UseStaticFiles();
         app.UseRouting();
+        app.MapStaticAssets(Path.Combine(AppContext.BaseDirectory, "ReplayLab.Web.Hosting.Tests.staticwebassets.endpoints.json"));
         app.MapReplayLabWeb();
         await app.StartAsync();
         return app;
