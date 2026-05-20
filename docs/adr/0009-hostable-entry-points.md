@@ -3,6 +3,7 @@
 ## Status
 
 Accepted
+ 
 
 ## Context
 
@@ -38,7 +39,7 @@ Direction:
 
 This ADR accepts the architecture direction for M7, not the exact implementation
 signatures. Exact CLI API shape, exact Web API shape, package boundaries, and
-packaging timing remain open implementation questions for the first M7 slice.
+packaging timing are resolved below for the next M7 slices.
 
 ## Options Considered
 
@@ -60,9 +61,8 @@ private hosts to own service registration and composition.
 
 Possible packaging direction, but not the architectural decision itself.
 
-This may become part of M7 or later packaging work, but the accepted decision is
-the hostable boundary and architecture direction, not the final distribution
-mechanism.
+This becomes a later packaging concern. M7 resolves the host boundary and API
+surface first.
 
 ### 4. Implement Desktop AppHost now
 
@@ -89,9 +89,12 @@ It should not be used to define M7 architecture prematurely.
 - Business-specific adapters, composition, or mappings.
 - Product UX expansion beyond current generic CLI/Web workflows.
 
-## Open Questions
+## Resulting Guidance
 
-- What exact CLI host API shape should M7 expose?
-- What exact Web host API shape should M7 expose?
-- What package boundaries should hostable CLI and Web entry points use?
-- Should packaging for hostable entry points happen in M7 or later?
+- CLI hostability should be implemented as a reusable async runner in a
+  companion host library.
+- Web hostability should be implemented as ASP.NET Core composition hooks in a
+  companion host library.
+- Private hosts own the composition root and DI graph.
+- Current app projects remain runnable shells.
+- Packaging happens after the API shape is proven in M7.
