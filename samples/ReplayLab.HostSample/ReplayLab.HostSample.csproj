@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ReplayLab.Cli.Hosting\ReplayLab.Cli.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\ReplayLab.Web.Hosting\ReplayLab.Web.Hosting.csproj" />
+    <ProjectReference Include="..\..\src\ReplayLab.Core\ReplayLab.Core.csproj" />
+  </ItemGroup>
+
+</Project>

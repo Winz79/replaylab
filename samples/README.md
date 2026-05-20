@@ -111,3 +111,26 @@ On non-Windows systems, run the apphost without the `.exe` extension:
 ./artifacts/publish/replaylab/ReplayLab.Cli --format csv samples/basic.csv
 ./artifacts/publish/replaylab/ReplayLab.Cli --sender http --endpoint-url http://localhost:5087/ samples/basic.csv
 ```
+
+## Hostable Entry Point Sample
+
+`samples/ReplayLab.HostSample/` is a tiny synthetic composition proof for M7.
+It is not a new product shell. It owns DI registration and host startup, then
+invokes ReplayLab's public hostable entry points.
+
+Run the synthetic sample CLI host:
+
+```powershell
+dotnet run --project samples/ReplayLab.HostSample/ReplayLab.HostSample.csproj -- cli samples/basic.csv
+```
+
+Run the synthetic sample Web host:
+
+```powershell
+dotnet run --project samples/ReplayLab.HostSample/ReplayLab.HostSample.csproj -- web
+```
+
+Current limitation: the sample proves Web host ownership through
+`AddReplayLabWeb()` and `MapReplayLabWeb()`, but the current ReplayLab Web
+workflow still uses its existing internal parser/mock sender path. Issue `#75`
+does not expand into refactoring Web internals for parser/sender DI consumption.
