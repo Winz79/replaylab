@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ReplayLab.Cli\ReplayLab.Cli.csproj" />
+    <ProjectReference Include="..\..\src\ReplayLab.Cli.Hosting\ReplayLab.Cli.Hosting.csproj" />
   </ItemGroup>
 
 </Project>

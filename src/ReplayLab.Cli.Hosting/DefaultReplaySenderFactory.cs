@@ -2,7 +2,7 @@ using ReplayLab.Adapters.Http;
 using ReplayLab.Adapters.Mock;
 using ReplayLab.Core;
 
-namespace ReplayLab.Cli;
+namespace ReplayLab.Cli.Hosting;
 
 public sealed class DefaultReplaySenderFactory : IReplaySenderFactory
 {

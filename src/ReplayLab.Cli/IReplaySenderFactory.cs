@@ -1,10 +1,5 @@
-using ReplayLab.Core;
-
 namespace ReplayLab.Cli;
 
-public interface IReplaySenderFactory
+public interface IReplaySenderFactory : ReplayLab.Cli.Hosting.IReplaySenderFactory
 {
-    IReplaySender CreateMockSender();
-
-    IReplaySender CreateHttpSender(Uri endpointUrl);
 }
