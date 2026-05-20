@@ -1,12 +1,13 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ReplayLab.Adapters.Mock;
 using ReplayLab.Core;
 using ReplayLab.Parsers.Csv;
 
-namespace ReplayLab.Web.Pages;
+namespace ReplayLab.Web.Hosting.Pages;
 
 public sealed class IndexModel : PageModel
 {
