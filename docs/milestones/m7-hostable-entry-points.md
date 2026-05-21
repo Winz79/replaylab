@@ -293,9 +293,9 @@ points after M7.
   provider to `ReplayLab.Cli.Hosting`.
 - Web hosts can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and
   `MapReplayLabWeb()`.
-- The current Web workflow remains hostable, but it still uses its existing
-  internal CSV parser and mock sender path; external Web parser/sender DI
-  consumption is not part of M7.
+- The Web hostable surface resolves its parser and sender from DI, and
+  `AddReplayLabWeb()` registers default CSV/mock services that external hosts
+  can override.
 
 **Acceptance Criteria:**
 

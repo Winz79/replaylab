@@ -5,8 +5,10 @@ using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ReplayLab.Core;
 using ReplayLab.Web.Hosting;
 
 namespace ReplayLab.Web.Hosting.Tests;
@@ -65,7 +67,31 @@ public sealed class HostableWebTests
         Assert.Equal("succeeded", FindRow(ReadGridState(html), "record-1")["_status"]?.GetValue<string>());
     }
 
-    private static async Task<WebApplication> CreateAppAsync()
+    [Fact]
+    public async Task Minimal_host_uses_services_from_the_composition_root()
+    {
+        var parser = new RecordingParser();
+        var sender = new RecordingSender();
+
+        await using var app = await CreateAppAsync(services =>
+        {
+            services.AddSingleton<IMessageParser>(parser);
+            services.AddSingleton<IReplaySender>(sender);
+        });
+
+        using var client = app.GetTestClient();
+        using var request = await CreateReplayRequestAsync(client, "irrelevant", "web-custom-1");
+        using var response = await client.SendAsync(request);
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(parser.WasUsed);
+        Assert.True(sender.WasUsed);
+        Assert.Equal("succeeded", FindRow(ReadGridState(html), "web-custom-1")["_status"]?.GetValue<string>());
+    }
+
+    private static async Task<WebApplication> CreateAppAsync(Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions
         {
@@ -74,6 +100,7 @@ public sealed class HostableWebTests
         builder.WebHost.UseTestServer();
         builder.WebHost.UseStaticWebAssets();
         builder.Services.AddReplayLabWeb();
+        configureServices?.Invoke(builder.Services);
 
         var app = builder.Build();
         app.UseRouting();
@@ -158,4 +185,35 @@ public sealed class HostableWebTests
     private sealed record AntiforgeryState(string Token, string Cookie);
 
     private sealed record GridState(JsonObject[] Rows, string[] CsvColumns, string[] SelectedIds, string RawJson);
+
+    private sealed class RecordingParser : IMessageParser
+    {
+        public bool WasUsed { get; private set; }
+
+        public Task<ReplayBatch> ParseAsync(Stream input, CancellationToken cancellationToken = default)
+        {
+            WasUsed = true;
+            return Task.FromResult(new ReplayBatch([
+                new ReplayMessage(
+                    "web-custom-1",
+                    "{}",
+                    new Dictionary<string, string>(),
+                    new Dictionary<string, string>())]));
+        }
+    }
+
+    private sealed class RecordingSender : IReplaySender
+    {
+        public bool WasUsed { get; private set; }
+
+        public Task<ReplayResult> SendAsync(ReplayMessage message, CancellationToken cancellationToken = default)
+        {
+            WasUsed = true;
+            return Task.FromResult(new ReplayResult
+            {
+                Success = true,
+                MessageId = message.Id,
+            });
+        }
+    }
 }

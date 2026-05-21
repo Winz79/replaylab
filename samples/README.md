@@ -130,7 +130,4 @@ Run the synthetic sample Web host:
 dotnet run --project samples/ReplayLab.HostSample/ReplayLab.HostSample.csproj -- web
 ```
 
-Current limitation: the sample proves Web host ownership through
-`AddReplayLabWeb()` and `MapReplayLabWeb()`, but the current ReplayLab Web
-workflow still uses its existing internal parser/mock sender path. Issue `#75`
-does not expand into refactoring Web internals for parser/sender DI consumption.
+The sample proves Web host ownership through `AddReplayLabWeb()` and `MapReplayLabWeb()`, and it can override parser and sender services from its own composition root.

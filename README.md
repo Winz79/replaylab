@@ -1,6 +1,6 @@
 # ReplayLab
 
-ReplayLab is a .NET replay/testing toolkit for loading structured replay messages and sending them through configurable adapters. The public repo now covers the completed M1-M6 foundation: ReplayLab.Core contracts, CSV parsing, sequential replay, mock and HTTP adapters, a CLI, a local Web UI, DI registration helpers, and the extension model for private adapters outside this repository.
+ReplayLab is a .NET replay/testing toolkit for loading structured replay messages and sending them through configurable adapters. The public repo now covers the completed M1-M7 foundation: ReplayLab.Core contracts, CSV parsing, sequential replay, mock and HTTP adapters, a CLI, a local Web UI, DI registration helpers, the extension model for private adapters outside this repository, and hostable CLI/Web entry points.
 
 ## What ReplayLab Is
 
@@ -19,7 +19,7 @@ ReplayLab is a .NET replay/testing toolkit for loading structured replay message
 
 ## Current Status
 
-ReplayLab has completed M1-M6. The solution targets `net10.0` and is pinned with `global.json` to the SDK line used for this repository.
+ReplayLab has completed M1-M7. The solution targets `net10.0` and is pinned with `global.json` to the SDK line used for this repository.
 
 Implemented today:
 
@@ -96,7 +96,7 @@ External hosts own their service registration and app startup.
 
 For CLI hosting, external projects can register parser and sender services through DI and pass the provider to `ReplayLab.Cli.Hosting`.
 
-For Web hosting, external projects can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and `MapReplayLabWeb()`. The current Web workflow is hostable, but still uses its existing internal CSV parser and mock sender path; external Web parser/sender DI consumption is not part of M7.
+For Web hosting, external projects can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and `MapReplayLabWeb()`. The Web hostable surface resolves its parser and sender from DI, and `AddReplayLabWeb()` registers default CSV/mock services that external hosts can replace.
 
 For the accepted architecture and current scope boundaries, see [ADR 0009](docs/adr/0009-hostable-entry-points.md), the [M7 milestone](docs/milestones/m7-hostable-entry-points.md), and [the sample README](samples/README.md).
 

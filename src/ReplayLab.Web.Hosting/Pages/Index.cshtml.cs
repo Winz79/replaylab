@@ -3,7 +3,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ReplayLab.Cli.Hosting;
 using ReplayLab.Core;
 using ReplayLab.Parsers.Csv;
 
@@ -14,12 +13,12 @@ public sealed class IndexModel : PageModel
     private static readonly JsonSerializerOptions GridJsonOptions = new(JsonSerializerDefaults.Web);
 
     private readonly IMessageParser _parser;
-    private readonly IReplaySenderFactory _senderFactory;
+    private readonly IReplaySender _sender;
 
-    public IndexModel(IMessageParser parser, IReplaySenderFactory senderFactory)
+    public IndexModel(IMessageParser parser, IReplaySender sender)
     {
         _parser = parser;
-        _senderFactory = senderFactory;
+        _sender = sender;
     }
 
     [BindProperty]
@@ -128,7 +127,7 @@ public sealed class IndexModel : PageModel
 
         var selectedIdSet = selectedIds.ToHashSet(StringComparer.Ordinal);
         var selectedMessages = messages.Where(message => selectedIdSet.Contains(message.Id)).ToArray();
-        var engine = new SequentialReplayEngine(_senderFactory.CreateMockSender());
+        var engine = new SequentialReplayEngine(_sender);
         var replayResults = await engine.ReplayAsync(new ReplayBatch(selectedMessages), cancellationToken);
         var replayResultsByMessageId = replayResults.ToDictionary(result => result.MessageId);
 

@@ -4,6 +4,21 @@ namespace ReplayLab.Cli;
 
 public static class CliApplication
 {
+    public static Task<int> RunAsync(
+        string[] args,
+        TextWriter output,
+        TextWriter error,
+        IServiceProvider services,
+        CancellationToken cancellationToken = default)
+    {
+        return ReplayLab.Cli.Hosting.CliApplication.RunAsync(
+            args,
+            output,
+            error,
+            services,
+            cancellationToken);
+    }
+
     public static async Task<int> RunAsync(
         string[] args,
         TextWriter output,
@@ -28,7 +43,7 @@ public static class CliApplication
             services[typeof(ReplayLab.Cli.Hosting.IReplaySenderFactory)] = senderFactory;
         }
 
-        return await ReplayLab.Cli.Hosting.CliApplication.RunAsync(
+        return await RunAsync(
             args,
             output,
             error,
