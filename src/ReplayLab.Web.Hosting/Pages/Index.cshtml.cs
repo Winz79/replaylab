@@ -3,7 +3,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using ReplayLab.Adapters.Mock;
+using ReplayLab.Cli.Hosting;
 using ReplayLab.Core;
 using ReplayLab.Parsers.Csv;
 
@@ -13,7 +13,14 @@ public sealed class IndexModel : PageModel
 {
     private static readonly JsonSerializerOptions GridJsonOptions = new(JsonSerializerDefaults.Web);
 
-    private readonly CsvReplayMessageParser _parser = new();
+    private readonly IMessageParser _parser;
+    private readonly IReplaySenderFactory _senderFactory;
+
+    public IndexModel(IMessageParser parser, IReplaySenderFactory senderFactory)
+    {
+        _parser = parser;
+        _senderFactory = senderFactory;
+    }
 
     [BindProperty]
     public IFormFile? Upload { get; set; }
@@ -121,7 +128,7 @@ public sealed class IndexModel : PageModel
 
         var selectedIdSet = selectedIds.ToHashSet(StringComparer.Ordinal);
         var selectedMessages = messages.Where(message => selectedIdSet.Contains(message.Id)).ToArray();
-        var engine = new SequentialReplayEngine(new MockReplaySender());
+        var engine = new SequentialReplayEngine(_senderFactory.CreateMockSender());
         var replayResults = await engine.ReplayAsync(new ReplayBatch(selectedMessages), cancellationToken);
         var replayResultsByMessageId = replayResults.ToDictionary(result => result.MessageId);
 
