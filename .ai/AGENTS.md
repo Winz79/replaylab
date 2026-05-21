@@ -31,12 +31,34 @@
 
 Agents should use `.ai/playbooks/` before asking for custom instructions or inventing a new workflow.
 
+- Use `discovery-to-slice.md` when the product direction is fuzzy and the team needs one prioritized, implementation-ready slice.
 - Use `plan-milestone.md` for milestone planning.
 - Use `create-issue-from-plan.md` when turning reviewed issue drafts into GitHub issues.
 - Use `implement-issue.md` for implementation.
 - Use `review-pr.md` for PR review.
 - Use `close-milestone.md` when closing a milestone.
 
+## Routing
+
+Use the smallest route that fits the work.
+
+- Use Product Strategist when the question is "what / why / for whom".
+- Use Conductor when the question is "how to split / route / sequence".
+- Use Implementer when the task is already scoped.
+- Use Reviewer after implementation.
+- Use QA for runnable verification.
+- Do not invoke Product Strategist for small obvious code, test, or doc changes.
+
+| Situation | Route |
+| --- | --- |
+| Fuzzy product direction or MVP boundary | Product Strategist + `discovery-to-slice.md` |
+| Small, self-contained implementation slice | Single-slice implementation with `.ai/templates/task-contract.md` |
+| A few cleanly separable subtasks that can run independently | `delegate_task` / swarm |
+| Repo dispatch, coordination, or review queue work | Kanban |
+| Durable work item that should survive sessions | GitHub issue |
+| Shared files, ordered steps, or unclear boundaries | Do not parallelize |
+
+GitHub issues remain the durable source of truth, but tiny execution slices may use a lightweight task contract instead of opening an issue.
 
 ## Architecture Style
 
