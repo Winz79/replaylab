@@ -1,8 +1,8 @@
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using ReplayLab.Cli.Hosting;
-using ReplayLab.Parsers.Csv;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using ReplayLab.Adapters.Mock;
 using ReplayLab.Core;
+using ReplayLab.Parsers.Csv;
 
 namespace ReplayLab.Web.Hosting;
 
@@ -15,7 +15,7 @@ public static class ReplayLabWebServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.TryAddTransient<IMessageParser, CsvReplayMessageParser>();
-        services.TryAddSingleton<IReplaySenderFactory, DefaultReplaySenderFactory>();
+        services.TryAddSingleton<IReplaySender, MockReplaySender>();
 
         services
             .AddRazorPages()
