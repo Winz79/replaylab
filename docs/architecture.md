@@ -41,6 +41,14 @@ flowchart TB
         WebHosting[ReplayLab.Web.Hosting]
     end
 
+    subgraph Consumer[Consumer repository]
+        direction LR
+        ConsumerHost[Consumer host app]
+        CustomParser[Custom parser]
+        CustomSender[Custom sender]
+        Mapping[Consumer mapping]
+    end
+
     subgraph Toolkit[Reusable toolkit]
         direction TB
         Core[ReplayLab.Core]
@@ -58,14 +66,6 @@ flowchart TB
         end
     end
 
-    subgraph Consumer[Consumer repository]
-        direction TB
-        ConsumerHost[Consumer host app]
-        CustomParser[Custom parser]
-        CustomSender[Custom sender]
-        Mapping[Consumer mapping]
-    end
-
     User --> Apps
 
     CLI --> CliHosting
@@ -74,16 +74,18 @@ flowchart TB
 
     CliHosting --> Core
     WebHosting --> Core
+
+    ConsumerHost --> CliHosting
+    ConsumerHost --> WebHosting
+    ConsumerHost --> Core
+    CustomParser --> Core
+    CustomSender --> Core
+    CustomSender --> Mapping
+
     Csv --> Core
     Mock --> Core
     Http --> Core
     Example --> Core
-
-    ConsumerHost --> CliHosting
-    ConsumerHost --> WebHosting
-    CustomParser --> Core
-    CustomSender --> Core
-    CustomSender --> Mapping
 ```
 
 ### Container notes
