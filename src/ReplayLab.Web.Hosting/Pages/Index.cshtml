@@ -19,6 +19,7 @@
             <span id="selected-count" class="selection-count" data-total="@Model.Rows.Count">@Model.SelectedRowCount selected / @Model.Rows.Count row(s)</span>
             <button type="button" id="select-all" class="tool-button" disabled="@(Model.Rows.Count == 0)">Select all</button>
             <button type="button" id="deselect-all" class="tool-button" disabled="@(Model.Rows.Count == 0)">Deselect all</button>
+            <button type="button" id="reset-all" class="tool-button" disabled="true">Reset all</button>
             <button type="button" id="columns-menu" class="tool-button" disabled="@(Model.Rows.Count == 0)">Columns</button>
             <button type="submit" id="replay-selected" form="replay-form" class="action" disabled="@(Model.SelectedRowCount == 0)">Send selected</button>
         </div>
@@ -44,6 +45,7 @@
         <input asp-for="UploadedFileName" type="hidden" />
         <input id="ReplayStateJson" name="ReplayStateJson" type="hidden" value="@Model.GridStateJson" />
         <input id="ConfirmResendSucceeded" name="ConfirmResendSucceeded" type="hidden" value="false" />
+        <input id="EditedPayloadsJson" name="EditedPayloadsJson" type="hidden" value="" />
         <div id="selected-message-fields" aria-hidden="true"></div>
     </form>
 

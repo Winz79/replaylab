@@ -161,11 +161,14 @@ Complete — see `docs/milestones/m7-hostable-entry-points.md` and
 | M5 | Minimal Web UI |
 | M6 | Private Adapter Extension Model |
 | M7 | Hostable Entry Points |
+| M9B | Editable Replay Workspace |
 | M9A | Parser Quality with CsvHelper |
 
 ## Future Milestones
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
+| M9A | Parser Quality with CsvHelper | Post-M8 track. Replace the minimal custom CSV parser with CsvHelper to handle real-world CSV inputs. See #91. |
+| Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after M9A and the current editable workspace slice are complete. |
 | M9B | Editable Replay Workspace | Post-M8 track. Allow in-place editing of parsed payload values in the Web UI grid before replay. See #92. |
 | Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after the current parser-quality and editable-workspace slices are complete. |

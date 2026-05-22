@@ -279,6 +279,87 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Post_upload_preserves_original_payload_in_grid_state()
+    {
+        using var client = _factory.CreateClient();
+        using var response = await client.PostAsync("/", await CreateUploadContentAsync(client, """
+            kind,name
+            Created,alpha
+            """));
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var gridState = ReadGridState(html);
+        var row = FindRow(gridState, "record-1");
+        Assert.True(row.ContainsKey("_originalPayload"));
+        Assert.Contains("\"kind\":\"Created\"", row["_originalPayload"]?.GetValue<string>());
+        Assert.Contains("\"name\":\"alpha\"", row["_originalPayload"]?.GetValue<string>());
+    }
+
+    [Fact]
+    public async Task Post_replay_applies_edited_payloads_and_preserves_originals()
+    {
+        using var client = _factory.CreateClient();
+        const string csv = """
+            kind,name
+            Created,alpha
+            Updated,beta
+            """;
+
+        using var uploadResponse = await client.PostAsync("/", await CreateUploadContentAsync(client, csv));
+        var uploadHtml = await uploadResponse.Content.ReadAsStringAsync();
+        var uploadGridState = ReadGridState(uploadHtml);
+
+        var edits = new Dictionary<string, Dictionary<string, string>>
+        {
+            ["record-1"] = new() { ["name"] = "alpha-edited" }
+        };
+
+        using var replayResponse = await client.PostAsync(
+            "/?handler=Replay",
+            await CreateReplayContentWithEditsAsync(client, csv, uploadGridState.RawJson, edits, "record-1"));
+        var replayHtml = await replayResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, replayResponse.StatusCode);
+        Assert.Contains("Sent 1 selected row(s): 1 succeeded, 0 failed.", replayHtml);
+
+        var replayGridState = ReadGridState(replayHtml);
+        var row = FindRow(replayGridState, "record-1");
+        Assert.Equal("alpha-edited", row["name"]?.GetValue<string>());
+        Assert.Contains("\"name\":\"alpha\"", row["_originalPayload"]?.GetValue<string>());
+    }
+
+    [Fact]
+    public async Task Post_replay_preserves_prior_edited_workspace_values_for_unselected_rows()
+    {
+        using var client = _factory.CreateClient();
+        const string csv = """
+            kind,name
+            Created,alpha
+            Updated,beta
+            """;
+
+        using var uploadResponse = await client.PostAsync("/", await CreateUploadContentAsync(client, csv));
+        var uploadHtml = await uploadResponse.Content.ReadAsStringAsync();
+        var uploadGridState = ReadGridState(uploadHtml);
+        var editedReplayState = UpdateGridStateValue(uploadGridState.RawJson, "record-1", "name", "alpha-edited");
+
+        using var replayResponse = await client.PostAsync(
+            "/?handler=Replay",
+            await CreateReplayContentWithStateAsync(client, csv, editedReplayState, confirmResendSucceeded: false, "record-2"));
+        var replayHtml = await replayResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, replayResponse.StatusCode);
+        Assert.Contains("Sent 1 selected row(s): 1 succeeded, 0 failed.", replayHtml);
+
+        var replayGridState = ReadGridState(replayHtml);
+        Assert.Equal("alpha-edited", FindRow(replayGridState, "record-1")["name"]?.GetValue<string>());
+        Assert.Contains("\"name\":\"alpha\"", FindRow(replayGridState, "record-1")["_originalPayload"]?.GetValue<string>());
+        Assert.Equal("succeeded", FindRow(replayGridState, "record-2")["_status"]?.GetValue<string>());
+    }
+
     private static async Task<MultipartFormDataContent> CreateUploadContentAsync(HttpClient client, string csv)
     {
         var content = CreateUploadContent(csv);
@@ -306,6 +387,20 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
         var content = CreateReplayContent(csv, selectedRows);
         content.Add(new StringContent(replayStateJson), "ReplayStateJson");
         content.Add(new StringContent(confirmResendSucceeded.ToString()), "ConfirmResendSucceeded");
+        content.Add(new StringContent(await GetRequestVerificationTokenAsync(client)), "__RequestVerificationToken");
+        return content;
+    }
+
+    private static async Task<MultipartFormDataContent> CreateReplayContentWithEditsAsync(
+        HttpClient client,
+        string csv,
+        string replayStateJson,
+        Dictionary<string, Dictionary<string, string>> edits,
+        params string[] selectedRows)
+    {
+        var content = CreateReplayContent(csv, selectedRows);
+        content.Add(new StringContent(replayStateJson), "ReplayStateJson");
+        content.Add(new StringContent(JsonSerializer.Serialize(edits)), "EditedPayloadsJson");
         content.Add(new StringContent(await GetRequestVerificationTokenAsync(client)), "__RequestVerificationToken");
         return content;
     }
@@ -372,6 +467,18 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
     private static JsonObject FindRow(GridState gridState, string messageId)
     {
         return gridState.Rows.Single(row => row["_msgId"]?.GetValue<string>() == messageId);
+    }
+
+    private static string UpdateGridStateValue(string rawJson, string messageId, string field, string value)
+    {
+        var document = JsonNode.Parse(rawJson)!.AsObject();
+        var rows = document["rows"]!.AsArray();
+        var row = rows
+            .Select(node => node!.AsObject())
+            .Single(candidate => candidate["_msgId"]?.GetValue<string>() == messageId);
+
+        row[field] = value;
+        return document.ToJsonString();
     }
 
     private sealed record GridState(JsonObject[] Rows, string[] CsvColumns, string[] SelectedIds, string RawJson);

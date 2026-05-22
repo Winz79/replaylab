@@ -350,6 +350,27 @@ body {
   color: var(--error-text);
 }
 
+.tabulator-cell-dirty {
+  background: #fff8d6;
+  font-weight: 700;
+}
+
+.row-reset-button {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.row-reset-button:hover {
+  background: #f5efe6;
+}
+
 .empty-state {
   position: absolute;
   inset: 3.25rem 0.75rem 0.75rem;
