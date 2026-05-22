@@ -164,6 +164,7 @@ Current behavior:
 
 | Topic | Link |
 | --- | --- |
+| Architecture | [docs/architecture.md](docs/architecture.md) |
 | Roadmap | [docs/roadmap.md](docs/roadmap.md) |
 | Packageable SDK plan | [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md) |
 | Hostable entry points | [docs/milestones/m7-hostable-entry-points.md](docs/milestones/m7-hostable-entry-points.md) |
