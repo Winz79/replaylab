@@ -130,7 +130,7 @@ Current path:
 2. Implement `IMessageParser` if you need a custom input format.
 3. Implement `IReplaySender` if you need a custom replay target.
 4. Register services through DI in your own composition root.
-5. Host ReplayLab CLI/Web surfaces from your app.
+5. Host ReplayLab CLI/Web/Desktop surfaces from your app.
 
 See `samples/CustomReplayTool/` for a working external-style sample that consumes
 ReplayLab via `PackageReference` and composes a custom parser, sender, and Web host.
@@ -157,6 +157,7 @@ Package set:
 - `ReplayLab.Adapters.Http`
 - `ReplayLab.Cli.Hosting`
 - `ReplayLab.Web.Hosting`
+- `ReplayLab.Desktop.Hosting`
 
 Public NuGet.org publishing remains out of scope. See [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md).
 
@@ -208,7 +209,5 @@ Completed foundations:
 
 Next focus:
 
-1. Add a NuGet-based custom replay tool sample (M10B).
-2. Evaluate a reusable Desktop hosting seam.
-3. Harden/clarify composition conventions if the sample exposes gaps.
-4. Keep persistence deferred until package adoption is proven.
+1. Harden/clarify composition conventions if the sample exposes gaps.
+2. Keep persistence deferred until package adoption is proven.

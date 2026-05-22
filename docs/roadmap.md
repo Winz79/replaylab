@@ -25,7 +25,7 @@ M9C is complete.
 | M9C | Editable Workspace UX Polish | Complete. Hardened the editable replay workspace UX and server-side validation before broadening the surface. Tracked in #98 and #97. |
 | M10A | Packageable ReplayLab SDK | Complete. Local NuGet packages produced for Core, parsers, adapters, and hosting libraries via `eng/pack-local.ps1`. Tracked in #99. |
 | M10B | NuGet-based Custom Desktop/Web Tool Sample | Complete. External-style sample under `samples/CustomReplayTool` consumes ReplayLab via `PackageReference` and demonstrates custom parser/sender composition with the Web host. Tracked in #100. |
-| M11 | Composition / Extension Model Hardening | Improve parser/adapter composition after the package-based sample proves the static composition path. Tracked in #101. |
+| M11 | Composition / Extension Model Hardening | In progress. Extracted `ReplayLab.Desktop.Hosting` as a reusable desktop bootstrap seam. Clarifying DI composition conventions via package-based samples. Tracked in #101. |
 | M12 | Local Sessions / Persistence | Deferred. Do not implement before UX and package adoption are proven. |
 
 ## Post-M8 Notes
@@ -303,7 +303,7 @@ Persist local replay workspace state later.
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| M10A | Packageable ReplayLab SDK — In progress. Make ReplayLab consumable as local NuGet packages by external solutions. See #99. |
-| M10B | NuGet-based Custom Desktop/Web Tool Sample — Provide a realistic external-style sample that references ReplayLab packages, not project references. See #100. |
-| M11 | Composition / Extension Model Hardening — Improve parser/adapter composition after the package-based sample proves the static composition path. See #101. |
+| M10A | Packageable ReplayLab SDK — Complete. See #99. |
+| M10B | NuGet-based Custom Desktop/Web Tool Sample — Complete. See #100. |
+| M11 | Composition / Extension Model Hardening — In progress. Extracted `ReplayLab.Desktop.Hosting` as a reusable desktop bootstrap seam. See #101. |
 | M12 | Local Sessions / Persistence — Deferred. Do not implement before UX and package adoption are proven. |

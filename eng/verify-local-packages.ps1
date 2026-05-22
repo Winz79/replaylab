@@ -47,6 +47,7 @@ $csprojContent = @"
     <PackageReference Include="ReplayLab.Adapters.Http" Version="0.6.0" />
     <PackageReference Include="ReplayLab.Cli.Hosting" Version="0.6.0" />
     <PackageReference Include="ReplayLab.Web.Hosting" Version="0.6.0" />
+    <PackageReference Include="ReplayLab.Desktop.Hosting" Version="0.6.0" />
   </ItemGroup>
 </Project>
 "@

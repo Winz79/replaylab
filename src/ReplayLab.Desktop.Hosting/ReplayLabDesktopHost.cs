@@ -4,18 +4,27 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Photino.NET;
 using ReplayLab.Web.Hosting;
 
-namespace ReplayLab.Desktop;
+namespace ReplayLab.Desktop.Hosting;
 
-public static class DesktopBootstrap
+public static class ReplayLabDesktopHost
 {
-    public static WebApplication BuildApp(string[] args)
+    public static void Run(string[] args, Action<IServiceCollection>? configureServices = null)
+    {
+        var app = BuildApp(args, configureServices);
+        RunWithPhotino(app);
+    }
+
+    public static WebApplication BuildApp(string[] args, Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateBuilder(args);
 
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         builder.WebHost.UseStaticWebAssets();
+
+        configureServices?.Invoke(builder.Services);
         builder.Services.AddReplayLabWeb();
 
         var app = builder.Build();
@@ -27,6 +36,7 @@ public static class DesktopBootstrap
 
         app.UseStaticFiles();
         app.UseRouting();
+
         var staticAssetsManifestPath = Path.Combine(AppContext.BaseDirectory, "ReplayLab.Web.Hosting.staticwebassets.endpoints.json");
         if (File.Exists(staticAssetsManifestPath))
         {
@@ -36,6 +46,7 @@ public static class DesktopBootstrap
         {
             app.MapStaticAssets();
         }
+
         app.MapReplayLabWeb();
 
         return app;
@@ -50,5 +61,35 @@ public static class DesktopBootstrap
 
         return addressFeature?.Addresses.FirstOrDefault()
             ?? throw new InvalidOperationException("Unable to determine local server URL.");
+    }
+
+    private static void RunWithPhotino(WebApplication app)
+    {
+        try
+        {
+            app.StartAsync().GetAwaiter().GetResult();
+
+            var localUrl = GetLocalUrl(app);
+
+            var window = new PhotinoWindow()
+                .SetTitle("ReplayLab")
+                .SetUseOsDefaultSize(true)
+                .SetUseOsDefaultLocation(true)
+                .Load(localUrl);
+
+            window.RegisterWindowClosingHandler((sender, args) =>
+            {
+                _ = app.StopAsync();
+                return false;
+            });
+
+            window.WaitForClose();
+
+            app.StopAsync().GetAwaiter().GetResult();
+        }
+        finally
+        {
+            app.DisposeAsync().GetAwaiter().GetResult();
+        }
     }
 }

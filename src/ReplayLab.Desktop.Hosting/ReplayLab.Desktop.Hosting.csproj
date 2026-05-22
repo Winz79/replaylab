@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <PackageId>ReplayLab.Desktop.Hosting</PackageId>
+    <Version>0.6.0</Version>
+    <Authors>Winz79</Authors>
+    <Description>Desktop hosting surface for ReplayLab that self-hosts the Web UI in a Photino.NET native window.</Description>
+    <RepositoryUrl>https://github.com/sebastienwitz/replaylab</RepositoryUrl>
+    <PackageTags>replay;testing;desktop;photino;hosting</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Photino.NET" Version="4.0.16" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ReplayLab.Web.Hosting\ReplayLab.Web.Hosting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>

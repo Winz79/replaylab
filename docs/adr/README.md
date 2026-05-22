@@ -18,6 +18,7 @@ Current ADR set:
 - [ADR 0008: Private Adapter Extension Model](0008-extension-model.md)
 - [ADR 0009: M7 Hostable Entry Point Architecture](0009-hostable-entry-points.md)
 - [ADR 0010: Desktop AppHost Strategy](0010-desktop-apphost-strategy.md)
+- [ADR 0011: Desktop Hosting Seam — Extracted](0011-desktop-hosting-seam.md)
 
 Do not create an ADR for routine implementation details. M4 planning should add
 new ADRs only if a real decision is needed.
