@@ -35,7 +35,7 @@ Completed foundations include:
 | M9C | Editable Workspace UX Polish | Complete. Hardened the editable replay workspace UX and server-side validation. Tracked in #98 and #97. |
 | M10A | Packageable ReplayLab SDK | Complete. Local NuGet packages produced for Core, parsers, adapters, and hosting libraries via `eng/pack-local.ps1`. Tracked in #99. |
 | M10B | NuGet-based Custom Replay Tool Sample | Complete. External-style sample under `samples/CustomReplayTool` consumes ReplayLab via `PackageReference` and demonstrates custom parser/sender composition with the Web host. Tracked in #100. |
-| M11 | SDK Composition Hardening | Active. Clarify parser/sender override conventions, DI registration order, and Web/Desktop host composition. Tracked in #113. |
+| M11 | SDK Composition Hardening | In progress. Parser/sender override conventions clarified with TryAdd, composition tests added, docs updated. Tracked in #113. |
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
 | M13 | Release Automation / Portfolio Release | Active. Publish SDK packages to GitHub Packages on version tags and prepare the next portfolio preview release. Tracked in #111 and #112. |
 

@@ -161,6 +161,41 @@ The intended extension path is:
 
 Dynamic plugin loading is not the default architecture. It can be revisited later if package/reference composition proves insufficient.
 
+### Default Service Registrations
+
+ReplayLab hosting surfaces register default services using `TryAdd*` methods so that consumer registrations take precedence when registered first.
+
+| Service | Default Implementation | Registration Method |
+| --- | --- | --- |
+| `IMessageParser` | `CsvReplayMessageParser` | `TryAddTransient` |
+| `IReplaySender` | `MockReplaySender` | `TryAddSingleton` |
+| `IWebReplayParser` | `MessageParserWebReplayParser` | `TryAddTransient` |
+
+Individual parser and adapter packages (`ReplayLab.Parsers.Csv`, `ReplayLab.Adapters.Mock`) also use `TryAdd*` for the same reason.
+
+### Consumer Override Pattern
+
+To replace the default parser or sender, register your implementation **before** calling the hosting extension method:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Register custom parser and sender before AddReplayLabWeb
+builder.Services.AddSingleton<IMessageParser, MyCustomParser>();
+builder.Services.AddSingleton<IReplaySender, MyCustomSender>();
+
+// ReplayLab defaults will not override existing registrations
+builder.Services.AddReplayLabWeb();
+```
+
+This pattern is consistent across Web and Desktop hosting:
+
+- **Web**: register before `AddReplayLabWeb()`
+- **Desktop**: register in the `configureServices` callback passed to `ReplayLabDesktopHost.BuildApp()` or `Run()`
+- **CLI**: pass a custom `IServiceProvider` containing your `IMessageParser` and `IReplaySenderFactory`
+
+The composition root is owned by the consumer app. ReplayLab provides extension methods for convenience but does not take ownership of service registration order.
+
 ## Public / Consumer Boundary
 
 ```mermaid

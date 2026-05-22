@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ReplayLab.Core;
 
 namespace ReplayLab.Adapters.Mock;
@@ -9,7 +10,7 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddTransient<IReplaySender, MockReplaySender>();
+        services.TryAddSingleton<IReplaySender, MockReplaySender>();
 
         return services;
     }

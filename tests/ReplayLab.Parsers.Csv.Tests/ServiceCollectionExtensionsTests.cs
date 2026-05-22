@@ -18,4 +18,27 @@ public class ServiceCollectionExtensionsTests
 
         Assert.IsType<CsvReplayMessageParser>(parser);
     }
+
+    [Fact]
+    public void AddCsvMessageParser_does_not_override_existing_registration()
+    {
+        var customParser = new CustomParser();
+        var services = new ServiceCollection();
+        services.AddSingleton<IMessageParser>(customParser);
+
+        services.AddCsvMessageParser();
+
+        var provider = services.BuildServiceProvider();
+        var parser = provider.GetRequiredService<IMessageParser>();
+
+        Assert.Same(customParser, parser);
+    }
+
+    private sealed class CustomParser : IMessageParser
+    {
+        public Task<ReplayBatch> ParseAsync(Stream input, CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new ReplayBatch([]));
+        }
+    }
 }
