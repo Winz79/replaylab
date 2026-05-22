@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ReplayLab.Core;
-using ReplayLab.Parsers.Csv;
 
 namespace ReplayLab.Web.Hosting.Pages;
 
@@ -12,10 +11,10 @@ public sealed class IndexModel : PageModel
 {
     private static readonly JsonSerializerOptions GridJsonOptions = new(JsonSerializerDefaults.Web);
 
-    private readonly IMessageParser _parser;
+    private readonly IWebReplayParser _parser;
     private readonly IReplaySender _sender;
 
-    public IndexModel(IMessageParser parser, IReplaySender sender)
+    public IndexModel(IWebReplayParser parser, IReplaySender sender)
     {
         _parser = parser;
         _sender = sender;
@@ -166,21 +165,18 @@ public sealed class IndexModel : PageModel
 
     private async Task<IReadOnlyList<ReplayMessage>?> ParseMessagesAsync(string csv, CancellationToken cancellationToken)
     {
-        try
+        var result = await _parser.ParseAsync(csv, cancellationToken);
+        if (result.Succeeded)
         {
-            await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
-            var batch = await _parser.ParseAsync(stream, cancellationToken);
             ErrorMessage = null;
-            return batch.Messages;
+            return result.Messages!;
         }
-        catch (CsvParseException exception)
-        {
-            ClearGridState();
-            SelectedRowCount = 0;
-            Summary = null;
-            ErrorMessage = $"CSV parse failed: {exception.Message}";
-            return null;
-        }
+
+        ClearGridState();
+        SelectedRowCount = 0;
+        Summary = null;
+        ErrorMessage = result.ErrorMessage;
+        return null;
     }
 
     private void CreateGridState(

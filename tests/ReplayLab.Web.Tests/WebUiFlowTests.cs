@@ -95,7 +95,7 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
         var html = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("CSV parse failed:", html);
+        Assert.Contains("Parse failed:", html);
         Assert.Contains("header row has 2 fields", html);
     }
 
@@ -238,7 +238,7 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
         var html = await response.Content.ReadAsStringAsync();
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Contains("CSV parse failed:", html);
+        Assert.Contains("Parse failed:", html);
         Assert.DoesNotContain("Sent 0 selected row(s): 0 succeeded, 0 failed.", html);
     }
 
