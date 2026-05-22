@@ -131,3 +131,12 @@ dotnet run --project samples/ReplayLab.HostSample/ReplayLab.HostSample.csproj --
 ```
 
 The sample proves Web host ownership through `AddReplayLabWeb()` and `MapReplayLabWeb()`, and it can override parser and sender services from its own composition root.
+
+## NuGet-based Custom Replay Tool Sample
+
+`samples/CustomReplayTool/` demonstrates the M10B developer adoption story:
+consume ReplayLab through local NuGet packages (not project references),
+provide a custom parser and sender, and compose the ReplayLab Web host.
+
+See [samples/CustomReplayTool/README.md](CustomReplayTool/README.md) for
+build, run, and composition instructions.

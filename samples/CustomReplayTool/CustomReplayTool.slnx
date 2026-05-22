@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CustomReplayTool.Domain/CustomReplayTool.Domain.csproj" />
+    <Project Path="src/CustomReplayTool.Web/CustomReplayTool.Web.csproj" />
+  </Folder>
+</Solution>

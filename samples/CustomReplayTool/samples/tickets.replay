@@ -1,0 +1,7 @@
+# Sample tickets replay file for CustomReplayTool
+# Format: ticketId|operation|target|description
+
+TCK-001|Create|Alpha|Create alpha item
+TCK-002|Update|Beta|Update beta item
+TCK-003|Delete|Gamma|Remove gamma record
+TCK-004|Fail|Delta|Simulate a failure

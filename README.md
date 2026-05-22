@@ -132,6 +132,9 @@ Current path:
 4. Register services through DI in your own composition root.
 5. Host ReplayLab CLI/Web surfaces from your app.
 
+See `samples/CustomReplayTool/` for a working external-style sample that consumes
+ReplayLab via `PackageReference` and composes a custom parser, sender, and Web host.
+
 ### Local NuGet packages
 
 ReplayLab SDK projects can be packed locally and consumed from a local feed:
