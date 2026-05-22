@@ -144,7 +144,7 @@ Completed foundations:
 
 Next focus:
 
-1. Improve editable workspace UX.
-2. Harden edited payload validation.
-3. Add a NuGet-based custom replay tool sample (M10B).
-4. Evaluate a reusable Desktop hosting seam.
+1. Add a NuGet-based custom replay tool sample (M10B).
+2. Evaluate a reusable Desktop hosting seam.
+3. Harden/clarify composition conventions if the sample exposes gaps.
+4. Keep persistence deferred until package adoption is proven.
