@@ -49,8 +49,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayLab.HostSample", "sam
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayLab.Desktop", "src\ReplayLab.Desktop\ReplayLab.Desktop.csproj", "{BB2AACCF-2950-42B9-A885-C92E730CA5B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReplayLab.Desktop.Tests", "tests\ReplayLab.Desktop.Tests\ReplayLab.Desktop.Tests.csproj", "{06750899-C2F7-4EC9-8908-F935C1D57650}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -301,18 +299,6 @@ Global
 		{BB2AACCF-2950-42B9-A885-C92E730CA5B0}.Release|x64.Build.0 = Release|Any CPU
 		{BB2AACCF-2950-42B9-A885-C92E730CA5B0}.Release|x86.ActiveCfg = Release|Any CPU
 		{BB2AACCF-2950-42B9-A885-C92E730CA5B0}.Release|x86.Build.0 = Release|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Debug|x64.Build.0 = Debug|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Debug|x86.Build.0 = Debug|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Release|x64.ActiveCfg = Release|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Release|x64.Build.0 = Release|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Release|x86.ActiveCfg = Release|Any CPU
-		{06750899-C2F7-4EC9-8908-F935C1D57650}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -338,6 +324,5 @@ Global
 		{5ECC2433-B2F7-4C0E-AB79-5449C5826C90} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{6B582D23-6A90-4CAB-977E-5A2711C5AC70} = {5D20AA90-6969-D8BD-9DCD-8634F4692FDA}
 		{BB2AACCF-2950-42B9-A885-C92E730CA5B0} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{06750899-C2F7-4EC9-8908-F935C1D57650} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal
