@@ -6,13 +6,13 @@ M1 through M7 are complete.
 
 M8 is the current milestone. It will build a Desktop AppHost with WebView2 and a self-hosted Web UI on top of the hostable Web entry points established in M7.
 
-M7 established the hostable entry point boundary for private projects. M8 uses that seam to make the ReplayLab Web experience available inside a desktop shell while keeping the composition root explicit.
+M7 established the hostable entry point boundary for private projects, and the Web external composition follow-up (decoupling the Web parser workflow from CSV assumptions via `IWebReplayParser`) shipped in the M7 closeout. M8 uses that seam to make the ReplayLab Web experience available inside a desktop shell while keeping the composition root explicit.
 
 ## Summary Of Active Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
-| M7 | Hostable Entry Points | Complete. Reusable CLI and Web host surfaces extracted so private projects can own composition roots and invoke ReplayLab workflows without modifying the public repo. |
+| M7 | Hostable Entry Points | Complete. Reusable CLI and Web host surfaces extracted so private projects can own composition roots and invoke ReplayLab workflows without modifying the public repo. Web parser decoupling (`IWebReplayParser`) shipped in the M7 closeout as Web external composition. |
 | M8 | Desktop AppHost with WebView2 | Current milestone. Build a desktop shell that self-hosts the ReplayLab Web UI, embeds it in WebView2, and owns window lifecycle and local server startup. |
 
 ## Post-M7 Candidate Tracks

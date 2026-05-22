@@ -1,11 +1,12 @@
-# M8: Web External Composition
+# M7: Web External Composition (Completed)
 
 ## Status
 
-Proposed / recommended next milestone.
+Complete — shipped as part of the M7 closeout in PR #87.
 
-This is a planning artifact, not an accepted implementation commitment until the
-milestone is explicitly approved.
+This milestone doc is kept for reference. The work it describes (decoupling the
+Web parser workflow from CSV-specific assumptions via `IWebReplayParser`) was
+completed before M8 Desktop AppHost began.
 
 ## Goal
 
