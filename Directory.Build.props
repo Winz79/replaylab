@@ -3,6 +3,7 @@
     <Version>0.6.0</Version>
     <Authors>Winz79</Authors>
     <RepositoryUrl>https://github.com/sebastienwitz/replaylab</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 </Project>

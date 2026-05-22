@@ -1,6 +1,7 @@
 # ReplayLab
 
 [![CI](https://github.com/sebastienwitz/replaylab/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastienwitz/replaylab/actions/workflows/ci.yml)
+[![Release](https://github.com/sebastienwitz/replaylab/actions/workflows/release.yml/badge.svg)](https://github.com/sebastienwitz/replaylab/actions/workflows/release.yml)
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Roadmap](https://img.shields.io/badge/roadmap-active-0A7EA4.svg)](docs/roadmap.md)
@@ -137,6 +138,30 @@ ReplayLab uses `TryAdd*` for default registrations, so consumer services registe
 See `samples/CustomReplayTool/` for a working external-style sample that consumes
 ReplayLab via `PackageReference` and composes a custom parser, sender, and Web host.
 
+### GitHub Packages releases
+
+ReplayLab SDK packages are published to GitHub Packages when a version tag is pushed.
+Tags follow the pattern `v*.*.*`, with milestone-aligned preview conventions such as
+`v0.13.0-preview.1`.
+
+To consume packages from GitHub Packages, add the NuGet source:
+
+```powershell
+dotnet nuget add source "https://nuget.pkg.github.com/sebastienwitz/index.json" `
+  --name github-replaylab `
+  --username <github-username> `
+  --password <github-token> `
+  --store-password-in-clear-text
+```
+
+Then reference the packages in your project:
+
+```xml
+<PackageReference Include="ReplayLab.Core" Version="0.13.0-preview.1" />
+```
+
+GitHub Packages is the first package registry. NuGet.org publishing remains out of scope.
+
 ### Local NuGet packages
 
 ReplayLab SDK projects can be packed locally and consumed from a local feed:
@@ -193,6 +218,7 @@ Current behavior:
 | Extension model ADR | [docs/adr/0008-extension-model.md](docs/adr/0008-extension-model.md) |
 | Hostable entry points ADR | [docs/adr/0009-hostable-entry-points.md](docs/adr/0009-hostable-entry-points.md) |
 | Samples | [samples/README.md](samples/README.md) |
+| Releases | [docs/releases.md](docs/releases.md) |
 
 ## Current status
 
@@ -213,6 +239,5 @@ Completed foundations:
 Next focus:
 
 1. Harden SDK composition conventions for parser/sender overrides.
-2. Add GitHub Packages release automation for SDK packages.
-3. Prepare the next milestone-aligned preview release.
-4. Keep local sessions/persistence deferred until SDK adoption and release automation are proven.
+2. Prepare the next milestone-aligned preview release.
+3. Keep local sessions/persistence deferred until SDK adoption and release automation are proven.
