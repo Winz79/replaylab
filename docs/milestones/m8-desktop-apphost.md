@@ -85,7 +85,7 @@ The desktop app:
 2. Registers default parser/sender services (CSV + mock, same as public Web).
 3. Calls `AddReplayLabWeb()` and `MapReplayLabWeb()`.
 4. Starts Kestrel on a free loopback port.
-5. Navigates the embedded native web view to `http://localhost:<port>`.
+5. Navigates the embedded native web view to `http://127.0.0.1:<port>`.
 6. On window close, stops the Web host cleanly.
 
 ## Candidate Vertical Slices
