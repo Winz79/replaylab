@@ -4,7 +4,7 @@
 
 M1 through M7 are complete.
 
-M8 is the current milestone. It will build a Desktop AppHost with WebView2 and a self-hosted Web UI on top of the hostable Web entry points established in M7.
+M8 is the current milestone. It builds a Desktop AppHost with Photino.NET and a self-hosted Web UI on top of the hostable Web entry points established in M7.
 
 M7 established the hostable entry point boundary for private projects, and the Web external composition follow-up (decoupling the Web parser workflow from CSV assumptions via `IWebReplayParser`) shipped in the M7 closeout. M8 uses that seam to make the ReplayLab Web experience available inside a desktop shell while keeping the composition root explicit.
 
@@ -13,7 +13,7 @@ M7 established the hostable entry point boundary for private projects, and the W
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
 | M7 | Hostable Entry Points | Complete. Reusable CLI and Web host surfaces extracted so private projects can own composition roots and invoke ReplayLab workflows without modifying the public repo. Web parser decoupling (`IWebReplayParser`) shipped in the M7 closeout as Web external composition. |
-| M8 | Desktop AppHost with WebView2 | Current milestone. Build a desktop shell that self-hosts the ReplayLab Web UI, embeds it in WebView2, and owns window lifecycle and local server startup. |
+| M8 | Desktop AppHost with Photino.NET | Current milestone. Build a desktop shell that self-hosts the ReplayLab Web UI, embeds it in the platform-native web view, and owns window lifecycle and local server startup. |
 
 ## Post-M7 Candidate Tracks
 
@@ -135,9 +135,9 @@ adapters with hostable entry points via DI registration.
 
 - Editable Web grid values before replay (`#68`).
 - RFC-compliant CSV parser strategy (`#69`).
-- Desktop AppHost with WebView2 and self-hosted Web UI (`#70`).
+- Desktop AppHost with Photino.NET and self-hosted Web UI (`#70`).
 - New parser library adoption.
-- WebView2 desktop shell work.
+- Desktop shell work beyond the accepted Photino.NET direction.
 - Product UX expansion beyond current CLI/Web workflows.
 - Business-specific adapters.
 

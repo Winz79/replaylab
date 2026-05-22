@@ -30,7 +30,7 @@ the existing M7 hostable Web seam (`ReplayLab.Web.Hosting`).
 - [ ] `dotnet build ReplayLab.sln` includes the desktop project and passes.
 - [ ] Desktop app launches and renders the ReplayLab Web UI inside the window.
 - [ ] Close button stops the Kestrel host cleanly (no process leaks).
-- [ ] Smoke test passes on Windows.
+- [ ] Smoke test passes for the public desktop bootstrap seam.
 - [ ] `README.md` and roadmap docs reference the new project accurately.
 
 ## Out of Scope

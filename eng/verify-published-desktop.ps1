@@ -10,14 +10,23 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $projectPath = Join-Path $repoRoot "src/ReplayLab.Desktop/ReplayLab.Desktop.csproj"
 
-$osPlatform = [System.Runtime.InteropServices.RuntimeInformation]::OSPlatform
 $architecture = [System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture
 
-$rid = switch ($osPlatform) {
-    ([System.Runtime.InteropServices.OSPlatform]::Windows) { "win-x64" }
-    ([System.Runtime.InteropServices.OSPlatform]::Linux)   { "linux-x64" }
-    ([System.Runtime.InteropServices.OSPlatform]::OSX)     { "osx-x64" }
-    default { throw "Unsupported OS platform: $osPlatform" }
+$isWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
+$isLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
+$isMacOs = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
+
+$rid = if ($isWindows) {
+    "win-x64"
+}
+elseif ($isLinux) {
+    "linux-x64"
+}
+elseif ($isMacOs) {
+    "osx-x64"
+}
+else {
+    throw "Unsupported OS platform for desktop publish verification."
 }
 
 if ($architecture -ne [System.Runtime.InteropServices.Architecture]::X64) {
@@ -33,7 +42,6 @@ else {
 
 dotnet publish $projectPath --configuration $Configuration --runtime $rid --output $OutputPath
 
-$isWindows = $osPlatform -eq [System.Runtime.InteropServices.OSPlatform]::Windows
 $executableName = if ($isWindows) { "ReplayLab.Desktop.exe" } else { "ReplayLab.Desktop" }
 $executablePath = Join-Path $OutputPath $executableName
 

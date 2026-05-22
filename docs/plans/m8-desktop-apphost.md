@@ -1,12 +1,12 @@
-# M8 Desktop AppHost with WebView2 Implementation Plan
+# M8 Desktop AppHost with Photino.NET Implementation Plan
 
 > **For Hermes:** Use subagent-driven-development skill to implement this plan task-by-task.
 
-**Goal:** Build a desktop AppHost that launches and embeds the ReplayLab Web UI inside WebView2, while the desktop shell owns startup, shutdown, windowing, and composition-root responsibilities.
+**Goal:** Build a desktop AppHost that launches and embeds the ReplayLab Web UI inside the platform-native web view, while the desktop shell owns startup, shutdown, windowing, and composition-root responsibilities.
 
-**Architecture:** M7 already provides hostable CLI/Web surfaces; M8 uses that seam to create a desktop shell around the Web experience. The desktop app owns the composition root and local lifetime management, starts the web host on loopback, and points WebView2 at the local UI. Keep the desktop surface generic and avoid business-specific adapters or product data models in the public repo.
+**Architecture:** M7 already provides hostable CLI/Web surfaces; M8 uses that seam to create a desktop shell around the Web experience. The desktop app owns the composition root and local lifetime management, starts the web host on loopback, and points the native web view at the local UI. Keep the desktop surface generic and avoid business-specific adapters or product data models in the public repo.
 
-**Tech Stack:** .NET 10, Windows desktop framework (WPF or WinUI 3 to be decided in Task 1), Microsoft.Web.WebView2, ASP.NET Core, ReplayLab.Web.Hosting, xUnit, Windows packaging/runtime checks.
+**Tech Stack:** .NET 10, Photino.NET, ASP.NET Core, ReplayLab.Web.Hosting, xUnit, platform runtime checks.
 
 ---
 
@@ -23,8 +23,7 @@
 **Step 1: Write the decision draft**
 
 Document the unresolved questions from issue #70:
-- Windows-only vs cross-platform scope
-- WPF vs WinUI 3
+- native desktop shell choice
 - fixed port vs dynamic loopback port
 - in-process Kestrel/self-hosted Web UI vs alternative bridge model
 - whether packaging is included in M8 or deferred
@@ -50,10 +49,6 @@ git commit -m "docs: define desktop apphost strategy"
 
 **Files:**
 - Create: `src/ReplayLab.Desktop/ReplayLab.Desktop.csproj`
-- Create: `src/ReplayLab.Desktop/App.xaml`
-- Create: `src/ReplayLab.Desktop/App.xaml.cs`
-- Create: `src/ReplayLab.Desktop/MainWindow.xaml`
-- Create: `src/ReplayLab.Desktop/MainWindow.xaml.cs`
 - Create: `src/ReplayLab.Desktop/Program.cs` or the desktop framework equivalent entry file
 - Modify: `ReplayLab.sln`
 - Modify: `src/ReplayLab.Desktop/README.md` if the project needs a local note
@@ -64,7 +59,7 @@ Add the desktop project skeleton to the solution and verify the repo does not ye
 
 **Step 2: Create the minimal shell**
 
-Create the window, app entry, and project file using the chosen desktop framework from Task 1.
+Create the window bootstrap, app entry, and project file using the accepted Photino.NET shell from Task 1.
 
 **Step 3: Build the solution**
 
@@ -82,10 +77,9 @@ git commit -m "feat: scaffold desktop apphost"
 **Objective:** Start the local Web app from the desktop shell and expose it on loopback for the embedded browser.
 
 **Files:**
-- Create: `src/ReplayLab.Desktop/Hosting/DesktopWebHost.cs`
-- Create: `src/ReplayLab.Desktop/Hosting/DesktopHostOptions.cs`
-- Modify: `src/ReplayLab.Desktop/MainWindow.xaml.cs`
-- Modify: `src/ReplayLab.Desktop/App.xaml.cs`
+- Create: `src/ReplayLab.Desktop/Hosting/DesktopWebHost.cs` or a small bootstrap helper
+- Create: `src/ReplayLab.Desktop/Hosting/DesktopHostOptions.cs` if the bootstrap needs extracted options
+- Modify: `src/ReplayLab.Desktop/Program.cs`
 - Reference: `src/ReplayLab.Web.Hosting/*`
 
 **Step 1: Write the failing integration test or smoke harness**
@@ -107,24 +101,22 @@ git add src/ReplayLab.Desktop tests/ReplayLab.Desktop.Tests
 git commit -m "feat: host replaylab web from desktop shell"
 ```
 
-### Task 4: Embed WebView2 and wire navigation
+### Task 4: Embed the native web view and wire navigation
 
 **Objective:** Render the ReplayLab Web UI inside the desktop shell and make the local lifecycle usable.
 
 **Files:**
-- Modify: `src/ReplayLab.Desktop/MainWindow.xaml`
-- Modify: `src/ReplayLab.Desktop/MainWindow.xaml.cs`
+- Modify: `src/ReplayLab.Desktop/Program.cs`
 - Modify: `src/ReplayLab.Desktop/ReplayLab.Desktop.csproj`
-- Create or modify: `src/ReplayLab.Desktop/Views/*` if the chosen framework uses view separation
 - Test: `tests/ReplayLab.Desktop.Tests/*`
 
 **Step 1: Write the failing UI smoke test**
 
-Create a test that opens the shell and checks that WebView2 navigates to the local ReplayLab UI endpoint.
+Create a test that proves the desktop bootstrap exposes the local ReplayLab UI endpoint for the embedded native web view.
 
 **Step 2: Add the browser control**
 
-Embed WebView2 and navigate it to the self-hosted Web URL from Task 3.
+Create the native window and navigate it to the self-hosted Web URL from Task 3.
 
 **Step 3: Add basic lifecycle handling**
 
@@ -157,7 +149,7 @@ Confirm the desktop host, the Web host, and the composition root ownership are d
 
 **Step 2: Add runtime notes**
 
-Document any Windows/WebView2 runtime expectations and whether a packaged app or a developer-run app is the intended M8 deliverable.
+Document any platform runtime expectations and whether a packaged app or a developer-run app is the intended M8 deliverable.
 
 **Step 3: Update the roadmap linkage**
 
@@ -175,7 +167,7 @@ git commit -m "docs: document desktop apphost milestone"
 1. Desktop host decision and ADR
 2. Desktop project scaffold
 3. Self-hosted Web bootstrap
-4. WebView2 embedding and lifecycle
+4. Native web view embedding and lifecycle
 5. Packaging/docs cleanup
 
 ## Why this is the next work
