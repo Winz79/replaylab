@@ -271,7 +271,7 @@ The desktop app:
 
 ### Publish Self-Contained Desktop Executable
 
-`ReplayLab.Desktop` publishes as a single-file self-contained executable for the target platform. The project properties are already configured; specify the runtime identifier at publish time.
+`ReplayLab.Desktop` publishes as a self-contained desktop app for the target platform. The project properties are already configured; specify the runtime identifier at publish time.
 
 Windows (x64):
 
@@ -291,7 +291,7 @@ macOS (x64):
 dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r osx-x64 -o ./artifacts/publish/desktop/osx-x64
 ```
 
-The output is a single executable with the runtime bundled. On Linux/macOS the file is named `ReplayLab.Desktop`; on Windows it is `ReplayLab.Desktop.exe`.
+The publish output is centered on `ReplayLab.Desktop` (`ReplayLab.Desktop.exe` on Windows) with the runtime bundled and any required native sidecar files alongside it.
 
 Verify the published executable for the current platform:
 
@@ -299,10 +299,10 @@ Verify the published executable for the current platform:
 ./eng/verify-published-desktop.ps1
 ```
 
-Add the `-SmokeTest` switch to attempt a brief startup verification (requires a display; headless environments should skip this):
+The script publishes the current-platform app and runs a brief startup smoke test by default. In headless environments, skip the launch step explicitly:
 
 ```powershell
-./eng/verify-published-desktop.ps1 -SmokeTest
+./eng/verify-published-desktop.ps1 -SkipSmokeTest
 ```
 
 ### Out of Scope

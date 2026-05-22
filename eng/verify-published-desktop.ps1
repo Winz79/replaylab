@@ -1,7 +1,7 @@
 param(
     [string]$Configuration = "Release",
     [string]$OutputPath,
-    [switch]$SmokeTest
+    [switch]$SkipSmokeTest
 )
 
 Set-StrictMode -Version Latest
@@ -51,8 +51,8 @@ if (-not (Test-Path $executablePath)) {
 
 Write-Host "Published executable verified: $executablePath"
 
-if (-not $SmokeTest) {
-    Write-Host "Smoke test skipped (use -SmokeTest to run)."
+if ($SkipSmokeTest) {
+    Write-Host "Smoke test skipped by request."
     return
 }
 

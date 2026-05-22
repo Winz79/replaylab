@@ -61,7 +61,7 @@ services.
 - Native web view navigation to the local server.
 - Graceful shutdown on window close.
 - Smoke test asserting the Web host starts and responds.
-- Self-contained single-file publishing support for `win-x64`, `linux-x64`, and `osx-x64`.
+- Self-contained publish configuration for `win-x64`, `linux-x64`, and `osx-x64`.
 - Publish verification script (`eng/verify-published-desktop.ps1`).
 - Updated `README.md` with Desktop publish instructions.
 
