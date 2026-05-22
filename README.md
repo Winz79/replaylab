@@ -19,6 +19,10 @@ flowchart LR
     Sender --> Target[Mock, HTTP, or private target]
 ```
 
+## Preview
+
+![ReplayLab workspace preview](docs/assets/replaylab-workspace-current.png)
+
 ## What you can do today
 
 - Load CSV replay data.
