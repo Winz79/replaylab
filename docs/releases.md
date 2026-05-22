@@ -2,6 +2,18 @@
 
 ReplayLab SDK packages are published to GitHub Packages when a version tag is pushed.
 
+## Published releases
+
+- `v0.1.0-preview.1` — M1 Local CLI Replay Preview
+- `v0.7.0-preview.1` — M7 Hostable Entry Points
+
+## Known tags and next candidate
+
+- `v0.3.0-preview.1` — historical tag present in Git; no GitHub release listed.
+- `v0.13.0-preview.1` — likely next candidate; pending manual tag after #112 is merged and readiness is confirmed.
+
+See [releases/v0.13.0-preview.1.md](releases/v0.13.0-preview.1.md) for release notes and readiness checklist.
+
 ## Trigger
 
 Push a tag matching `v*.*.*`:

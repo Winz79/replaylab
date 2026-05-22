@@ -186,7 +186,7 @@ Package set:
 - `ReplayLab.Web.Hosting`
 - `ReplayLab.Desktop.Hosting`
 
-GitHub Packages release automation is planned in M13. Public NuGet.org publishing remains out of scope. See [docs/roadmap.md](docs/roadmap.md).
+GitHub Packages release automation is delivered in M13 via #111. Public NuGet.org publishing remains out of scope. See [docs/roadmap.md](docs/roadmap.md).
 
 ## CSV support
 
