@@ -1,3 +1,5 @@
+using CsvHelper;
+using CsvHelper.Configuration;
 using ReplayLab.Core;
 using System.Globalization;
 using System.Text.Json;
@@ -11,44 +13,53 @@ public sealed class CsvReplayMessageParser : IMessageParser
         ArgumentNullException.ThrowIfNull(input);
 
         using var reader = new StreamReader(input, leaveOpen: true);
+
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            AllowComments = true,
+            Comment = '#',
+            IgnoreBlankLines = true,
+        };
+
+        using var csv = new CsvReader(reader, config);
         string[]? headers = null;
         var messages = new List<ReplayMessage>();
-        var rowNumber = 0;
+        var recordNumber = 0;
 
-        while (await reader.ReadLineAsync(cancellationToken) is { } line)
+        while (await csv.ReadAsync().ConfigureAwait(false))
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            rowNumber++;
-
-            if (string.IsNullOrWhiteSpace(line) || line.TrimStart().StartsWith('#'))
-            {
-                continue;
-            }
-
-            var fields = ParseLine(line, rowNumber);
             if (headers is null)
             {
-                headers = fields;
+                csv.ReadHeader();
+                headers = csv.HeaderRecord;
+                if (headers is null || headers.Length == 0)
+                {
+                    throw new CsvParseException("CSV input does not contain a header row.");
+                }
+
                 continue;
             }
 
-            if (fields.Length != headers.Length)
+            if (csv.Parser.Count != headers.Length)
             {
-                throw new CsvParseException($"CSV row {rowNumber} has {fields.Length} fields but header row has {headers.Length} fields.");
+                var rawRow = csv.Context?.Parser?.RawRow ?? 0;
+                throw new CsvParseException($"CSV row {rawRow} has {csv.Parser.Count} fields but header row has {headers.Length} fields.");
             }
 
-            var recordNumber = messages.Count + 1;
+            recordNumber++;
             var payloadValues = new Dictionary<string, string>(StringComparer.Ordinal);
             for (var i = 0; i < headers.Length; i++)
             {
-                payloadValues[headers[i]] = fields[i];
+                payloadValues[headers[i]] = csv.GetField(i) ?? string.Empty;
             }
 
+            var rawRowNum = csv.Context?.Parser?.RawRow ?? 0;
             var metadata = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["sourceFormat"] = "csv",
-                ["sourceRowNumber"] = rowNumber.ToString(CultureInfo.InvariantCulture),
+                ["sourceRowNumber"] = rawRowNum.ToString(CultureInfo.InvariantCulture),
                 ["dataRecordNumber"] = recordNumber.ToString(CultureInfo.InvariantCulture),
             };
 
@@ -65,15 +76,5 @@ public sealed class CsvReplayMessageParser : IMessageParser
         }
 
         return new ReplayBatch(messages);
-    }
-
-    private static string[] ParseLine(string line, int rowNumber)
-    {
-        if (line.Contains('"'))
-        {
-            throw new CsvParseException($"CSV row {rowNumber} contains quoted fields, which are not supported in the first parser slice.");
-        }
-
-        return line.Split(',');
     }
 }
