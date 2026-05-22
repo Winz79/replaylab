@@ -166,6 +166,6 @@ Complete — see `docs/milestones/m7-hostable-entry-points.md` and
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| Candidate M9A | Parser Quality / RFC-compliant CSV |
-| Candidate M9B | Editable Replay Workspace |
-| Candidate M10 | Additional product-shell or composition candidates after M8 |
+| M9A | Parser Quality with CsvHelper | Post-M8 track. Replace the minimal custom CSV parser with CsvHelper to handle real-world CSV inputs. See #91. |
+| M9B | Editable Replay Workspace | Post-M8 track. Allow in-place editing of parsed payload values in the Web UI grid before replay. See #92. |
+| Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after M9A and M9B are complete. |
