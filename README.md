@@ -129,8 +129,10 @@ Current path:
 1. Reference `ReplayLab.Core`.
 2. Implement `IMessageParser` if you need a custom input format.
 3. Implement `IReplaySender` if you need a custom replay target.
-4. Register services through DI in your own composition root.
+4. Register your parser and sender **before** calling ReplayLab hosting extensions.
 5. Host ReplayLab CLI/Web/Desktop surfaces from your app.
+
+ReplayLab uses `TryAdd*` for default registrations, so consumer services registered first are preserved. See [docs/architecture.md](docs/architecture.md) for the full composition convention.
 
 See `samples/CustomReplayTool/` for a working external-style sample that consumes
 ReplayLab via `PackageReference` and composes a custom parser, sender, and Web host.

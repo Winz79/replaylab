@@ -8,13 +8,59 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ReplayLab.Adapters.Mock;
 using ReplayLab.Core;
+using ReplayLab.Parsers.Csv;
 using ReplayLab.Web.Hosting;
 
 namespace ReplayLab.Web.Hosting.Tests;
 
 public sealed class HostableWebTests
 {
+    [Fact]
+    public async Task Default_composition_resolves_default_parser_and_sender()
+    {
+        await using var app = await CreateAppAsync();
+
+        var parser = app.Services.GetService<IMessageParser>();
+        var sender = app.Services.GetService<IReplaySender>();
+
+        Assert.NotNull(parser);
+        Assert.IsType<CsvReplayMessageParser>(parser);
+        Assert.NotNull(sender);
+        Assert.IsType<MockReplaySender>(sender);
+    }
+
+    [Fact]
+    public async Task Custom_parser_override_is_respected()
+    {
+        var customParser = new RecordingParser();
+        await using var app = await CreateAppAsync(services =>
+        {
+            services.AddSingleton<IMessageParser>(customParser);
+        });
+
+        var parser = app.Services.GetService<IMessageParser>();
+
+        Assert.NotNull(parser);
+        Assert.Same(customParser, parser);
+    }
+
+    [Fact]
+    public async Task Custom_sender_override_is_respected()
+    {
+        var customSender = new RecordingSender();
+        await using var app = await CreateAppAsync(services =>
+        {
+            services.AddSingleton<IReplaySender>(customSender);
+        });
+
+        var sender = app.Services.GetService<IReplaySender>();
+
+        Assert.NotNull(sender);
+        Assert.Same(customSender, sender);
+    }
+
     [Fact]
     public async Task Minimal_host_serves_replaylab_home_page_through_hosting_extensions()
     {
