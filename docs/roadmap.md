@@ -37,18 +37,18 @@ Completed foundations include:
 | M10B | NuGet-based Custom Replay Tool Sample | Complete. External-style sample under `samples/CustomReplayTool` consumes ReplayLab via `PackageReference` and demonstrates custom parser/sender composition with the Web host. Tracked in #100. |
 | M11 | SDK Composition Hardening | Complete. Parser/sender override conventions clarified with TryAdd, composition tests added, and docs updated. Delivered via #113. |
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
-| M13 | Release Automation / Portfolio Release | Active. Publish SDK packages to GitHub Packages on version tags and prepare the next portfolio preview release. Tracked in #111 and #112. |
+| M13 | Release Automation / Portfolio Release | In progress. GitHub Packages release workflow delivered via #111; next portfolio preview release remains tracked in #112. |
 
 ## Near-Term Priorities
 
-1. **Finish M11 SDK composition hardening**  
-   Clarify how consumers override default parser and sender registrations, align Web/Desktop composition conventions, and keep samples copy/paste friendly.
+1. **M11 SDK composition hardening complete**  
+   Parser/sender override conventions clarified with TryAdd, composition tests added, and docs updated. Delivered via #113.
 
-2. **Implement M13 release automation**  
-   Add a GitHub Actions workflow that publishes packageable ReplayLab SDK packages to GitHub Packages when a version tag is pushed.
+2. **M13 release automation delivered**  
+   GitHub Actions workflow publishes packageable ReplayLab SDK packages to GitHub Packages when a version tag is pushed. Delivered via #111.
 
 3. **Prepare the next portfolio preview release**  
-   Keep the existing milestone-aligned preview tag convention. Existing tags include `v0.1.0-preview.1`, `v0.3.0-preview.1`, and `v0.7.0-preview.1`. If M13 remains the release milestone, the likely next candidate is `v0.13.0-preview.1`, but the exact tag must be confirmed before release.
+   Keep the existing milestone-aligned preview tag convention. Existing tags include `v0.1.0-preview.1`, `v0.3.0-preview.1`, and `v0.7.0-preview.1`. If M13 remains the release milestone, the likely next candidate is `v0.13.0-preview.1`, but the exact tag must be confirmed before release. Tracked in #112.
 
 4. **Keep M12 persistence deferred**  
    Local sessions and workspace persistence are useful product features, but they are not required to prove the SDK/toolkit story.
@@ -146,7 +146,6 @@ M10A proved local package creation. M10B proved external package consumption thr
 ### Linked Issues
 
 - #111 — Publish ReplayLab packages to GitHub Packages on version tag
-- #112 — Prepare next portfolio release
 
 ### Out Of Scope
 
