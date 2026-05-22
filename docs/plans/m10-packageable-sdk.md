@@ -1,139 +1,153 @@
-# M10A Packageable ReplayLab SDK Implementation Plan
+# M10A Packageable ReplayLab SDK Plan
 
-**Goal:** Make ReplayLab consumable as local NuGet packages by external solutions so developers can reference ReplayLab packages, provide custom parsers and adapters, and quickly ship a replay tool.
+## Goal
 
-**Architecture:** Build on the M6 packageable core and M7 hostable entry points by adding package metadata and a local pack workflow for all public projects that should be externally referenceable. Keep the public/private adapter boundary intact and avoid packaging business-specific or proprietary concerns.
+Make ReplayLab consumable by external .NET solutions through local NuGet packages.
 
-**Tech Stack:** .NET 10, NuGet, PowerShell, local feed verification.
+A developer should be able to reference ReplayLab packages, provide custom parsers and senders, and ship a small replay tool without forking this repository.
 
----
+## Why this matters
 
-### Task 1: Identify and normalize package metadata
+ReplayLab's strongest adoption path is not only the built-in CLI, Web UI, or Desktop shell. The stronger value is that another developer can compose their own replay tool quickly:
 
-**Objective:** Decide which projects become packages and ensure their metadata is consistent.
-
-**Files:**
-- Inspect: `src/*/*.csproj` for packageable candidates
-- Create or modify: `Directory.Build.props` or per-project `.csproj` metadata
-
-**Step 1: Confirm package candidates**
-
-- `ReplayLab.Core`
-- `ReplayLab.Parsers.Csv`
-- `ReplayLab.Adapters.Mock`
-- `ReplayLab.Adapters.Http`
-- `ReplayLab.Cli.Hosting`
-- `ReplayLab.Web.Hosting`
-- Decide whether `ReplayLab.Desktop` stays an executable app or whether a reusable `ReplayLab.Desktop.Hosting` library is extracted (see #101).
-
-**Step 2: Normalize metadata**
-
-Add or align `PackageId`, `Version`, `Authors`, `Description`, and `PackageTags` across candidates. Keep versions consistent with the repo's current tagging scheme.
-
-**Step 3: Commit**
-
-```bash
-git add src/**/*.csproj Directory.Build.props
-git commit -m "build: normalize package metadata for SDK projects"
+```mermaid
+flowchart LR
+    Packages[ReplayLab local packages] --> Host[External host app]
+    Parser[Custom parser] --> Host
+    Sender[Custom sender] --> Host
+    Host --> Tool[Custom replay tool]
 ```
 
-### Task 2: Create a local pack script
+This milestone proves the package/reference workflow locally before any public NuGet publishing commitment.
 
-**Objective:** Provide a single script that produces all local packages into a known output directory.
+## Success criteria
 
-**Files:**
-- Create: `eng/pack-local.ps1`
+M10A is successful when:
 
-**Step 1: Write the script**
+- selected ReplayLab projects can be packed into `artifacts/packages`;
+- an external-style project can restore those packages from a local feed;
+- package metadata is consistent enough for local consumption;
+- the public/private adapter boundary remains intact;
+- the package set is documented clearly;
+- public NuGet publishing remains explicitly out of scope.
+
+## Candidate package set
+
+| Package | Purpose | Notes |
+| --- | --- | --- |
+| `ReplayLab.Core` | Contracts and replay models | Already packageable and pack verified. |
+| `ReplayLab.Parsers.Csv` | Default CSV parser | Depends on Core and CsvHelper. |
+| `ReplayLab.Adapters.Mock` | Local/default sender | Useful for tests and demos. |
+| `ReplayLab.Adapters.Http` | Generic HTTP sender | Public protocol adapter. |
+| `ReplayLab.Cli.Hosting` | Reusable CLI host surface | For external CLI tools. |
+| `ReplayLab.Web.Hosting` | Reusable Web host surface | Needs care because of Razor/static assets and default services. |
+| `ReplayLab.Desktop.Hosting` | Optional reusable desktop host surface | Evaluate in #101 before committing to this package. |
+
+`ReplayLab.Desktop` itself should probably remain an executable app. If external desktop composition needs to be packageable, extract reusable bootstrap code into a library instead of packaging the app directly.
+
+## Proposed local feed workflow
+
+```mermaid
+flowchart TB
+    Pack[eng/pack-local.ps1] --> Artifacts[artifacts/packages]
+    Artifacts --> NuGetConfig[Sample NuGet.config]
+    NuGetConfig --> Sample[External-style sample]
+    Sample --> Restore[dotnet restore]
+    Restore --> Run[Run custom replay tool]
+```
+
+Expected developer flow:
+
+```powershell
+./eng/pack-local.ps1
+cd samples/CustomReplayTool
+dotnet restore
+dotnet run --project src/CustomReplayTool.Desktop
+```
+
+Exact sample path and project names can be finalized in M10B.
+
+## Work breakdown
+
+### 1. Normalize package metadata
+
+Add or align package metadata for selected projects:
+
+- `PackageId`
+- `Version`
+- `Authors`
+- `Description`
+- `RepositoryUrl`
+- `PackageTags`
+- `PackageLicenseExpression`
+
+Prefer shared metadata in `Directory.Build.props` when it avoids drift, but keep package-specific descriptions close to the project if that is clearer.
+
+### 2. Add local pack script
+
+Create `eng/pack-local.ps1`.
 
 The script should:
-- Build the solution in Release.
-- Pack each candidate project to `artifacts/packages`.
-- Verify that the output directory contains the expected `.nupkg` files.
 
-**Step 2: Test the script locally**
+- build in Release;
+- pack the selected package projects;
+- output packages to `artifacts/packages`;
+- fail fast when a package is missing;
+- avoid publishing anywhere.
 
-Run `eng/pack-local.ps1` and confirm packages appear in `artifacts/packages`.
+### 3. Verify package restore
 
-**Step 3: Commit**
+Use a temporary or sample external-style project with a `NuGet.config` pointing to `artifacts/packages`.
 
-```bash
-git add eng/pack-local.ps1
-git commit -m "build: add local pack script for SDK packages"
-```
+Verification should prove that `PackageReference` works without project references back into the ReplayLab source tree.
 
-### Task 3: Verify local feed restore
+### 4. Document the package workflow
 
-**Objective:** Prove that an external-style project can restore these packages from a local feed.
+Document:
 
-**Files:**
-- Create: temporary or sample `NuGet.config` for verification
+- which packages are currently produced;
+- how to run the local pack script;
+- how to consume packages from the local feed;
+- what remains out of scope.
 
-**Step 1: Add a local feed config**
+Keep README short. Put detailed package workflow documentation in a dedicated doc or the M10B sample README.
 
-Create a minimal `NuGet.config` that points to `artifacts/packages` as a package source.
+## Dependency on M10B
 
-**Step 2: Restore from the local feed**
+M10A prepares the packages. M10B proves the consumer story with a real external-style sample.
 
-Create a temporary project that references one or more ReplayLab packages via `PackageReference` and confirm `dotnet restore` succeeds using the local feed.
+M10B should not use project references to ReplayLab source projects. It should use `PackageReference` and a local feed to simulate the real consumer experience.
 
-**Step 3: Document the workflow**
-
-Add a short section to the README or a dedicated doc explaining how to produce and consume local packages.
-
-**Step 4: Commit**
-
-```bash
-git add README.md docs/
-git commit -m "docs: document local NuGet package workflow"
-```
-
-### Task 4: Update documentation boundaries
-
-**Objective:** Ensure the roadmap, README, and plan docs describe the packageable SDK consistently.
-
-**Files:**
-- Modify: `docs/roadmap.md`
-- Modify: `README.md`
-- Modify: `docs/plans/m10-packageable-sdk.md` if scope changed during implementation
-
-**Step 1: Review docs against the actual package set**
-
-Confirm the docs list the same candidates as the script.
-
-**Step 2: Update only affected language**
-
-Keep changes minimal and consistent with the existing docs style.
-
-**Step 3: Commit**
-
-```bash
-git add docs/roadmap.md README.md docs/plans/m10-packageable-sdk.md
-git commit -m "docs: document packageable SDK milestone"
-```
-
-## Recommended Order
-
-1. Identify and normalize package metadata.
-2. Create the local pack script.
-3. Verify local feed restore.
-4. Update documentation boundaries.
-
-## Linked Issues
+## Related issues
 
 - #99 — Package ReplayLab SDK for local NuGet consumption
-- #101 — Extract reusable Desktop hosting seam (if the desktop package shape changes)
+- #100 — Add NuGet-based custom replay tool sample
+- #101 — Extract reusable Desktop hosting seam
 
-## Out Of Scope
+## Out of scope
 
 - Publishing to nuget.org.
-- Signing packages.
+- Package signing.
 - Release automation.
+- Installer creation.
 - Dynamic plugin loading.
-- Business-specific adapter packages.
+- Private/WCF/business-specific adapters.
+- Customer-specific payload examples.
 
-## Risks
+## Risks and decisions
 
-- `ReplayLab.Web.Hosting` may require extra care because it includes Razor/static assets and currently references default parser/adapter projects.
-- Desktop reuse may require extracting a hosting library instead of packaging the executable app directly.
-- Package metadata drift if not centralized through `Directory.Build.props`.
+| Risk / decision | Why it matters | Expected handling |
+| --- | --- | --- |
+| `ReplayLab.Web.Hosting` packaging | Razor/static assets can be more subtle than class libraries. | Verify package restore and runtime behavior with a sample. |
+| Desktop package shape | Packaging the executable app directly is likely the wrong abstraction. | Evaluate `ReplayLab.Desktop.Hosting` in #101. |
+| Metadata drift | Multiple packages can diverge quickly. | Centralize shared metadata where practical. |
+| Premature public publishing | Public NuGet creates versioning/support expectations. | Keep M10A local-only. |
+| Plugin overengineering | Static DI composition may be enough. | Defer dynamic plugin loading until after M10B validates the simple path. |
+
+## Definition of done
+
+- `eng/pack-local.ps1` creates the selected packages in `artifacts/packages`.
+- Package metadata is consistent across selected projects.
+- At least one external-style restore test proves local package consumption.
+- Documentation explains the local package workflow.
+- No public publishing, signing, or release automation is introduced.
