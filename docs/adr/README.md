@@ -17,6 +17,7 @@ Current ADR set:
 - [ADR 0007: M5 Web UI Architecture](0007-m5-web-ui-architecture.md)
 - [ADR 0008: Private Adapter Extension Model](0008-extension-model.md)
 - [ADR 0009: M7 Hostable Entry Point Architecture](0009-hostable-entry-points.md)
+- [ADR 0010: Desktop AppHost Strategy](0010-desktop-apphost-strategy.md)
 
 Do not create an ADR for routine implementation details. M4 planning should add
 new ADRs only if a real decision is needed.
