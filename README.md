@@ -235,9 +235,10 @@ Completed foundations:
 - Editable replay workspace.
 - Local NuGet packageability.
 - External-style custom replay tool sample.
+- SDK composition conventions for parser/sender overrides.
+- GitHub Packages release automation.
 
 Next focus:
 
-1. Harden SDK composition conventions for parser/sender overrides.
-2. Prepare the next milestone-aligned preview release.
-3. Keep local sessions/persistence deferred until SDK adoption and release automation are proven.
+1. Prepare the next milestone-aligned preview release.
+2. Keep local sessions/persistence deferred until SDK adoption and release automation are proven.
