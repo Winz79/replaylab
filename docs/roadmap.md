@@ -23,8 +23,8 @@ Implementation plan for M8 desktop apphost:
 The following discovery issues are future candidate milestones or candidate
 tracks. They are not part of M8 unless explicitly promoted later.
 
-- `#69` RFC-compliant CSV parser strategy is a parser-quality candidate that is
-  independent from M8 desktop apphost work.
+- `#69` RFC-compliant CSV parser strategy was promoted and delivered by `#91`
+  through the CsvHelper-backed parser update.
 - `#68` editable Web grid values before replay is a Web UX/product candidate
   that is independent from M8 desktop apphost work.
 
@@ -161,11 +161,11 @@ Complete — see `docs/milestones/m7-hostable-entry-points.md` and
 | M5 | Minimal Web UI |
 | M6 | Private Adapter Extension Model |
 | M7 | Hostable Entry Points |
+| M9A | Parser Quality with CsvHelper |
 
 ## Future Milestones
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| M9A | Parser Quality with CsvHelper | Post-M8 track. Replace the minimal custom CSV parser with CsvHelper to handle real-world CSV inputs. See #91. |
 | M9B | Editable Replay Workspace | Post-M8 track. Allow in-place editing of parsed payload values in the Web UI grid before replay. See #92. |
-| Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after M9A and M9B are complete. |
+| Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after the current parser-quality and editable-workspace slices are complete. |

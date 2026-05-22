@@ -31,12 +31,11 @@ public class CsvReplayMessageParserTests
     public async Task ParseAsync_ignores_empty_lines_and_comment_lines()
     {
         const string csv = """
-
-              # synthetic comment before header
+            # synthetic comment before header
             name,status
 
             alpha,new
-              # synthetic comment between records
+            # synthetic comment between records
             beta,done
 
             """;
@@ -93,15 +92,68 @@ public class CsvReplayMessageParserTests
     }
 
     [Fact]
-    public async Task ParseAsync_throws_clear_exception_for_quoted_fields_in_first_slice()
+    public async Task ParseAsync_parses_quoted_fields()
     {
-        var exception = await Assert.ThrowsAsync<CsvParseException>(() => Parse("""
+        const string csv = """
             name,status
             "alpha",new
-            """));
+            """;
 
-        Assert.Contains("row 2", exception.Message);
-        Assert.Contains("quoted fields", exception.Message);
+        var batch = await Parse(csv);
+
+        Assert.Single(batch.Messages);
+        using var payload = JsonDocument.Parse(batch.Messages[0].Payload);
+        Assert.Equal("alpha", payload.RootElement.GetProperty("name").GetString());
+        Assert.Equal("new", payload.RootElement.GetProperty("status").GetString());
+    }
+
+    [Fact]
+    public async Task ParseAsync_parses_embedded_commas_in_quoted_fields()
+    {
+        const string csv = """
+            name,status
+            "alpha, beta",new
+            """;
+
+        var batch = await Parse(csv);
+
+        Assert.Single(batch.Messages);
+        using var payload = JsonDocument.Parse(batch.Messages[0].Payload);
+        Assert.Equal("alpha, beta", payload.RootElement.GetProperty("name").GetString());
+        Assert.Equal("new", payload.RootElement.GetProperty("status").GetString());
+    }
+
+    [Fact]
+    public async Task ParseAsync_parses_escaped_quotes()
+    {
+        const string csv = """"
+            name,status
+            "alpha ""beta""",new
+            """";
+
+        var batch = await Parse(csv);
+
+        Assert.Single(batch.Messages);
+        using var payload = JsonDocument.Parse(batch.Messages[0].Payload);
+        Assert.Equal("alpha \"beta\"", payload.RootElement.GetProperty("name").GetString());
+        Assert.Equal("new", payload.RootElement.GetProperty("status").GetString());
+    }
+
+    [Fact]
+    public async Task ParseAsync_parses_embedded_newlines_in_quoted_fields()
+    {
+        const string csv = """"
+            name,status
+            "alpha
+            beta",new
+            """";
+
+        var batch = await Parse(csv);
+
+        Assert.Single(batch.Messages);
+        using var payload = JsonDocument.Parse(batch.Messages[0].Payload);
+        Assert.Equal("alpha\nbeta", payload.RootElement.GetProperty("name").GetString());
+        Assert.Equal("new", payload.RootElement.GetProperty("status").GetString());
     }
 
     private static async Task<Core.ReplayBatch> Parse(string csv)

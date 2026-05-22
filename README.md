@@ -24,7 +24,7 @@ ReplayLab has completed M1-M7. The solution targets `net10.0` and is pinned with
 Implemented today:
 
 - `ReplayLab.Core` with generic replay models and contracts.
-- `ReplayLab.Parsers.Csv` with a deliberately small first CSV parser slice.
+- `ReplayLab.Parsers.Csv` with CsvHelper-backed RFC-oriented CSV parsing.
 - `SequentialReplayEngine` for generic replay orchestration.
 - `ReplayLab.Adapters.Mock` for tests and local development.
 - `ReplayLab.Adapters.Http` for minimal HTTP POST replay.
