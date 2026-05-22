@@ -29,7 +29,7 @@ flowchart LR
 - Inspect parsed messages in CLI or Web UI.
 - Edit parsed values before replay in the Web workspace.
 - Replay selected messages through mock or HTTP senders.
-- Host ReplayLab Web from another .NET app.
+- Host ReplayLab CLI, Web, or Desktop surfaces from another .NET app.
 - Build private parsers and senders outside this public repository.
 - Run the Web UI in a native Desktop shell through Photino.NET.
 
@@ -65,7 +65,7 @@ It does not include:
 - certificates or private infrastructure concerns;
 - persistence/session storage yet;
 - Docker or installer assets;
-- public NuGet publishing yet.
+- public NuGet.org publishing yet.
 
 Those boundaries are deliberate. Private integrations belong in private solutions that reference ReplayLab.
 
@@ -159,7 +159,7 @@ Package set:
 - `ReplayLab.Web.Hosting`
 - `ReplayLab.Desktop.Hosting`
 
-Public NuGet.org publishing remains out of scope. See [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md).
+GitHub Packages release automation is planned in M13. Public NuGet.org publishing remains out of scope. See [docs/roadmap.md](docs/roadmap.md).
 
 ## CSV support
 
@@ -203,11 +203,14 @@ Completed foundations:
 - CLI preview.
 - Web UI.
 - Hostable CLI/Web entry points.
-- Desktop AppHost.
+- Desktop AppHost and reusable Desktop hosting seam.
 - Editable replay workspace.
-- **Local NuGet packageability (M10A).**
+- Local NuGet packageability.
+- External-style custom replay tool sample.
 
 Next focus:
 
-1. Harden/clarify composition conventions if the sample exposes gaps.
-2. Keep persistence deferred until package adoption is proven.
+1. Harden SDK composition conventions for parser/sender overrides.
+2. Add GitHub Packages release automation for SDK packages.
+3. Prepare the next milestone-aligned preview release.
+4. Keep local sessions/persistence deferred until SDK adoption and release automation are proven.
