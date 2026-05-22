@@ -54,6 +54,26 @@
     return icon;
   };
 
+  const payloadFormatter = (cell) => {
+    const value = cell.getValue();
+    const wrapper = document.createElement("span");
+    const cellElement = cell.getElement();
+
+    if (!cellElement.dataset.payloadSelectionBound) {
+      cellElement.dataset.payloadSelectionBound = "true";
+      cellElement.addEventListener("click", (event) => {
+        if (!isRowEditing(cell.getRow())) {
+          selectRowFromClick(event, cell.getRow());
+        }
+      }, true);
+    }
+
+    wrapper.className = "payload-cell-value";
+    wrapper.textContent = value ?? "";
+
+    return wrapper;
+  };
+
   const actionsFormatter = (cell) => {
     const row = cell.getRow();
     const rowData = row.getData();
@@ -144,6 +164,7 @@
       minWidth: 140,
       editor: "input",
       editable: (cell) => isRowEditing(cell.getRow()),
+      formatter: payloadFormatter,
     })),
   ];
 
