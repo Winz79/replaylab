@@ -261,6 +261,12 @@ public sealed class IndexModel : PageModel
 
             foreach (var column in CsvColumns)
             {
+                if (result is null && priorState?.Values.TryGetValue(column, out var priorValue) is true)
+                {
+                    row[column] = priorValue;
+                    continue;
+                }
+
                 row[column] = payloadValues.TryGetValue(column, out var value) ? value : string.Empty;
             }
 
@@ -298,11 +304,21 @@ public sealed class IndexModel : PageModel
                     continue;
                 }
 
+                var values = new Dictionary<string, string?>(StringComparer.Ordinal);
+                foreach (var property in row.EnumerateObject())
+                {
+                    if (property.Value.ValueKind == JsonValueKind.String || property.Value.ValueKind == JsonValueKind.Null)
+                    {
+                        values[property.Name] = property.Value.GetString();
+                    }
+                }
+
                 priorRows[id] = new PriorRowState(
                     Status: ReadStringProperty(row, "_status"),
                     Result: ReadStringProperty(row, "_result"),
                     Error: ReadStringProperty(row, "_error"),
-                    OriginalPayload: ReadStringProperty(row, "_originalPayload"));
+                    OriginalPayload: ReadStringProperty(row, "_originalPayload"),
+                    Values: values);
             }
 
             return priorRows;
@@ -345,5 +361,10 @@ public sealed class IndexModel : PageModel
 
     public sealed record ReplaySummary(int Total, int Succeeded, int Failed);
 
-    private sealed record PriorRowState(string? Status, string? Result, string? Error, string? OriginalPayload);
+    private sealed record PriorRowState(
+        string? Status,
+        string? Result,
+        string? Error,
+        string? OriginalPayload,
+        IReadOnlyDictionary<string, string?> Values);
 }
