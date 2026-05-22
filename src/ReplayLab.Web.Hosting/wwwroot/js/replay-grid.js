@@ -198,7 +198,7 @@
       return;
     }
 
-    selectRow(row);
+    selectRowFromClick(event, row);
   });
 
   grid.on("cellEdited", (cell) => {
@@ -273,8 +273,15 @@
 
   function selectRow(row) {
     const id = row.getData()._msgId;
+    const checkbox = row.getElement().querySelector(".tabulator-row-header input[type='checkbox']");
+
+    if (checkbox instanceof HTMLInputElement && !checkbox.checked) {
+      checkbox.click();
+      return;
+    }
+
     if (id) {
-      window.requestAnimationFrame(() => grid.selectRow(id));
+      grid.selectRow(id);
     }
   }
 
