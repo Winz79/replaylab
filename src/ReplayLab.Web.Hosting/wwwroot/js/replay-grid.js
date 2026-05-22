@@ -12,6 +12,7 @@
   const columnsButton = document.getElementById("columns-menu");
   const confirmResendInput = document.getElementById("ConfirmResendSucceeded");
   const resendWarning = document.getElementById("resend-warning");
+  const resetAllButton = document.getElementById("reset-all");
 
   if (!gridElement || !stateElement || !window.Tabulator) {
     return;
@@ -36,6 +37,19 @@
     pill.className = `status-pill ${value}`;
     pill.textContent = label;
     return pill;
+  };
+
+  const dirtyFormatter = (cell) => {
+    const value = String(cell.getValue() ?? "");
+    const el = document.createElement("span");
+    el.textContent = value;
+    const rowData = cell.getRow().getData();
+    const field = cell.getField();
+    const originalPayload = parseOriginalPayload(rowData._originalPayload);
+    if (originalPayload && originalPayload[field] !== value) {
+      el.classList.add("cell-dirty");
+    }
+    return el;
   };
 
   const headerMenu = () => {
@@ -73,7 +87,8 @@
       title: column,
       field: column,
       minWidth: 140,
-      formatter: "plaintext",
+      editor: "input",
+      formatter: dirtyFormatter,
     })),
   ];
 
@@ -106,9 +121,15 @@
 
     renderColumnMenu();
     updateSelection();
+    updateResetAllButton();
   });
 
   grid.on("rowSelectionChanged", updateSelection);
+
+  grid.on("cellEdited", (cell) => {
+    cell.getElement().classList.toggle("tabulator-cell-dirty", isCellDirty(cell));
+    updateResetAllButton();
+  });
 
   selectAllButton?.addEventListener("click", () => {
     grid.selectRow("active");
@@ -120,6 +141,13 @@
 
   columnsButton?.addEventListener("click", () => {
     columnMenu.hidden = !columnMenu.hidden;
+  });
+
+  resetAllButton?.addEventListener("click", () => {
+    for (const row of grid.getRows()) {
+      resetRow(row);
+    }
+    updateResetAllButton();
   });
 
   uploadInput?.addEventListener("change", () => {
@@ -138,6 +166,7 @@
     const selectedRows = grid.getSelectedData();
 
     syncSelectedFields(selectedRows);
+    syncEditedPayloads(selectedRows);
 
     if (selectedRows.some(isSucceeded) && confirmResendInput?.value !== "true") {
       event.preventDefault();
@@ -147,6 +176,37 @@
 
   window.ReplayLabGrid = grid;
 
+  function isCellDirty(cell) {
+    const rowData = cell.getRow().getData();
+    const field = cell.getField();
+    const originalPayload = parseOriginalPayload(rowData._originalPayload);
+    if (!originalPayload || !(field in originalPayload)) {
+      return false;
+    }
+    return originalPayload[field] !== cell.getValue();
+  }
+
+  function parseOriginalPayload(json) {
+    try {
+      return JSON.parse(json || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  function resetRow(row) {
+    const data = row.getData();
+    const originalPayload = parseOriginalPayload(data._originalPayload);
+    for (const field of csvColumns) {
+      if (field in originalPayload) {
+        row.getCell(field)?.setValue(originalPayload[field], true);
+      }
+    }
+    for (const cell of row.getCells()) {
+      cell.getElement().classList.remove("tabulator-cell-dirty");
+    }
+  }
+
   function updateSelection(data) {
     const selectedRows = data || grid.getSelectedData();
     const selected = selectedRows.length;
@@ -155,6 +215,7 @@
     selectedCount.textContent = `${selected} selected / ${total} row(s)`;
     replayButton.disabled = selected === 0;
     syncSelectedFields(selectedRows);
+    syncEditedPayloads(selectedRows);
 
     if (selectedRows.some(isSucceeded) && resendWarning && !resendWarning.hidden) {
       enterResendConfirmationMode();
@@ -173,6 +234,39 @@
       input.value = row._msgId;
       selectedFields.appendChild(input);
     }
+  }
+
+  function syncEditedPayloads(selectedRows) {
+    const editedPayloadsInput = document.getElementById("EditedPayloadsJson");
+    if (!editedPayloadsInput) {
+      return;
+    }
+
+    const edits = {};
+    for (const row of selectedRows) {
+      const originalPayload = parseOriginalPayload(row._originalPayload);
+      const rowEdits = {};
+      for (const field of csvColumns) {
+        if (field in originalPayload && originalPayload[field] !== row[field]) {
+          rowEdits[field] = row[field];
+        }
+      }
+      if (Object.keys(rowEdits).length > 0) {
+        edits[row._msgId] = rowEdits;
+      }
+    }
+
+    editedPayloadsInput.value = JSON.stringify(edits);
+  }
+
+  function updateResetAllButton() {
+    if (!resetAllButton) {
+      return;
+    }
+    const hasDirty = grid.getRows().some((row) =>
+      row.getCells().some((cell) => cell.getElement().classList.contains("tabulator-cell-dirty"))
+    );
+    resetAllButton.disabled = !hasDirty;
   }
 
   function renderColumnMenu() {

@@ -38,6 +38,9 @@ public sealed class IndexModel : PageModel
     [BindProperty]
     public bool ConfirmResendSucceeded { get; set; }
 
+    [BindProperty]
+    public string? EditedPayloadsJson { get; set; }
+
     public string? ErrorMessage { get; private set; }
 
     public string? WarningMessage { get; private set; }
@@ -75,6 +78,7 @@ public sealed class IndexModel : PageModel
         UploadedCsv = await reader.ReadToEndAsync(cancellationToken);
         UploadedFileName = Path.GetFileName(Upload.FileName);
         SelectedMessageIds = [];
+        EditedPayloadsJson = null;
 
         await LoadRowsAsync(UploadedCsv, replayResultsByMessageId: null, cancellationToken);
         return Page();
@@ -109,6 +113,8 @@ public sealed class IndexModel : PageModel
             return Page();
         }
 
+        messages = ApplyEditedPayloads(messages, EditedPayloadsJson);
+
         var selectedSucceededIds = selectedIds
             .Where(id => priorRowStateById.TryGetValue(id, out var state)
                 && string.Equals(state.Status, "succeeded", StringComparison.OrdinalIgnoreCase))
@@ -141,6 +147,7 @@ public sealed class IndexModel : PageModel
         ErrorMessage = null;
         WarningMessage = null;
         ConfirmResendSucceeded = false;
+        EditedPayloadsJson = null;
 
         return Page();
     }
@@ -179,6 +186,50 @@ public sealed class IndexModel : PageModel
         return null;
     }
 
+    private IReadOnlyList<ReplayMessage> ApplyEditedPayloads(IReadOnlyList<ReplayMessage> messages, string? editedPayloadsJson)
+    {
+        if (string.IsNullOrWhiteSpace(editedPayloadsJson))
+        {
+            return messages;
+        }
+
+        try
+        {
+            var edits = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string?>>>(editedPayloadsJson, GridJsonOptions)
+                ?? new Dictionary<string, Dictionary<string, string?>>(StringComparer.Ordinal);
+
+            if (edits.Count == 0)
+            {
+                return messages;
+            }
+
+            var editedMessages = new List<ReplayMessage>(messages.Count);
+            foreach (var message in messages)
+            {
+                if (edits.TryGetValue(message.Id, out var payloadEdits))
+                {
+                    var payload = DeserializePayload(message.Payload);
+                    foreach (var (key, value) in payloadEdits)
+                    {
+                        payload[key] = value;
+                    }
+
+                    editedMessages.Add(message with { Payload = JsonSerializer.Serialize(payload, GridJsonOptions) });
+                }
+                else
+                {
+                    editedMessages.Add(message);
+                }
+            }
+
+            return editedMessages;
+        }
+        catch (JsonException)
+        {
+            return messages;
+        }
+    }
+
     private void CreateGridState(
         IReadOnlyList<ReplayMessage> messages,
         IReadOnlyDictionary<string, ReplayResult>? replayResultsByMessageId,
@@ -196,15 +247,18 @@ public sealed class IndexModel : PageModel
             PriorRowState? priorState = null;
             priorRowStateById?.TryGetValue(message.Id, out priorState);
 
+            var payloadValues = DeserializePayload(message.Payload);
+            var originalPayload = priorState?.OriginalPayload ?? JsonSerializer.Serialize(payloadValues, GridJsonOptions);
+
             var row = new Dictionary<string, string?>(StringComparer.Ordinal)
             {
                 ["_msgId"] = message.Id,
                 ["_status"] = result?.Status.ToString().ToLowerInvariant() ?? priorState?.Status ?? "pending",
                 ["_result"] = result?.Status.ToString() ?? priorState?.Result ?? string.Empty,
                 ["_error"] = result?.ErrorMessage ?? priorState?.Error ?? string.Empty,
+                ["_originalPayload"] = originalPayload,
             };
 
-            var payloadValues = DeserializePayload(message.Payload);
             foreach (var column in CsvColumns)
             {
                 row[column] = payloadValues.TryGetValue(column, out var value) ? value : string.Empty;
@@ -247,7 +301,8 @@ public sealed class IndexModel : PageModel
                 priorRows[id] = new PriorRowState(
                     Status: ReadStringProperty(row, "_status"),
                     Result: ReadStringProperty(row, "_result"),
-                    Error: ReadStringProperty(row, "_error"));
+                    Error: ReadStringProperty(row, "_error"),
+                    OriginalPayload: ReadStringProperty(row, "_originalPayload"));
             }
 
             return priorRows;
@@ -290,5 +345,5 @@ public sealed class IndexModel : PageModel
 
     public sealed record ReplaySummary(int Total, int Succeeded, int Failed);
 
-    private sealed record PriorRowState(string? Status, string? Result, string? Error);
+    private sealed record PriorRowState(string? Status, string? Result, string? Error, string? OriginalPayload);
 }

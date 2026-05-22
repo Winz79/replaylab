@@ -350,6 +350,11 @@ body {
   color: var(--error-text);
 }
 
+.tabulator-cell-dirty {
+  background: #fff8d6;
+  font-weight: 700;
+}
+
 .empty-state {
   position: absolute;
   inset: 3.25rem 0.75rem 0.75rem;
