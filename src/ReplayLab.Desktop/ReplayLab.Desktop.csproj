@@ -14,8 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReplayLab.Web.Hosting\ReplayLab.Web.Hosting.csproj" />
-    <ProjectReference Include="..\ReplayLab.Parsers.Csv\ReplayLab.Parsers.Csv.csproj" />
-    <ProjectReference Include="..\ReplayLab.Adapters.Mock\ReplayLab.Adapters.Mock.csproj" />
+    <ProjectReference Include="..\ReplayLab.Desktop.Hosting\ReplayLab.Desktop.Hosting.csproj" />
   </ItemGroup>
 </Project>

@@ -39,6 +39,7 @@ flowchart TB
         direction LR
         CliHosting[ReplayLab.Cli.Hosting]
         WebHosting[ReplayLab.Web.Hosting]
+        DesktopHosting[ReplayLab.Desktop.Hosting]
     end
 
     subgraph Consumer[Consumer repository]
@@ -73,13 +74,15 @@ flowchart TB
 
     CLI --> CliHosting
     Web --> WebHosting
-    Desktop --> WebHosting
+    Desktop --> DesktopHosting
 
     CliHosting --> Core
     WebHosting --> Core
+    DesktopHosting --> WebHosting
 
     ConsumerHost --> CliHosting
     ConsumerHost --> WebHosting
+    ConsumerHost --> DesktopHosting
     ConsumerHost --> Core
     CustomParser --> Core
     CustomSender --> Core
@@ -218,7 +221,7 @@ The M10A/M10B direction is to prove this flow locally before any public NuGet pu
 | Core dependency direction | `ReplayLab.Core` must stay independent of parsers, adapters, UI, hosting, and consumer concerns. |
 | Extension model | Prefer package/reference composition and DI registration. |
 | Consumer adapters | Keep outside the public repo. |
-| Desktop shell | Public `ReplayLab.Desktop` hosts the Web UI through Photino.NET. Reusable desktop hosting may be extracted later. |
+| Desktop shell | Public `ReplayLab.Desktop` hosts the Web UI through Photino.NET. Reusable desktop hosting extracted as `ReplayLab.Desktop.Hosting` (ADR 0011). |
 | Persistence | Deferred until UX and package adoption are proven. |
 | Dynamic plugins | Deferred until static composition proves insufficient. |
 

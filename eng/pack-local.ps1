@@ -18,6 +18,7 @@ $projects = @(
     "src/ReplayLab.Adapters.Http/ReplayLab.Adapters.Http.csproj"
     "src/ReplayLab.Cli.Hosting/ReplayLab.Cli.Hosting.csproj"
     "src/ReplayLab.Web.Hosting/ReplayLab.Web.Hosting.csproj"
+    "src/ReplayLab.Desktop.Hosting/ReplayLab.Desktop.Hosting.csproj"
 )
 
 foreach ($project in $projects) {
