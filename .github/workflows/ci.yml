@@ -32,3 +32,9 @@ jobs:
 
       - name: Test
         run: dotnet test ReplayLab.sln --configuration Release --no-build
+
+      - name: Verify C# formatting
+        run: dotnet format ReplayLab.sln --verify-no-changes --verbosity minimal --no-restore
+
+      - name: Verify JavaScript syntax
+        run: node --check src/ReplayLab.Web.Hosting/wwwroot/js/replay-grid.js
