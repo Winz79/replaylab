@@ -419,16 +419,6 @@ body {
   display: none;
 }
 
-.empty-state {
-  position: absolute;
-  inset: 3.25rem 0.75rem 0.75rem;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  text-align: center;
-  pointer-events: none;
-}
-
 @media (max-width: 780px) {
   .shell-frame {
     width: min(100% - 1rem, 1440px);
