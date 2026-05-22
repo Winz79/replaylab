@@ -28,15 +28,76 @@ flowchart LR
 - Load CSV replay data.
 - Inspect parsed messages in CLI or Web UI.
 - Edit parsed values before replay in the Web workspace.
-- Replay through mock or HTTP adapters.
-- Host ReplayLab surfaces in your own app via DI composition.
+- Replay selected messages through mock or HTTP senders.
+- Host ReplayLab Web from another .NET app.
+- Build private parsers and senders outside this public repository.
+- Run the Web UI in a native Desktop shell through Photino.NET.
+
+## What ReplayLab is for
+
+ReplayLab is for developers and technical operators who need a small local tool to exercise message flows, test adapters, or prepare replay scenarios.
+
+It is intentionally generic. Public ReplayLab packages should stay reusable and free of business-specific concepts.
+
+```mermaid
+flowchart TB
+    Core[ReplayLab.Core<br/>contracts and models]
+    Parsers[ReplayLab.Parsers.*]
+    Adapters[ReplayLab.Adapters.*]
+    Hosting[CLI / Web / Desktop hosting]
+    Private[Private host app<br/>custom parser + custom sender]
+
+    Parsers --> Core
+    Adapters --> Core
+    Hosting --> Core
+    Private --> Hosting
+    Private --> Core
+```
+
+## What ReplayLab is not
+
+ReplayLab is not a production replay platform yet.
+
+It does not include:
+
+- WCF or proprietary adapters;
+- customer-specific payloads or mappings;
+- certificates or private infrastructure concerns;
+- persistence/session storage yet;
+- Docker or installer assets;
+- public NuGet publishing yet.
+
+Those boundaries are deliberate. Private integrations belong in private solutions that reference ReplayLab.
 
 ## Quick start
+
+### Requirements
+
+- .NET SDK pinned by `global.json`.
+- Windows, Linux, or macOS for CLI/Web.
+- For Desktop:
+  - Windows: Edge WebView2 runtime;
+  - Linux: WebKitGTK;
+  - macOS: system WebKit.
+
+### Build and test
+
+```powershell
+dotnet restore ReplayLab.sln
+dotnet build ReplayLab.sln --configuration Release --no-restore
+dotnet test ReplayLab.sln --configuration Release --no-build
+```
 
 ### Run the CLI
 
 ```powershell
 dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
+```
+
+Use the HTTP sender preview:
+
+```powershell
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --sender http --endpoint-url http://localhost:5087/ samples/basic.csv
 ```
 
 ### Run the Web UI
