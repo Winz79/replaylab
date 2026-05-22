@@ -117,7 +117,6 @@
   const baseColumn = {
     headerFilter: "input",
     headerMenu,
-    cellClick: (event, cell) => selectRowFromClick(event, cell.getRow()),
     minWidth: 120,
     resizable: true,
     sorter: "string",
@@ -145,14 +144,6 @@
       minWidth: 140,
       editor: "input",
       editable: (cell) => isRowEditing(cell.getRow()),
-      cellClick: (event, cell) => {
-        if (isRowEditing(cell.getRow())) {
-          event.stopPropagation();
-          return;
-        }
-
-        selectRowFromClick(event, cell.getRow());
-      },
     })),
   ];
 
@@ -192,6 +183,14 @@
   });
 
   grid.on("rowSelectionChanged", updateSelection);
+
+  grid.on("cellClick", (event, cell) => {
+    if (!csvColumns.includes(cell.getField())) {
+      return;
+    }
+
+    selectRowFromClick(event, cell.getRow());
+  });
 
   grid.on("rowClick", (event, row) => {
     if (isRowEditing(row) || isInteractiveTarget(event.target)) {
@@ -272,7 +271,6 @@
   }
 
   function selectRow(row) {
-    const id = row.getData()._msgId;
     const checkbox = row.getElement().querySelector(".tabulator-row-header input[type='checkbox']");
 
     if (checkbox instanceof HTMLInputElement && !checkbox.checked) {
@@ -280,9 +278,7 @@
       return;
     }
 
-    if (id) {
-      grid.selectRow(id);
-    }
+    row.select();
   }
 
   function toggleEditMode(row) {
