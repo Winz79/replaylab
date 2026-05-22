@@ -12,7 +12,7 @@ M1 through M8 are complete.
 
 M9A (Parser Quality with CsvHelper) and M9B (Editable Replay Workspace) are complete.
 
-M9C is the next immediate milestone.
+M9C is complete.
 
 ## Summary Of Active Roadmap
 
@@ -22,8 +22,8 @@ M9C is the next immediate milestone.
 | M8 | Desktop AppHost with Photino.NET | Complete. Desktop shell that self-hosts the ReplayLab Web UI in a native web view, with dynamic loopback port selection and graceful shutdown. |
 | M9A | Parser Quality with CsvHelper | Complete. Replaced the minimal custom CSV parser with CsvHelper to handle real-world CSV inputs. Delivered in PR #96. |
 | M9B | Editable Replay Workspace | Complete. Added in-place editing of parsed payload values in the Web UI grid before replay, with dirty state, row reset, and edited payload submission. Delivered in PR #95. |
-| M9C | Editable Workspace UX Polish | Next immediate milestone. Harden the editable replay workspace UX and server-side validation before broadening the surface. Tracked in #98 and #97. |
-| M10A | Packageable ReplayLab SDK | Make ReplayLab consumable as local NuGet packages by external solutions. Tracked in #99. |
+| M9C | Editable Workspace UX Polish | Complete. Hardened the editable replay workspace UX and server-side validation before broadening the surface. Tracked in #98 and #97. |
+| M10A | Packageable ReplayLab SDK | In progress. Make ReplayLab consumable as local NuGet packages by external solutions. Tracked in #99. |
 | M10B | NuGet-based Custom Desktop/Web Tool Sample | Provide a realistic external-style sample that references ReplayLab packages, not project references. Tracked in #100. |
 | M11 | Composition / Extension Model Hardening | Improve parser/adapter composition after the package-based sample proves the static composition path. Tracked in #101. |
 | M12 | Local Sessions / Persistence | Deferred. Do not implement before UX and package adoption are proven. |
@@ -297,13 +297,13 @@ Persist local replay workspace state later.
 | M8 | Desktop AppHost with Photino.NET |
 | M9A | Parser Quality with CsvHelper |
 | M9B | Editable Replay Workspace |
+| M9C | Editable Workspace UX Polish |
 
 ## Future Milestones
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| M9C | Editable Workspace UX Polish — Harden the editable replay workspace UX and server-side validation before broadening the surface. See #98 and #97. |
-| M10A | Packageable ReplayLab SDK — Make ReplayLab consumable as local NuGet packages by external solutions. See #99. |
+| M10A | Packageable ReplayLab SDK — In progress. Make ReplayLab consumable as local NuGet packages by external solutions. See #99. |
 | M10B | NuGet-based Custom Desktop/Web Tool Sample — Provide a realistic external-style sample that references ReplayLab packages, not project references. See #100. |
 | M11 | Composition / Extension Model Hardening — Improve parser/adapter composition after the package-based sample proves the static composition path. See #101. |
 | M12 | Local Sessions / Persistence — Deferred. Do not implement before UX and package adoption are proven. |

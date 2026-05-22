@@ -13,6 +13,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>ReplayLab.Parsers.Csv</PackageId>
+    <Description>CSV message parser for ReplayLab using CsvHelper.</Description>
+    <PackageTags>replay;testing;dotnet;parser;csv</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>

@@ -12,6 +12,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>ReplayLab.Adapters.Mock</PackageId>
+    <Description>Mock sender adapter for ReplayLab tests and local development.</Description>
+    <PackageTags>replay;testing;dotnet;adapter;mock</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
 </Project>
