@@ -22,6 +22,7 @@ The task is not complete until:
 - if a dedicated branch is being used, the branch is pushed
 - if the user has not explicitly told you not to create one, a pull request is created
 - if a pull request is created, it links every completed issue with `Closes #...`
+- if a pull request already exists for the branch, the new commit is pushed to that same pull request instead of opening a replacement PR
 - if a pull request is created, the PR body includes:
   - linked issue or issue batch
   - summary
@@ -34,6 +35,10 @@ The task is not complete until:
 
 Do not stop after local edits.
 Do not stop after summarizing changes.
+Once a PR exists, stay in the implementation loop until the PR is ready for handoff or merge:
+- monitor CI and fix failing checks that are in scope for the branch
+- handle reviewer comments on the same PR with follow-up commits
+- do not treat "PR opened" or "commit pushed" as the end of implementation work
 If a pull request is required but cannot be created, explain exactly why and provide the command the user should run.
 
 ## Branch

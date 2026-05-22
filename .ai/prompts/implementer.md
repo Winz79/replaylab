@@ -16,5 +16,6 @@ Implementation rules:
 - Do not implement extra scope beyond the current slice.
 - Add focused tests for new behavior.
 - Update docs or ADRs when implementation changes architecture or plans.
+- Once a PR exists for the slice, stay in the PR loop until it is ready to merge: watch CI, fix failing checks, respond to review comments, and push follow-up commits on the same PR as needed.
 
 After editing, run focused tests and summarize changes, assumptions, risks, and open questions.

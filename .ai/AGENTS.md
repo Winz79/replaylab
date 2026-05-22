@@ -129,7 +129,8 @@ When working from an issue:
 4. Restate the intended slice before implementation.
 5. Keep the change scoped to the issue.
 6. If the issue is too large, propose a split instead of implementing everything.
-7. When done, summarize:
+7. After opening or updating a PR, stay in the loop until CI is green or any remaining failures are clearly out of scope, and address review comments on the same PR with follow-up commits.
+8. When done, summarize:
    - files changed
    - tests run
    - assumptions
