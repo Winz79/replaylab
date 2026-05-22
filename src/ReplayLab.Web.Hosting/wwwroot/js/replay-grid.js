@@ -142,7 +142,8 @@
     sorter: "string",
   };
 
-  const columns = [
+  const hasRows = rows.length > 0;
+  const columns = hasRows ? [
     {
       title: "",
       field: "_actions",
@@ -166,7 +167,7 @@
       editable: (cell) => isRowEditing(cell.getRow()),
       formatter: payloadFormatter,
     })),
-  ];
+  ] : [];
 
   grid = new Tabulator(gridElement, {
     data: rows,
@@ -179,7 +180,7 @@
     resizableColumnFit: false,
     selectableRows: true,
     selectableRowsCheck: (row) => !isRowEditing(row),
-    rowHeader: {
+    rowHeader: hasRows ? {
       formatter: "rowSelection",
       title: "",
       headerSort: false,
@@ -188,7 +189,7 @@
       headerHozAlign: "center",
       hozAlign: "center",
       width: 44,
-    },
+    } : false,
   });
 
   grid.on("tableBuilt", () => {
