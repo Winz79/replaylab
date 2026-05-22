@@ -67,6 +67,9 @@ flowchart TB
     end
 
     User --> Apps
+    Apps --> Hosting
+    Hosting --> Consumer
+    Consumer --> Toolkit
 
     CLI --> CliHosting
     Web --> WebHosting
