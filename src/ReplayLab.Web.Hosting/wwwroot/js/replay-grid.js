@@ -266,6 +266,7 @@
       return;
     }
 
+    event.preventDefault();
     event.stopPropagation();
     selectRow(row);
   }
@@ -273,7 +274,7 @@
   function selectRow(row) {
     const id = row.getData()._msgId;
     if (id) {
-      grid.selectRow(id);
+      window.requestAnimationFrame(() => grid.selectRow(id));
     }
   }
 
