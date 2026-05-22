@@ -1,5 +1,11 @@
 # ReplayLab
 
+[![CI](https://github.com/sebastienwitz/replaylab/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastienwitz/replaylab/actions/workflows/ci.yml)
+![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Roadmap](https://img.shields.io/badge/roadmap-active-0A7EA4.svg)](docs/roadmap.md)
+![Status](https://img.shields.io/badge/status-local%20replay%20toolkit-green.svg)
+
 ReplayLab is a .NET replay/testing toolkit for building local replay tools.
 
 It helps developers load structured replay messages, inspect or edit them, and send them through configurable adapters. The long-term adoption goal is simple: reference ReplayLab packages, plug in your own parser or sender, and ship a Web or Desktop replay tool without forking this repository.
