@@ -39,7 +39,7 @@ public sealed class EditableGridGuiTests
             Buffer = Encoding.UTF8.GetBytes("kind,name\nCreated,alpha\n")
         });
 
-        await page.WaitForSelectorAsync(".tabulator-row");
+        await page.WaitForFunctionAsync("() => window.ReplayLabGrid?.getRows?.().length === 1");
         await page.WaitForFunctionAsync("() => document.querySelector('#selected-count')?.textContent?.includes('0 selected')");
 
         await page.EvaluateAsync("""
