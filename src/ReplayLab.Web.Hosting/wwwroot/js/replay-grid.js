@@ -259,7 +259,7 @@
     }
 
     row.getElement().classList.toggle("tabulator-row-editing", editingRows.has(id));
-    row.reformat();
+    syncRowDirtyState(row);
     updateSelection();
   }
 
