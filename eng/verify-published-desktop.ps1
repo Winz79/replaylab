@@ -16,21 +16,23 @@ $isWindows = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([
 $isLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
 $isMacOs = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
 
+$architectureSegment = switch ($architecture) {
+    ([System.Runtime.InteropServices.Architecture]::X64) { "x64" }
+    ([System.Runtime.InteropServices.Architecture]::Arm64) { "arm64" }
+    default { throw "Unsupported architecture for desktop publish verification: $architecture" }
+}
+
 $rid = if ($isWindows) {
-    "win-x64"
+    "win-$architectureSegment"
 }
 elseif ($isLinux) {
-    "linux-x64"
+    "linux-$architectureSegment"
 }
 elseif ($isMacOs) {
-    "osx-x64"
+    "osx-$architectureSegment"
 }
 else {
     throw "Unsupported OS platform for desktop publish verification."
-}
-
-if ($architecture -ne [System.Runtime.InteropServices.Architecture]::X64) {
-    Write-Warning "Desktop publish verification is configured for x64. Current architecture is $architecture."
 }
 
 if ([string]::IsNullOrWhiteSpace($OutputPath)) {
