@@ -11,6 +11,8 @@ public static class SampleServiceCollectionExtensions
         services.AddSingleton<SyntheticServiceLog>();
         services.AddSingleton<IMessageParser, SyntheticMessageParser>();
         services.AddSingleton<IReplaySenderFactory, SyntheticReplaySenderFactory>();
+        services.AddSingleton<IReplaySender>(serviceProvider =>
+            serviceProvider.GetRequiredService<IReplaySenderFactory>().CreateMockSender());
         return services;
     }
 }
