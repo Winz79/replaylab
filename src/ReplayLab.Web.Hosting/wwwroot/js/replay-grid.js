@@ -22,6 +22,7 @@
   const state = JSON.parse(stateElement.textContent || "{}");
   const rows = Array.isArray(state.rows) ? state.rows : [];
   const csvColumns = Array.isArray(state.csvColumns) ? state.csvColumns : [];
+  const columnState = state.columnState && typeof state.columnState === "object" ? state.columnState : {};
   const selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
   const editingRows = new Set();
   const columnMenu = document.createElement("div");
@@ -129,6 +130,7 @@
         action: (event) => {
           event.stopPropagation();
           column.toggle();
+          syncReplayState();
           renderColumnMenu();
         },
       }));
@@ -193,6 +195,7 @@
   });
 
   grid.on("tableBuilt", () => {
+    applyColumnState();
     syncAllDirtyStates();
 
     if (selectedIds.size > 0) {
@@ -205,6 +208,13 @@
   });
 
   grid.on("rowSelectionChanged", updateSelection);
+
+  grid.on("columnResized", () => syncReplayState());
+
+  grid.on("columnVisibilityChanged", () => {
+    renderColumnMenu();
+    syncReplayState();
+  });
 
   grid.on("cellClick", (event, cell) => {
     if (!csvColumns.includes(cell.getField())) {
@@ -449,8 +459,57 @@
     replayStateInput.value = JSON.stringify({
       rows: grid.getData(),
       csvColumns,
+      columnState: collectColumnState(),
       selectedIds: (selectedRows || grid.getSelectedData()).map((row) => row._msgId),
     });
+  }
+
+  function applyColumnState() {
+    for (const column of grid.getColumns()) {
+      const field = column.getField();
+      const stateForColumn = field ? columnState[field] : null;
+      if (!stateForColumn || typeof stateForColumn !== "object") {
+        continue;
+      }
+
+      if (stateForColumn.visible === false) {
+        column.hide();
+      } else if (stateForColumn.visible === true) {
+        column.show();
+      }
+
+      if (Number.isFinite(stateForColumn.width) && typeof column.setWidth === "function") {
+        column.setWidth(stateForColumn.width);
+      }
+    }
+  }
+
+  function collectColumnState() {
+    const result = {};
+
+    for (const column of grid.getColumns().filter((candidate) => candidate.getField())) {
+      const field = column.getField();
+      const width = readColumnWidth(column);
+
+      result[field] = {
+        visible: column.isVisible(),
+        width: width > 0 ? Math.round(width) : null,
+      };
+    }
+
+    return result;
+  }
+
+  function readColumnWidth(column) {
+    if (typeof column.getWidth === "function") {
+      return column.getWidth();
+    }
+
+    if (typeof column.getElement === "function") {
+      return column.getElement()?.offsetWidth || 0;
+    }
+
+    return 0;
   }
 
   function updateResetAllButton() {
@@ -475,6 +534,7 @@
         } else {
           column.hide();
         }
+        syncReplayState();
       });
 
       label.appendChild(checkbox);

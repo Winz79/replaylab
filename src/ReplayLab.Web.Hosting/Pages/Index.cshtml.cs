@@ -61,6 +61,9 @@ public sealed class IndexModel : PageModel
 
     public IReadOnlyList<string> CsvColumns { get; private set; } = [];
 
+    public IReadOnlyDictionary<string, GridColumnState> ColumnState { get; private set; } =
+        new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
+
     public int SelectedRowCount { get; private set; }
 
     public ReplaySummary? Summary { get; private set; }
@@ -70,6 +73,7 @@ public sealed class IndexModel : PageModel
         {
             rows = Rows,
             csvColumns = CsvColumns,
+            columnState = ColumnState,
             selectedIds = SelectedMessageIds
         },
         GridJsonOptions);
@@ -111,6 +115,7 @@ public sealed class IndexModel : PageModel
         }
 
         var priorRowStateById = ReadPriorGridState(ReplayStateJson);
+        var priorColumnState = ReadPriorColumnState(ReplayStateJson);
         var selectedIds = SelectedMessageIds
             .Distinct()
             .Where(id => messages.Any(message => message.Id == id))
@@ -119,7 +124,7 @@ public sealed class IndexModel : PageModel
         if (selectedIds.Length == 0)
         {
             ErrorMessage = "Select at least one row to replay.";
-            CreateGridState(messages, replayResultsByMessageId: null, selectedIds: [], priorRowStateById);
+            CreateGridState(messages, replayResultsByMessageId: null, selectedIds: [], priorRowStateById, priorColumnState);
             SelectedRowCount = 0;
             Summary = null;
             return Page();
@@ -137,7 +142,7 @@ public sealed class IndexModel : PageModel
             WarningMessage = "One or more selected rows already succeeded. Select Send again to confirm resending them.";
             Summary = null;
             ErrorMessage = null;
-            CreateGridState(messages, replayResultsByMessageId: null, selectedIds, priorRowStateById);
+            CreateGridState(messages, replayResultsByMessageId: null, selectedIds, priorRowStateById, priorColumnState);
             SelectedRowCount = SelectedMessageIds.Count;
             return Page();
         }
@@ -154,7 +159,7 @@ public sealed class IndexModel : PageModel
             Succeeded: succeeded,
             Failed: replayResults.Count - succeeded);
         SelectedMessageIds = [];
-        CreateGridState(messages, replayResultsByMessageId, selectedIds: [], priorRowStateById);
+        CreateGridState(messages, replayResultsByMessageId, selectedIds: [], priorRowStateById, priorColumnState);
         SelectedRowCount = 0;
         ErrorMessage = null;
         WarningMessage = null;
@@ -249,9 +254,11 @@ public sealed class IndexModel : PageModel
         IReadOnlyList<ReplayMessage> messages,
         IReadOnlyDictionary<string, ReplayResult>? replayResultsByMessageId,
         IReadOnlyCollection<string> selectedIds,
-        IReadOnlyDictionary<string, PriorRowState>? priorRowStateById = null)
+        IReadOnlyDictionary<string, PriorRowState>? priorRowStateById = null,
+        IReadOnlyDictionary<string, GridColumnState>? priorColumnState = null)
     {
         CsvColumns = GetCsvColumns(messages);
+        ColumnState = priorColumnState ?? new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
         var selected = selectedIds.ToHashSet(StringComparer.Ordinal);
         var rows = new List<Dictionary<string, string?>>(messages.Count);
 
@@ -351,10 +358,65 @@ public sealed class IndexModel : PageModel
             : null;
     }
 
+    private static IReadOnlyDictionary<string, GridColumnState> ReadPriorColumnState(string? replayStateJson)
+    {
+        if (string.IsNullOrWhiteSpace(replayStateJson))
+        {
+            return new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(replayStateJson);
+            if (!document.RootElement.TryGetProperty("columnState", out var columnState)
+                || columnState.ValueKind != JsonValueKind.Object)
+            {
+                return new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
+            }
+
+            var result = new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
+            foreach (var column in columnState.EnumerateObject())
+            {
+                if (column.Value.ValueKind != JsonValueKind.Object)
+                {
+                    continue;
+                }
+
+                bool? visible = null;
+                int? width = null;
+
+                if (column.Value.TryGetProperty("visible", out var visibleProperty)
+                    && (visibleProperty.ValueKind == JsonValueKind.True || visibleProperty.ValueKind == JsonValueKind.False))
+                {
+                    visible = visibleProperty.GetBoolean();
+                }
+
+                if (column.Value.TryGetProperty("width", out var widthProperty)
+                    && widthProperty.ValueKind == JsonValueKind.Number
+                    && widthProperty.TryGetInt32(out var parsedWidth))
+                {
+                    width = parsedWidth;
+                }
+
+                if (visible is not null || width is not null)
+                {
+                    result[column.Name] = new GridColumnState(visible, width);
+                }
+            }
+
+            return result;
+        }
+        catch (JsonException)
+        {
+            return new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
+        }
+    }
+
     private void ClearGridState()
     {
         Rows = [];
         CsvColumns = [];
+        ColumnState = new Dictionary<string, GridColumnState>(StringComparer.Ordinal);
         SelectedMessageIds = [];
     }
 
@@ -375,6 +437,8 @@ public sealed class IndexModel : PageModel
     }
 
     public sealed record ReplaySummary(int Total, int Succeeded, int Failed);
+
+    public sealed record GridColumnState(bool? Visible, int? Width);
 
     private sealed record PriorRowState(
         string? Status,
