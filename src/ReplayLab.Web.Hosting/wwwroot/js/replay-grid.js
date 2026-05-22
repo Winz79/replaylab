@@ -303,6 +303,7 @@
   }
 
   function selectRow(row) {
+    const id = row.getData()._msgId;
     const checkbox = row.getElement().querySelector(".tabulator-row-header input[type='checkbox']");
 
     if (checkbox instanceof HTMLInputElement && !checkbox.checked) {
@@ -310,7 +311,9 @@
       return;
     }
 
-    row.select();
+    if (id) {
+      grid.selectRow(id);
+    }
   }
 
   function toggleEditMode(row) {
