@@ -322,12 +322,28 @@
     if (editingRows.has(id)) {
       editingRows.delete(id);
     } else {
+      clearEditModeExcept(id);
       editingRows.add(id);
     }
 
     row.getElement().classList.toggle("tabulator-row-editing", editingRows.has(id));
     syncRowDirtyState(row);
     updateSelection();
+  }
+
+  function clearEditModeExcept(activeId) {
+    for (const editingId of Array.from(editingRows)) {
+      if (editingId === activeId) {
+        continue;
+      }
+
+      editingRows.delete(editingId);
+      const row = grid.getRow(editingId);
+      if (row) {
+        row.getElement().classList.remove("tabulator-row-editing");
+        syncRowDirtyState(row);
+      }
+    }
   }
 
   function isCellDirty(cell) {
