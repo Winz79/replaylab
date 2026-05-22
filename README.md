@@ -1,357 +1,183 @@
 # ReplayLab
 
-ReplayLab is a .NET replay/testing toolkit for loading structured replay messages and sending them through configurable adapters. The public repo now covers the completed M1-M7 foundation: ReplayLab.Core contracts, CSV parsing, sequential replay, mock and HTTP adapters, a CLI, a local Web UI, DI registration helpers, the extension model for private adapters outside this repository, and hostable CLI/Web entry points.
+ReplayLab is a .NET replay/testing toolkit for building local replay tools.
 
-## What ReplayLab Is
+It helps developers load structured replay messages, inspect or edit them, and send them through configurable adapters. The long-term adoption goal is simple: reference ReplayLab packages, plug in your own parser or sender, and ship a Web or Desktop replay tool without forking this repository.
 
-- A small, open-source-friendly replay/testing foundation.
-- A set of generic message, batch, parser, and sender contracts.
-- A place for public parser and adapter packages that do not depend on business-specific systems.
-- A testable scaffold for future vertical slices.
-
-## What ReplayLab Is Not
-
-- It is not a production replay platform yet.
-- It does not include Docker assets.
-- It does not include WCF, proprietary, customer-specific, certificate-specific, or business-specific adapters.
-- It does not contain private mapping rules or business contract models.
-- Hostable CLI and Web entry points are documented in M7.
-
-## Current Status
-
-ReplayLab has completed M1-M7. The solution targets `net10.0` and is pinned with `global.json` to the SDK line used for this repository.
-
-Implemented today:
-
-- `ReplayLab.Core` with generic replay models and contracts.
-- `ReplayLab.Parsers.Csv` with CsvHelper-backed RFC-oriented CSV parsing.
-- `SequentialReplayEngine` for generic replay orchestration.
-- `ReplayLab.Adapters.Mock` for tests and local development.
-- `ReplayLab.Adapters.Http` for minimal HTTP POST replay.
-- `ReplayLab.Adapters.Example` as a fictional reference implementation for extension authors.
-- DI registration helpers in parser and adapter projects.
-- `ReplayLab.Cli` and `ReplayLab.Web`.
-- `ReplayLab.Desktop` — cross-platform desktop AppHost using Photino.NET that self-hosts the Web UI in a native OS window (Windows, Linux, macOS).
-- `ReplayLab.Core` package metadata verified with `dotnet pack` at version `0.6.0`.
-- GitHub Actions CI for restore, build, and test.
-
-For the completed M6 extension model and rationale, see [ADR 0008](docs/adr/0008-extension-model.md), the [M6 milestone guide](docs/milestones/m6-private-adapter-extension-model.md), [PRD 0008](docs/prd/0008-private-adapter-extension-model.md), and [the roadmap](docs/roadmap.md).
-
-## Architecture Overview
-
-The dependency direction is intentionally simple:
-
-```text
-ReplayLab.Core
-  ^          ^
-  |          |
-Parsers   Adapters
-  ^
-  |
-Applications such as CLI and local Web UI
+```mermaid
+flowchart LR
+    Input[Replay input<br/>CSV today, custom parsers later] --> Parser[Parser]
+    Parser --> Messages[Replay messages]
+    Messages --> Workspace[Web / Desktop workspace]
+    Workspace --> Sender[Sender adapter]
+    Sender --> Target[Mock, HTTP, or private target]
 ```
 
-`ReplayLab.Core` owns generic contracts and models:
+## What you can do today
 
-- `ReplayMessage`
-- `ReplayBatch`
-- `ReplayResult`
-- `IMessageParser`
-- `IReplaySender`
+- Load CSV replay data.
+- Inspect parsed messages in CLI or Web UI.
+- Edit parsed values before replay in the Web workspace.
+- Replay selected messages through mock or HTTP senders.
+- Host ReplayLab Web from another .NET app.
+- Build private parsers and senders outside this public repository.
+- Run the Web UI in a native Desktop shell through Photino.NET.
 
-Parser and adapter projects depend on core. Core must not depend on parser implementations, sender implementations, UI, Docker, WCF, persistence, or business-specific packages.
+## What ReplayLab is for
 
-## Public vs Private Adapter Boundary
+ReplayLab is for developers and technical operators who need a small local tool to exercise message flows, test adapters, or prepare replay scenarios.
 
-Public ReplayLab adapters should stay generic and reusable. They may depend on public protocols, public data formats, or local test utilities, but they should not encode private business semantics.
+It is intentionally generic. Public ReplayLab packages should stay reusable and free of business-specific concepts.
 
-Private integrations belong outside this repository. A private integration can compose ReplayLab like this:
+```mermaid
+flowchart TB
+    Core[ReplayLab.Core<br/>contracts and models]
+    Parsers[ReplayLab.Parsers.*]
+    Adapters[ReplayLab.Adapters.*]
+    Hosting[CLI / Web / Desktop hosting]
+    Private[Private host app<br/>custom parser + custom sender]
 
-1. Parse public input into generic `ReplayMessage` values.
-2. Apply private mapping rules outside the public repository.
-3. Create private business contract objects outside the public repository.
-4. Send through a private adapter outside the public repository.
+    Parsers --> Core
+    Adapters --> Core
+    Hosting --> Core
+    Private --> Hosting
+    Private --> Core
+```
 
-WCF and business-specific adapters are intentionally excluded from this repository.
+## What ReplayLab is not
 
-## Build A Private Adapter
+ReplayLab is not a production replay platform yet.
 
-M6 makes private adapters a supported extension path without moving private integration code into this repo.
+It does not include:
 
-- Reference `ReplayLab.Core`.
-- Implement `IReplaySender`.
-- Optionally implement `IMessageParser`.
-- Add a project-local `IServiceCollection` extension.
-- Own the composition root.
-- See the hostable CLI and Web entry points documented in M7.
+- WCF or proprietary adapters;
+- customer-specific payloads or mappings;
+- certificates or private infrastructure concerns;
+- persistence/session storage yet;
+- Docker or installer assets;
+- public NuGet publishing yet.
 
-## Hostable Entry Points
+Those boundaries are deliberate. Private integrations belong in private solutions that reference ReplayLab.
 
-M7 adds hostable entry points for external projects.
+## Quick start
 
-- `ReplayLab.Cli.Hosting` exposes the reusable CLI runner.
-- `ReplayLab.Web.Hosting` exposes ASP.NET Core composition hooks.
-- `samples/ReplayLab.HostSample` demonstrates an external-style composition root.
+### Requirements
 
-External hosts own their service registration and app startup.
+- .NET SDK pinned by `global.json`.
+- Windows, Linux, or macOS for CLI/Web.
+- For Desktop:
+  - Windows: Edge WebView2 runtime;
+  - Linux: WebKitGTK;
+  - macOS: system WebKit.
 
-For CLI hosting, external projects can register parser and sender services through DI and pass the provider to `ReplayLab.Cli.Hosting`.
-
-For Web hosting, external projects can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and `MapReplayLabWeb()`. The Web hostable surface resolves its parser and sender from DI, and `AddReplayLabWeb()` registers default CSV/mock services that external hosts can replace.
-
-For the accepted architecture and current scope boundaries, see [ADR 0009](docs/adr/0009-hostable-entry-points.md), the [M7 milestone](docs/milestones/m7-hostable-entry-points.md), and [the sample README](samples/README.md).
-
-## Packageable Core
-
-`ReplayLab.Core` is packageable and pack verified at version `0.6.0`. Packageable and pack verified does not mean published.
-
-Create the package locally:
+### Build and test
 
 ```powershell
-dotnet pack src/ReplayLab.Core -c Release
-```
-
-Reference it from a private adapter project:
-
-```xml
-<PackageReference Include="ReplayLab.Core" Version="0.6.0" />
-```
-
-## CLI Preview
-
-The current CLI preview accepts one CSV file path, an explicit CSV format plus
-a file path, or an HTTP sender selection with an endpoint URL. It parses the
-CSV input, prints a concise inspection summary, replays the messages through
-the selected sender, and prints a replay summary.
-
-Run the preview against the synthetic sample:
-
-```powershell
-dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
-```
-
-Or use the explicit format option:
-
-```powershell
-dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --format csv samples/basic.csv
-```
-
-Use the HTTP preview sender against a local endpoint:
-
-```powershell
-dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --sender http --endpoint-url http://localhost:5087/ samples/basic.csv
-```
-
-The HTTP preview is intentionally narrow:
-
-- sender selection is `mock` or `http`
-- mock remains the default sender
-- HTTP sends `POST` requests only
-- the request body is `ReplayMessage.Payload`
-- the default request `Content-Type` is `application/json`
-- method selection, header mapping, body mapping, response capture, auth, certificates, retries, config files, and Docker remain out of scope for the current HTTP adapter
-
-Expected output shape:
-
-```text
-Loaded 2 message(s).
-Inspected 2 message(s).
-- record-1: payload 70 character(s)
-- record-2: payload 70 character(s)
-Sent 2 message(s): 2 succeeded, 0 failed.
-- record-1: succeeded
-- record-2: succeeded
-```
-
-Expected HTTP success output shape:
-
-```text
-Loaded 2 message(s).
-Inspected 2 message(s).
-- record-1: payload 70 character(s)
-- record-2: payload 70 character(s)
-Sent 2 message(s): 2 succeeded, 0 failed.
-- record-1: succeeded
-- record-2: succeeded
-```
-
-Expected HTTP failure output shape:
-
-```text
-Loaded 2 message(s).
-Inspected 2 message(s).
-- record-1: payload 70 character(s)
-- record-2: payload 70 character(s)
-Sent 2 message(s): 0 succeeded, 2 failed.
-- record-1: failed - [platform-specific connection error]
-- record-2: failed - [platform-specific connection error]
-```
-
-The CLI returns `0` when all parsed messages are replayed successfully. It
-returns non-zero for command-level failures such as a missing file, invalid CSV,
-unsupported input format, unsupported sender, missing endpoint URL, or replay
-failures.
-
-## Local Executable Publish
-
-ReplayLab's current local executable distribution path is a framework-dependent
-publish of `ReplayLab.Cli`. This keeps distribution local and repeatable and
-assumes the required .NET runtime is available on the machine.
-
-Publish the CLI:
-
-```powershell
-dotnet publish src/ReplayLab.Cli/ReplayLab.Cli.csproj --configuration Release --output ./artifacts/publish/replaylab
-```
-
-Run the published executable against the synthetic sample:
-
-```powershell
-./artifacts/publish/replaylab/ReplayLab.Cli.exe samples/basic.csv
-```
-
-The same explicit format command also works with the published executable:
-
-```powershell
-./artifacts/publish/replaylab/ReplayLab.Cli.exe --format csv samples/basic.csv
-```
-
-On non-Windows systems, run the apphost without the `.exe` extension:
-
-```bash
-./artifacts/publish/replaylab/ReplayLab.Cli samples/basic.csv
-```
-
-Or use the explicit format option:
-
-```bash
-./artifacts/publish/replaylab/ReplayLab.Cli --format csv samples/basic.csv
-```
-
-To publish and verify the sample output in one step:
-
-```powershell
-./eng/verify-published-cli.ps1
-```
-
-This local publish path does not add Docker images, NuGet publishing, GitHub
-release automation, WCF/private adapters, persistence, or configuration DSL
-support.
-
-Both command shapes keep the mock sender as the default sender. Unsupported
-formats fail early with a clear non-zero CLI error before parsing or replay.
-Unsupported senders and missing HTTP endpoint URLs also fail early with exit
-code `2`.
-
-## Desktop AppHost
-
-`ReplayLab.Desktop` is a cross-platform desktop shell that self-hosts the
-ReplayLab Web UI inside a native OS window. It uses [Photino.NET](https://github.com/tryphotino/photino.NET)
-to embed a native web view (Edge on Windows, WebKit on Linux/macOS) and hosts
-ASP.NET Core in-process via the M7 `ReplayLab.Web.Hosting` seam.
-
-Run the desktop app:
-
-```powershell
-dotnet run --project src/ReplayLab.Desktop/ReplayLab.Desktop.csproj
-```
-
-The desktop app:
-- starts an in-process Kestrel server on a free loopback port,
-- opens a native window with the embedded web view,
-- navigates to the local server URL,
-- stops the server gracefully when the window closes.
-
-### Runtime Requirements
-
-- Windows: Edge WebView2 runtime (preinstalled on Windows 11, available as
-  evergreen installer for Windows 10).
-- Linux: `libwebkit2gtk-4.0` (or `webkit2gtk-4.1` depending on distro).
-- macOS: WebKit is included in the OS.
-
-### Publish Self-Contained Desktop Executable
-
-`ReplayLab.Desktop` publishes as a self-contained desktop app for the target platform. The project properties are already configured; specify the runtime identifier at publish time.
-
-Windows (x64):
-
-```powershell
-dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r win-x64 -o ./artifacts/publish/desktop/win-x64
-```
-
-Linux (x64):
-
-```bash
-dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r linux-x64 -o ./artifacts/publish/desktop/linux-x64
-```
-
-macOS (x64):
-
-```bash
-dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r osx-x64 -o ./artifacts/publish/desktop/osx-x64
-```
-
-The publish output is centered on `ReplayLab.Desktop` (`ReplayLab.Desktop.exe` on Windows) with the runtime bundled and any required native sidecar files alongside it.
-
-Verify the published executable for the current platform:
-
-```powershell
-./eng/verify-published-desktop.ps1
-```
-
-The script publishes the current-platform app and runs a brief startup smoke test by default. In headless environments, skip the launch step explicitly:
-
-```powershell
-./eng/verify-published-desktop.ps1 -SkipSmokeTest
-```
-
-### Out of Scope
-
-- WebView2 runtime bundling.
-- Private adapter registration in the public desktop shell (uses safe defaults).
-- Installer creation.
-- GitHub Actions release automation.
-
-## CSV Parser Limitations
-
-The current CSV parser is intentionally minimal. It is a first slice for loading
-tiny structured replay inputs, not a complete RFC 4180 implementation.
-
-Current behavior and limitations:
-
-- The first non-empty, non-comment line is treated as the header row.
-- Blank lines are ignored.
-- Lines whose first non-whitespace character is `#` are ignored as comments.
-- Each data row is split on commas.
-- Quoted fields are not supported in the first slice and are rejected.
-- Escaped quotes are not supported.
-- Embedded commas inside fields are not supported.
-- Embedded newlines inside fields are not supported.
-- Full RFC 4180 compliance is not currently supported.
-- Header names are used as JSON property names exactly as written.
-- Duplicate header names are not detected; later values overwrite earlier values in the generated payload object.
-- All payload values are serialized as strings.
-- Each parsed message uses the whole CSV row as a JSON payload object.
-- `ReplayMessage.Headers` remains empty by default.
-- Dynamic header mapping from CSV columns is deferred to a later mapping/configuration feature.
-- Private, proprietary, customer-specific, and business-specific mappings are out of scope for this repository.
-
-Synthetic sample files live in `samples/`. They are generic examples only and
-avoid quoted fields, embedded commas, and business-specific data.
-
-## Build and Test
-
-Use the pinned SDK from `global.json`:
-
-```powershell
-dotnet --info
 dotnet restore ReplayLab.sln
 dotnet build ReplayLab.sln --configuration Release --no-restore
 dotnet test ReplayLab.sln --configuration Release --no-build
 ```
 
-For a single command during local development:
+### Run the CLI
 
 ```powershell
-dotnet test ReplayLab.sln
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
 ```
+
+Use the HTTP sender preview:
+
+```powershell
+dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --sender http --endpoint-url http://localhost:5087/ samples/basic.csv
+```
+
+### Run the Web UI
+
+```powershell
+dotnet run --project src/ReplayLab.Web/ReplayLab.Web.csproj
+```
+
+### Run the Desktop app
+
+```powershell
+dotnet run --project src/ReplayLab.Desktop/ReplayLab.Desktop.csproj
+```
+
+## Build your own replay tool
+
+The intended extension model is package/reference based:
+
+```mermaid
+flowchart LR
+    Packages[ReplayLab packages] --> App[Your host app]
+    CustomParser[Your parser] --> App
+    CustomSender[Your sender] --> App
+    App --> Tool[Your replay tool<br/>CLI, Web, or Desktop]
+```
+
+Current path:
+
+1. Reference `ReplayLab.Core`.
+2. Implement `IMessageParser` if you need a custom input format.
+3. Implement `IReplaySender` if you need a custom replay target.
+4. Register services through DI in your own composition root.
+5. Host ReplayLab CLI/Web surfaces from your app.
+
+Near-term roadmap:
+
+- package the ReplayLab SDK as local NuGet packages;
+- add an external-style sample using `PackageReference` instead of project references;
+- evaluate a reusable Desktop hosting seam;
+- polish the editable Web workspace UX.
+
+See [docs/roadmap.md](docs/roadmap.md) and [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md).
+
+## CSV support
+
+`ReplayLab.Parsers.Csv` uses CsvHelper. It supports:
+
+- quoted fields;
+- escaped quotes;
+- embedded commas;
+- embedded newlines;
+- blank lines;
+- comment lines starting with `#`.
+
+Current behavior:
+
+- the first non-empty, non-comment record is treated as the header row;
+- header names become JSON property names exactly as written;
+- payload values are serialized as strings;
+- each parsed row becomes one `ReplayMessage`;
+- duplicate header handling, header normalization, and mapping configuration are deferred.
+
+## Documentation map
+
+| Topic | Link |
+| --- | --- |
+| Roadmap | [docs/roadmap.md](docs/roadmap.md) |
+| Packageable SDK plan | [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md) |
+| Hostable entry points | [docs/milestones/m7-hostable-entry-points.md](docs/milestones/m7-hostable-entry-points.md) |
+| Extension model ADR | [docs/adr/0008-extension-model.md](docs/adr/0008-extension-model.md) |
+| Hostable entry points ADR | [docs/adr/0009-hostable-entry-points.md](docs/adr/0009-hostable-entry-points.md) |
+| Samples | [samples/README.md](samples/README.md) |
+
+## Current status
+
+Completed foundations:
+
+- Core replay contracts and models.
+- CSV parser.
+- Sequential replay engine.
+- Mock and HTTP adapters.
+- CLI preview.
+- Web UI.
+- Hostable CLI/Web entry points.
+- Desktop AppHost.
+- Editable replay workspace.
+
+Next focus:
+
+1. Improve editable workspace UX.
+2. Harden edited payload validation.
+3. Package ReplayLab for local NuGet consumption.
+4. Add a NuGet-based custom replay tool sample.
