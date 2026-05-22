@@ -68,6 +68,69 @@ public sealed class HostableWebTests
     }
 
     [Fact]
+    public async Task Minimal_host_applies_valid_edited_payload_fields_during_replay()
+    {
+        var sender = new RecordingSender();
+        await using var app = await CreateAppAsync(services => services.AddSingleton<IReplaySender>(sender));
+        using var client = app.GetTestClient();
+        var edits = new Dictionary<string, Dictionary<string, string?>>
+        {
+            ["record-1"] = new() { ["name"] = "alpha-edited" }
+        };
+
+        using var request = await CreateReplayRequestWithEditsAsync(client, """
+            kind,name
+            Created,alpha
+            """, edits, "record-1");
+        using var response = await client.SendAsync(request);
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Sent 1 selected row(s): 1 succeeded, 0 failed.", html);
+
+        var payload = JsonNode.Parse(sender.SentMessages.Single().Payload)!.AsObject();
+        Assert.Equal("Created", payload["kind"]?.GetValue<string>());
+        Assert.Equal("alpha-edited", payload["name"]?.GetValue<string>());
+    }
+
+    [Fact]
+    public async Task Minimal_host_ignores_unknown_and_internal_edited_payload_fields_during_replay()
+    {
+        var sender = new RecordingSender();
+        await using var app = await CreateAppAsync(services => services.AddSingleton<IReplaySender>(sender));
+        using var client = app.GetTestClient();
+        var edits = new Dictionary<string, Dictionary<string, string?>>
+        {
+            ["record-1"] = new()
+            {
+                ["name"] = "alpha-edited",
+                ["unknown"] = "ignored",
+                ["_msgId"] = "ignored",
+                ["_status"] = "failed",
+                ["_result"] = "ignored",
+                ["_error"] = "ignored",
+                ["_originalPayload"] = "ignored",
+                ["_reset"] = "ignored",
+                ["_editMode"] = "ignored",
+                ["_actions"] = "ignored",
+            }
+        };
+
+        using var request = await CreateReplayRequestWithEditsAsync(client, """
+            kind,name
+            Created,alpha
+            """, edits, "record-1");
+        using var response = await client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var payload = JsonNode.Parse(sender.SentMessages.Single().Payload)!.AsObject();
+        Assert.Equal(["kind", "name"], payload.Select(property => property.Key).OrderBy(key => key).ToArray());
+        Assert.Equal("Created", payload["kind"]?.GetValue<string>());
+        Assert.Equal("alpha-edited", payload["name"]?.GetValue<string>());
+    }
+
+    [Fact]
     public async Task Minimal_host_shows_parse_error_for_invalid_default_csv_input()
     {
         await using var app = await CreateAppAsync();
@@ -158,6 +221,25 @@ public sealed class HostableWebTests
     {
         var content = CreateReplayContent(csv, selectedRows);
         var antiforgery = await GetAntiforgeryAsync(client);
+        content.Add(new StringContent(antiforgery.Token), "__RequestVerificationToken");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/?handler=Replay")
+        {
+            Content = content
+        };
+        request.Headers.Add("Cookie", antiforgery.Cookie);
+        return request;
+    }
+
+    private static async Task<HttpRequestMessage> CreateReplayRequestWithEditsAsync(
+        HttpClient client,
+        string csv,
+        Dictionary<string, Dictionary<string, string?>> edits,
+        params string[] selectedRows)
+    {
+        var content = CreateReplayContent(csv, selectedRows);
+        var antiforgery = await GetAntiforgeryAsync(client);
+        content.Add(new StringContent(JsonSerializer.Serialize(edits)), "EditedPayloadsJson");
         content.Add(new StringContent(antiforgery.Token), "__RequestVerificationToken");
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/?handler=Replay")
@@ -280,9 +362,12 @@ public sealed class HostableWebTests
     {
         public bool WasUsed { get; private set; }
 
+        public List<ReplayMessage> SentMessages { get; } = [];
+
         public Task<ReplayResult> SendAsync(ReplayMessage message, CancellationToken cancellationToken = default)
         {
             WasUsed = true;
+            SentMessages.Add(message);
             return Task.FromResult(new ReplayResult
             {
                 Success = true,

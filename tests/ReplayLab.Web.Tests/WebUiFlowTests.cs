@@ -360,6 +360,33 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
         Assert.Equal("succeeded", FindRow(replayGridState, "record-2")["_status"]?.GetValue<string>());
     }
 
+    [Fact]
+    public async Task Post_replay_preserves_column_state_from_workspace_state()
+    {
+        using var client = _factory.CreateClient();
+        const string csv = """
+            kind,name
+            Created,alpha
+            Updated,beta
+            """;
+
+        using var uploadResponse = await client.PostAsync("/", await CreateUploadContentAsync(client, csv));
+        var uploadGridState = ReadGridState(await uploadResponse.Content.ReadAsStringAsync());
+        var replayState = AddColumnState(uploadGridState.RawJson);
+
+        using var replayResponse = await client.PostAsync(
+            "/?handler=Replay",
+            await CreateReplayContentWithStateAsync(client, csv, replayState, confirmResendSucceeded: false, "record-1"));
+        var replayHtml = await replayResponse.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, replayResponse.StatusCode);
+
+        var gridState = JsonNode.Parse(ReadGridState(replayHtml).RawJson)!.AsObject();
+        var columnState = gridState["columnState"]!.AsObject();
+        Assert.False(columnState["name"]!["visible"]!.GetValue<bool>());
+        Assert.Equal(220, columnState["kind"]!["width"]!.GetValue<int>());
+    }
+
     private static async Task<MultipartFormDataContent> CreateUploadContentAsync(HttpClient client, string csv)
     {
         var content = CreateUploadContent(csv);
@@ -478,6 +505,26 @@ public sealed class WebUiFlowTests : IClassFixture<WebApplicationFactory<Program
             .Single(candidate => candidate["_msgId"]?.GetValue<string>() == messageId);
 
         row[field] = value;
+        return document.ToJsonString();
+    }
+
+    private static string AddColumnState(string rawJson)
+    {
+        var document = JsonNode.Parse(rawJson)!.AsObject();
+        document["columnState"] = new JsonObject
+        {
+            ["kind"] = new JsonObject
+            {
+                ["visible"] = true,
+                ["width"] = 220
+            },
+            ["name"] = new JsonObject
+            {
+                ["visible"] = false,
+                ["width"] = 180
+            }
+        };
+
         return document.ToJsonString();
     }
 

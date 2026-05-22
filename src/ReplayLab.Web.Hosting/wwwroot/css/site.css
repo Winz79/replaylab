@@ -350,35 +350,73 @@ body {
   color: var(--error-text);
 }
 
-.tabulator-cell-dirty {
-  background: #fff8d6;
-  font-weight: 700;
+.tabulator-row.tabulator-row-dirty,
+.tabulator-row.tabulator-row-dirty.tabulator-row-even {
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.row-reset-button {
-  width: 100%;
+.tabulator-cell-dirty {
+  background: #eefaf8;
+  box-shadow: inset 0 -2px 0 var(--accent-soft);
+}
+
+.payload-cell-value {
+  display: block;
+  min-height: 100%;
+  min-width: 100%;
+}
+
+.tabulator-row.tabulator-row-editing,
+.tabulator-row.tabulator-row-editing.tabulator-row-even {
+  background: #f6fbfa;
+}
+
+.tabulator-row.tabulator-row-editing .tabulator-cell.tabulator-row-header {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.row-action-button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  min-height: 1.65rem;
   border: 1px solid var(--border);
-  border-radius: 0.45rem;
+  border-radius: 999px;
   background: #fff;
-  color: var(--ink);
+  color: var(--text);
   cursor: pointer;
   font: inherit;
-  font-size: 0.82rem;
-  padding: 0.35rem 0.5rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.25rem 0.45rem;
 }
 
-.row-reset-button:hover {
-  background: #f5efe6;
+.row-action-button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: currentColor;
 }
 
-.empty-state {
-  position: absolute;
-  inset: 3.25rem 0.75rem 0.75rem;
-  display: grid;
-  place-items: center;
-  color: var(--muted);
-  text-align: center;
-  pointer-events: none;
+.row-edit-button {
+  color: var(--accent-strong);
+}
+
+.row-action-button:hover:not(:disabled) {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.row-action-button:disabled,
+.row-action-button[hidden] {
+  display: none;
 }
 
 @media (max-width: 780px) {
