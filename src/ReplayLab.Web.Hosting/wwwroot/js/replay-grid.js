@@ -189,6 +189,14 @@
 
   grid.on("rowSelectionChanged", updateSelection);
 
+  grid.on("rowClick", (event, row) => {
+    if (isRowEditing(row) || isInteractiveTarget(event.target)) {
+      return;
+    }
+
+    row.select();
+  });
+
   grid.on("cellEdited", (cell) => {
     syncRowDirtyState(cell.getRow());
     updateSelection();
@@ -245,6 +253,10 @@
     return editingRows.has(row.getData()._msgId);
   }
 
+  function isInteractiveTarget(target) {
+    return target instanceof Element && Boolean(target.closest("button, input, textarea, select, a"));
+  }
+
   function toggleEditMode(row) {
     const id = row.getData()._msgId;
     if (!id) {
@@ -255,7 +267,6 @@
       editingRows.delete(id);
     } else {
       editingRows.add(id);
-      grid.deselectRow(id);
     }
 
     row.getElement().classList.toggle("tabulator-row-editing", editingRows.has(id));
