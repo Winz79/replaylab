@@ -112,11 +112,11 @@ The desktop shell remains generic:
 
 ## Explicit Non-Goals
 
-- Single-file / self-contained publishing.
 - WebView2 runtime bundling.
 - Private adapter registration inside the public desktop shell.
 - Installer creation (MSIX, WiX, etc.).
 - Cross-platform desktop shell alternatives beyond Photino.NET.
+- GitHub Actions release automation.
 
 ## Resulting Guidance
 
@@ -125,5 +125,6 @@ The desktop shell remains generic:
 - Dynamic port selection is the default; fixed ports require explicit justification.
 - The desktop project should remain a thin composition root, not absorb Web UI or
   business-specific logic.
+- Self-contained single-file publishing is supported for `win-x64`, `linux-x64`, and `osx-x64`.
 - Future packaging work should be a separate slice after the desktop shell is
   proven.

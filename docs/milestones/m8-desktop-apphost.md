@@ -47,13 +47,24 @@ services.
 ## Explicit Non-Goals
 
 - Cross-platform desktop shell (remains a future candidate).
-- Single-file or self-contained publishing.
 - WebView2 runtime bundling (assume preinstalled or evergreen installer).
 - Private adapter registration inside the public desktop shell.
 - RFC-compliant CSV parser strategy.
 - Editable Web grid behavior.
 - Package publishing or release automation.
 - Installer creation.
+- GitHub Actions release automation.
+
+## Completed Work
+
+- Photino.NET desktop shell scaffolding (`ReplayLab.Desktop`).
+- In-process Kestrel self-host with dynamic loopback port.
+- Native web view navigation to the local server.
+- Graceful shutdown on window close.
+- Smoke test asserting the Web host starts and responds.
+- Self-contained single-file publishing support for `win-x64`, `linux-x64`, and `osx-x64`.
+- Publish verification script (`eng/verify-published-desktop.ps1`).
+- Updated `README.md` with Desktop publish instructions.
 
 ## Candidate Architecture
 

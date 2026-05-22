@@ -269,12 +269,48 @@ The desktop app:
 - Linux: `libwebkit2gtk-4.0` (or `webkit2gtk-4.1` depending on distro).
 - macOS: WebKit is included in the OS.
 
+### Publish Self-Contained Desktop Executable
+
+`ReplayLab.Desktop` publishes as a single-file self-contained executable for the target platform. The project properties are already configured; specify the runtime identifier at publish time.
+
+Windows (x64):
+
+```powershell
+dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r win-x64 -o ./artifacts/publish/desktop/win-x64
+```
+
+Linux (x64):
+
+```bash
+dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r linux-x64 -o ./artifacts/publish/desktop/linux-x64
+```
+
+macOS (x64):
+
+```bash
+dotnet publish src/ReplayLab.Desktop/ReplayLab.Desktop.csproj -c Release -r osx-x64 -o ./artifacts/publish/desktop/osx-x64
+```
+
+The output is a single executable with the runtime bundled. On Linux/macOS the file is named `ReplayLab.Desktop`; on Windows it is `ReplayLab.Desktop.exe`.
+
+Verify the published executable for the current platform:
+
+```powershell
+./eng/verify-published-desktop.ps1
+```
+
+Add the `-SmokeTest` switch to attempt a brief startup verification (requires a display; headless environments should skip this):
+
+```powershell
+./eng/verify-published-desktop.ps1 -SmokeTest
+```
+
 ### Out of Scope
 
-- Single-file / self-contained publishing (future slice).
 - WebView2 runtime bundling.
 - Private adapter registration in the public desktop shell (uses safe defaults).
 - Installer creation.
+- GitHub Actions release automation.
 
 ## CSV Parser Limitations
 
