@@ -19,12 +19,12 @@ ReplayLab is a .NET replay/testing toolkit for loading structured replay message
 
 ## Current Status
 
-ReplayLab has completed M1-M7. The solution targets `net10.0` and is pinned with `global.json` to the SDK line used for this repository.
+ReplayLab has completed M1-M8. M9A (Parser Quality with CsvHelper) and M9B (Editable Replay Workspace) are also complete. The solution targets `net10.0` and is pinned with `global.json` to the SDK line used for this repository.
 
 Implemented today:
 
 - `ReplayLab.Core` with generic replay models and contracts.
-- `ReplayLab.Parsers.Csv` with a deliberately small first CSV parser slice.
+- `ReplayLab.Parsers.Csv` using CsvHelper for robust CSV parsing.
 - `SequentialReplayEngine` for generic replay orchestration.
 - `ReplayLab.Adapters.Mock` for tests and local development.
 - `ReplayLab.Adapters.Http` for minimal HTTP POST replay.
@@ -32,6 +32,7 @@ Implemented today:
 - DI registration helpers in parser and adapter projects.
 - `ReplayLab.Cli` and `ReplayLab.Web`.
 - `ReplayLab.Desktop` — cross-platform desktop AppHost using Photino.NET that self-hosts the Web UI in a native OS window (Windows, Linux, macOS).
+- Editable replay workspace in the Web UI with dirty state, row reset, and edited payload submission.
 - `ReplayLab.Core` package metadata verified with `dotnet pack` at version `0.6.0`.
 - GitHub Actions CI for restore, build, and test.
 
@@ -100,6 +101,19 @@ For CLI hosting, external projects can register parser and sender services throu
 For Web hosting, external projects can mount `ReplayLab.Web.Hosting` through `AddReplayLabWeb()` and `MapReplayLabWeb()`. The Web hostable surface resolves its parser and sender from DI, and `AddReplayLabWeb()` registers default CSV/mock services that external hosts can replace.
 
 For the accepted architecture and current scope boundaries, see [ADR 0009](docs/adr/0009-hostable-entry-points.md), the [M7 milestone](docs/milestones/m7-hostable-entry-points.md), and [the sample README](samples/README.md).
+
+## Developer Adoption Direction
+
+ReplayLab is moving toward a package-based developer adoption model. The goal is that a developer can reference ReplayLab as local NuGet packages, provide custom parsers and adapters, and quickly ship a Web or Desktop replay tool without forking this repository.
+
+What is coming:
+
+- Local NuGet packages for `ReplayLab.Core`, parsers, adapters, and hosting libraries.
+- An external-style sample that consumes ReplayLab via `PackageReference` (not project references).
+- Custom parser/adapter composition through the existing DI registration pattern.
+- Reusable Desktop hosting seam so external tools can embed ReplayLab Desktop behavior.
+
+Public NuGet.org publishing, signing, and release automation remain out of scope for now. See the [roadmap](docs/roadmap.md) for milestone details.
 
 ## Packageable Core
 
@@ -312,22 +326,16 @@ The script publishes the current-platform app and runs a brief startup smoke tes
 - Installer creation.
 - GitHub Actions release automation.
 
-## CSV Parser Limitations
+## CSV Parser
 
-The current CSV parser is intentionally minimal. It is a first slice for loading
-tiny structured replay inputs, not a complete RFC 4180 implementation.
+`ReplayLab.Parsers.Csv` uses [CsvHelper](https://joshclose.github.io/CsvHelper/) for robust CSV parsing. It supports quoted fields, escaped quotes, embedded commas, and embedded newlines.
 
-Current behavior and limitations:
+Current behavior:
 
 - The first non-empty, non-comment line is treated as the header row.
 - Blank lines are ignored.
 - Lines whose first non-whitespace character is `#` are ignored as comments.
-- Each data row is split on commas.
-- Quoted fields are not supported in the first slice and are rejected.
-- Escaped quotes are not supported.
-- Embedded commas inside fields are not supported.
-- Embedded newlines inside fields are not supported.
-- Full RFC 4180 compliance is not currently supported.
+- Quoted fields, escaped quotes, embedded commas, and embedded newlines are supported via CsvHelper.
 - Header names are used as JSON property names exactly as written.
 - Duplicate header names are not detected; later values overwrite earlier values in the generated payload object.
 - All payload values are serialized as strings.
@@ -337,7 +345,7 @@ Current behavior and limitations:
 - Private, proprietary, customer-specific, and business-specific mappings are out of scope for this repository.
 
 Synthetic sample files live in `samples/`. They are generic examples only and
-avoid quoted fields, embedded commas, and business-specific data.
+avoid business-specific data.
 
 ## Build and Test
 
