@@ -31,6 +31,7 @@ Implemented today:
 - `ReplayLab.Adapters.Example` as a fictional reference implementation for extension authors.
 - DI registration helpers in parser and adapter projects.
 - `ReplayLab.Cli` and `ReplayLab.Web`.
+- `ReplayLab.Desktop` — cross-platform desktop AppHost using Photino.NET that self-hosts the Web UI in a native OS window (Windows, Linux, macOS).
 - `ReplayLab.Core` package metadata verified with `dotnet pack` at version `0.6.0`.
 - GitHub Actions CI for restore, build, and test.
 
@@ -241,6 +242,39 @@ Both command shapes keep the mock sender as the default sender. Unsupported
 formats fail early with a clear non-zero CLI error before parsing or replay.
 Unsupported senders and missing HTTP endpoint URLs also fail early with exit
 code `2`.
+
+## Desktop AppHost
+
+`ReplayLab.Desktop` is a cross-platform desktop shell that self-hosts the
+ReplayLab Web UI inside a native OS window. It uses [Photino.NET](https://github.com/tryphotino/photino.NET)
+to embed a native web view (Edge on Windows, WebKit on Linux/macOS) and hosts
+ASP.NET Core in-process via the M7 `ReplayLab.Web.Hosting` seam.
+
+Run the desktop app:
+
+```powershell
+dotnet run --project src/ReplayLab.Desktop/ReplayLab.Desktop.csproj
+```
+
+The desktop app:
+- starts an in-process Kestrel server on a free loopback port,
+- opens a native window with the embedded web view,
+- navigates to the local server URL,
+- stops the server gracefully when the window closes.
+
+### Runtime Requirements
+
+- Windows: Edge WebView2 runtime (preinstalled on Windows 11, available as
+  evergreen installer for Windows 10).
+- Linux: `libwebkit2gtk-4.0` (or `webkit2gtk-4.1` depending on distro).
+- macOS: WebKit is included in the OS.
+
+### Out of Scope
+
+- Single-file / self-contained publishing (future slice).
+- WebView2 runtime bundling.
+- Private adapter registration in the public desktop shell (uses safe defaults).
+- Installer creation.
 
 ## CSV Parser Limitations
 
