@@ -5,6 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <IsPackable>true</IsPackable>
+    <PackageId>ReplayLab.Web.Hosting</PackageId>
+    <Description>Hostable ASP.NET Core Web entry point for ReplayLab with Razor UI support.</Description>
+    <PackageTags>replay;testing;dotnet;web;hosting;aspnetcore</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,5 +1,7 @@
 # M10A Packageable ReplayLab SDK Plan
 
+**Status:** Implemented. Package metadata, local pack script, and verification are in place.
+
 ## Goal
 
 Make ReplayLab consumable by external .NET solutions through local NuGet packages.
@@ -45,7 +47,7 @@ M10A is successful when:
 
 `ReplayLab.Desktop` itself should probably remain an executable app. If external desktop composition needs to be packageable, extract reusable bootstrap code into a library instead of packaging the app directly.
 
-## Proposed local feed workflow
+## Local feed workflow
 
 ```mermaid
 flowchart TB
@@ -56,16 +58,29 @@ flowchart TB
     Restore --> Run[Run custom replay tool]
 ```
 
-Expected developer flow:
+### Produce local packages
 
 ```powershell
 ./eng/pack-local.ps1
-cd samples/CustomReplayTool
-dotnet restore
-dotnet run --project src/CustomReplayTool.Desktop
 ```
 
-Exact sample path and project names can be finalized in M10B.
+Optional configuration:
+
+```powershell
+./eng/pack-local.ps1 -Configuration Release
+```
+
+The script packs the selected projects and writes `.nupkg` files to `artifacts/packages`.
+
+### Verify local feed restore
+
+```powershell
+./eng/verify-local-packages.ps1
+```
+
+The script creates a temporary verification project with a local `NuGet.config` pointing to `artifacts/packages`, references the ReplayLab packages via `PackageReference`, and confirms `dotnet restore` and `dotnet build` succeed.
+
+Both `artifacts/packages` and the temporary verification folder are ignored by git.
 
 ## Work breakdown
 
@@ -81,25 +96,29 @@ Add or align package metadata for selected projects:
 - `PackageTags`
 - `PackageLicenseExpression`
 
-Prefer shared metadata in `Directory.Build.props` when it avoids drift, but keep package-specific descriptions close to the project if that is clearer.
+Shared metadata lives in `Directory.Build.props`:
+
+- `Version`
+- `Authors`
+- `RepositoryUrl`
+- `PackageLicenseExpression`
+
+Project-specific metadata (`PackageId`, `Description`, `PackageTags`) lives in each `.csproj`.
 
 ### 2. Add local pack script
 
-Create `eng/pack-local.ps1`.
+`eng/pack-local.ps1`:
 
-The script should:
-
-- build in Release;
-- pack the selected package projects;
-- output packages to `artifacts/packages`;
-- fail fast when a package is missing;
-- avoid publishing anywhere.
+- packs the selected package projects;
+- outputs packages to `artifacts/packages`;
+- fails fast when a package is missing;
+- avoids publishing anywhere.
 
 ### 3. Verify package restore
 
-Use a temporary or sample external-style project with a `NuGet.config` pointing to `artifacts/packages`.
+`eng/verify-local-packages.ps1` creates a temporary external-style project with a `NuGet.config` pointing to `artifacts/packages`.
 
-Verification should prove that `PackageReference` works without project references back into the ReplayLab source tree.
+Verification proves that `PackageReference` works without project references back into the ReplayLab source tree.
 
 ### 4. Document the package workflow
 
@@ -146,8 +165,8 @@ M10B should not use project references to ReplayLab source projects. It should u
 
 ## Definition of done
 
-- `eng/pack-local.ps1` creates the selected packages in `artifacts/packages`.
-- Package metadata is consistent across selected projects.
-- At least one external-style restore test proves local package consumption.
-- Documentation explains the local package workflow.
-- No public publishing, signing, or release automation is introduced.
+- [x] `eng/pack-local.ps1` creates the selected packages in `artifacts/packages`.
+- [x] Package metadata is consistent across selected projects.
+- [x] At least one external-style restore test proves local package consumption.
+- [x] Documentation explains the local package workflow.
+- [x] No public publishing, signing, or release automation is introduced.

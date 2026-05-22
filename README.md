@@ -28,76 +28,15 @@ flowchart LR
 - Load CSV replay data.
 - Inspect parsed messages in CLI or Web UI.
 - Edit parsed values before replay in the Web workspace.
-- Replay selected messages through mock or HTTP senders.
-- Host ReplayLab Web from another .NET app.
-- Build private parsers and senders outside this public repository.
-- Run the Web UI in a native Desktop shell through Photino.NET.
-
-## What ReplayLab is for
-
-ReplayLab is for developers and technical operators who need a small local tool to exercise message flows, test adapters, or prepare replay scenarios.
-
-It is intentionally generic. Public ReplayLab packages should stay reusable and free of business-specific concepts.
-
-```mermaid
-flowchart TB
-    Core[ReplayLab.Core<br/>contracts and models]
-    Parsers[ReplayLab.Parsers.*]
-    Adapters[ReplayLab.Adapters.*]
-    Hosting[CLI / Web / Desktop hosting]
-    Private[Private host app<br/>custom parser + custom sender]
-
-    Parsers --> Core
-    Adapters --> Core
-    Hosting --> Core
-    Private --> Hosting
-    Private --> Core
-```
-
-## What ReplayLab is not
-
-ReplayLab is not a production replay platform yet.
-
-It does not include:
-
-- WCF or proprietary adapters;
-- customer-specific payloads or mappings;
-- certificates or private infrastructure concerns;
-- persistence/session storage yet;
-- Docker or installer assets;
-- public NuGet publishing yet.
-
-Those boundaries are deliberate. Private integrations belong in private solutions that reference ReplayLab.
+- Replay through mock or HTTP adapters.
+- Host ReplayLab surfaces in your own app via DI composition.
 
 ## Quick start
-
-### Requirements
-
-- .NET SDK pinned by `global.json`.
-- Windows, Linux, or macOS for CLI/Web.
-- For Desktop:
-  - Windows: Edge WebView2 runtime;
-  - Linux: WebKitGTK;
-  - macOS: system WebKit.
-
-### Build and test
-
-```powershell
-dotnet restore ReplayLab.sln
-dotnet build ReplayLab.sln --configuration Release --no-restore
-dotnet test ReplayLab.sln --configuration Release --no-build
-```
 
 ### Run the CLI
 
 ```powershell
 dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- samples/basic.csv
-```
-
-Use the HTTP sender preview:
-
-```powershell
-dotnet run --project src/ReplayLab.Cli/ReplayLab.Cli.csproj -- --sender http --endpoint-url http://localhost:5087/ samples/basic.csv
 ```
 
 ### Run the Web UI
@@ -132,14 +71,30 @@ Current path:
 4. Register services through DI in your own composition root.
 5. Host ReplayLab CLI/Web surfaces from your app.
 
-Near-term roadmap:
+### Local NuGet packages
 
-- package the ReplayLab SDK as local NuGet packages;
-- add an external-style sample using `PackageReference` instead of project references;
-- evaluate a reusable Desktop hosting seam;
-- polish the editable Web workspace UX.
+ReplayLab SDK projects can be packed locally and consumed from a local feed:
 
-See [docs/roadmap.md](docs/roadmap.md) and [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md).
+```powershell
+./eng/pack-local.ps1
+```
+
+Packages are written to `artifacts/packages`. Verify restore and build:
+
+```powershell
+./eng/verify-local-packages.ps1
+```
+
+Package set:
+
+- `ReplayLab.Core`
+- `ReplayLab.Parsers.Csv`
+- `ReplayLab.Adapters.Mock`
+- `ReplayLab.Adapters.Http`
+- `ReplayLab.Cli.Hosting`
+- `ReplayLab.Web.Hosting`
+
+Public NuGet.org publishing remains out of scope. See [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md).
 
 ## CSV support
 
@@ -185,10 +140,11 @@ Completed foundations:
 - Hostable CLI/Web entry points.
 - Desktop AppHost.
 - Editable replay workspace.
+- **Local NuGet packageability (M10A).**
 
 Next focus:
 
 1. Improve editable workspace UX.
 2. Harden edited payload validation.
-3. Package ReplayLab for local NuGet consumption.
-4. Add a NuGet-based custom replay tool sample.
+3. Add a NuGet-based custom replay tool sample (M10B).
+4. Evaluate a reusable Desktop hosting seam.
