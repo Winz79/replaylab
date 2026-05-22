@@ -32,12 +32,14 @@ public sealed class EditableGridGuiTests
 
         var page = await browser.NewPageAsync();
         await page.GotoAsync(GetServerAddress(app));
-        await page.SetInputFilesAsync("#Upload", new FilePayload
+        await page.Locator("#Upload").SetInputFilesAsync(new FilePayload
         {
             Name = "messages.csv",
             MimeType = "text/csv",
             Buffer = Encoding.UTF8.GetBytes("kind,name\nCreated,alpha\n")
         });
+        await page.Locator("form.upload-form").EvaluateAsync("form => form.submit()");
+        await page.WaitForLoadStateAsync(LoadState.NetworkIdle);
 
         await page.WaitForFunctionAsync("() => window.ReplayLabGrid?.getRows?.().length === 1");
         await page.WaitForFunctionAsync("() => document.querySelector('#selected-count')?.textContent?.includes('0 selected')");
