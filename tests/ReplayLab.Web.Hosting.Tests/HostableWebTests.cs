@@ -68,6 +68,24 @@ public sealed class HostableWebTests
     }
 
     [Fact]
+    public async Task Minimal_host_shows_parse_error_for_invalid_default_csv_input()
+    {
+        await using var app = await CreateAppAsync();
+        using var client = app.GetTestClient();
+        using var request = await CreateUploadRequestAsync(client, """
+            kind,name
+            Created,alpha,extra
+            """);
+        using var response = await client.SendAsync(request);
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Parse failed:", html);
+        Assert.Empty(ReadGridState(html).Rows);
+    }
+
+    [Fact]
     public async Task Minimal_host_uses_services_from_the_composition_root()
     {
         var parser = new RecordingParser();
@@ -89,6 +107,29 @@ public sealed class HostableWebTests
         Assert.True(parser.WasUsed);
         Assert.True(sender.WasUsed);
         Assert.Equal("succeeded", FindRow(ReadGridState(html), "web-custom-1")["_status"]?.GetValue<string>());
+    }
+
+    [Fact]
+    public async Task Minimal_host_uses_host_provided_web_parser_for_upload_workflow()
+    {
+        var parser = new RecordingWebReplayParser();
+
+        await using var app = await CreateAppAsync(services =>
+        {
+            services.AddSingleton<IWebReplayParser>(parser);
+        });
+
+        using var client = app.GetTestClient();
+        using var request = await CreateUploadRequestAsync(client, "ignored-by-custom-parser");
+        using var response = await client.SendAsync(request);
+
+        var html = await response.Content.ReadAsStringAsync();
+        var gridState = ReadGridState(html);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(parser.WasUsed);
+        Assert.Contains("kind", gridState.CsvColumns);
+        Assert.Equal("web-custom-1", FindRow(gridState, "web-custom-1")["_msgId"]?.GetValue<string>());
     }
 
     private static async Task<WebApplication> CreateAppAsync(Action<IServiceCollection>? configureServices = null)
@@ -120,6 +161,23 @@ public sealed class HostableWebTests
         content.Add(new StringContent(antiforgery.Token), "__RequestVerificationToken");
 
         var request = new HttpRequestMessage(HttpMethod.Post, "/?handler=Replay")
+        {
+            Content = content
+        };
+        request.Headers.Add("Cookie", antiforgery.Cookie);
+        return request;
+    }
+
+    private static async Task<HttpRequestMessage> CreateUploadRequestAsync(HttpClient client, string csv, string fileName = "sample.csv")
+    {
+        var antiforgery = await GetAntiforgeryAsync(client);
+        var content = new MultipartFormDataContent();
+        var fileContent = new StringContent(csv);
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/csv");
+        content.Add(fileContent, "Upload", fileName);
+        content.Add(new StringContent(antiforgery.Token), "__RequestVerificationToken");
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/")
         {
             Content = content
         };
@@ -196,7 +254,23 @@ public sealed class HostableWebTests
             return Task.FromResult(new ReplayBatch([
                 new ReplayMessage(
                     "web-custom-1",
-                    "{}",
+                    "{\"kind\":\"Custom\",\"name\":\"override\"}",
+                    new Dictionary<string, string>(),
+                    new Dictionary<string, string>())]));
+        }
+    }
+
+    private sealed class RecordingWebReplayParser : IWebReplayParser
+    {
+        public bool WasUsed { get; private set; }
+
+        public Task<WebReplayParseResult> ParseAsync(string input, CancellationToken cancellationToken = default)
+        {
+            WasUsed = true;
+            return Task.FromResult(WebReplayParseResult.Success([
+                new ReplayMessage(
+                    "web-custom-1",
+                    "{\"kind\":\"Custom\",\"name\":\"override\"}",
                     new Dictionary<string, string>(),
                     new Dictionary<string, string>())]));
         }

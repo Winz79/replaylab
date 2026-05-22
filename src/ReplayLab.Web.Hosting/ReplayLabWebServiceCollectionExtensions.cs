@@ -15,6 +15,7 @@ public static class ReplayLabWebServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
 
         services.TryAddTransient<IMessageParser, CsvReplayMessageParser>();
+        services.TryAddTransient<IWebReplayParser, MessageParserWebReplayParser>();
         services.TryAddSingleton<IReplaySender, MockReplaySender>();
 
         services
