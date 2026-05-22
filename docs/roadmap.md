@@ -1,33 +1,38 @@
 # ReplayLab Roadmap
 
+## Product Direction
+
+ReplayLab should become a polished, embeddable replay toolkit that developers can reference as local NuGet packages, customize with parsers and adapters, and ship as a Web or Desktop replay tool.
+
+The next milestones prioritize UX polish and package-based developer adoption. Persistence and local sessions are intentionally deferred until the package composition path is proven.
+
 ## Current Position
 
-M1 through M7 are complete.
+M1 through M8 are complete.
 
-M8 is the current milestone. It builds a Desktop AppHost with Photino.NET and a self-hosted Web UI on top of the hostable Web entry points established in M7.
+M9A (Parser Quality with CsvHelper) and M9B (Editable Replay Workspace) are complete.
 
-M7 established the hostable entry point boundary for private projects, and the Web external composition follow-up (decoupling the Web parser workflow from CSV assumptions via `IWebReplayParser`) shipped in the M7 closeout. M8 uses that seam to make the ReplayLab Web experience available inside a desktop shell while keeping the composition root explicit.
+M9C is the next immediate milestone.
 
 ## Summary Of Active Roadmap
 
 | Milestone | Candidate Direction | Roadmap Intent |
 | --- | --- | --- |
 | M7 | Hostable Entry Points | Complete. Reusable CLI and Web host surfaces extracted so private projects can own composition roots and invoke ReplayLab workflows without modifying the public repo. Web parser decoupling (`IWebReplayParser`) shipped in the M7 closeout as Web external composition. |
-| M8 | Desktop AppHost with Photino.NET | Current milestone. Build a desktop shell that self-hosts the ReplayLab Web UI, embeds it in the platform-native web view, and owns window lifecycle and local server startup. |
+| M8 | Desktop AppHost with Photino.NET | Complete. Desktop shell that self-hosts the ReplayLab Web UI in a native web view, with dynamic loopback port selection and graceful shutdown. |
+| M9A | Parser Quality with CsvHelper | Complete. Replaced the minimal custom CSV parser with CsvHelper to handle real-world CSV inputs. Delivered in PR #96. |
+| M9B | Editable Replay Workspace | Complete. Added in-place editing of parsed payload values in the Web UI grid before replay, with dirty state, row reset, and edited payload submission. Delivered in PR #95. |
+| M9C | Editable Workspace UX Polish | Next immediate milestone. Harden the editable replay workspace UX and server-side validation before broadening the surface. Tracked in #98 and #97. |
+| M10A | Packageable ReplayLab SDK | Make ReplayLab consumable as local NuGet packages by external solutions. Tracked in #99. |
+| M10B | NuGet-based Custom Desktop/Web Tool Sample | Provide a realistic external-style sample that references ReplayLab packages, not project references. Tracked in #100. |
+| M11 | Composition / Extension Model Hardening | Improve parser/adapter composition after the package-based sample proves the static composition path. Tracked in #101. |
+| M12 | Local Sessions / Persistence | Deferred. Do not implement before UX and package adoption are proven. |
 
-## Post-M7 Candidate Tracks
+## Post-M8 Notes
 
-Implementation plan for M8 desktop apphost:
-- [docs/plans/m8-desktop-apphost.md](docs/plans/m8-desktop-apphost.md)
-
-The following discovery issues are future candidate milestones or candidate
-tracks. They are not part of M8 unless explicitly promoted later.
-
-- `#69` RFC-compliant CSV parser strategy was promoted and delivered by `#91`
-  through the CsvHelper-backed parser update.
-- `#68` editable Web grid values before replay is a Web UX/product candidate
-  that is independent from M8 desktop apphost work.
-
+- Discovery issues #68 (editable Web grid) and #69 (RFC-compliant CSV parser) were promoted into implementation and delivered as M9B and M9A.
+- Issue #102 tracks closing or updating #68 and #69 with clear references to the delivered work.
+- Implementation plan for M8 desktop apphost: [docs/plans/m8-desktop-apphost.md](docs/plans/m8-desktop-apphost.md).
 
 ## M4: HTTP Sender Preview
 
@@ -78,16 +83,11 @@ Developers can inspect payloads and replay results faster when CLI summaries are
 
 ### Goal
 
-Make it concretely possible for any developer to build a private ReplayLab
-adapter outside the public repo by hardening the public contracts, providing DI
-registration helpers, adding a compilable example adapter, and publishing
-`ReplayLab.Core` packageable and pack verified as a NuGet package.
+Make it concretely possible for any developer to build a private ReplayLab adapter outside the public repo by hardening the public contracts, providing DI registration helpers, adding a compilable example adapter, and publishing `ReplayLab.Core` packageable and pack verified as a NuGet package.
 
 ### User Value
 
-Developers can build private sender adapters and parsers against a stable,
-packageable and pack verified `ReplayLab.Core` contract without forking or
-cloning this repo.
+Developers can build private sender adapters and parsers against a stable, packageable and pack verified `ReplayLab.Core` contract without forking or cloning this repo.
 
 ### Outcome
 
@@ -103,7 +103,7 @@ cloning this repo.
 - Private business contract models.
 - Customer data or proprietary payload examples.
 - Hostable CLI or Web entry points (M7).
-- NuGet publishing for CLI, Web, parsers, or adapters (M7).
+- NuGet publishing for CLI, Web, parsers, or adapters (M10A).
 - AppHost or desktop entry point.
 
 ### Status
@@ -114,30 +114,24 @@ Complete — see `docs/milestones/m6-private-adapter-extension-model.md`.
 
 ### Goal
 
-Refactor `ReplayLab.Cli` and `ReplayLab.Web` into hostable libraries so a
-private project can register its own adapters, call into the ReplayLab entry
-points, and get a fully working CLI and Web UI without modifying this repo.
+Refactor `ReplayLab.Cli` and `ReplayLab.Web` into hostable libraries so a private project can register its own adapters, call into the ReplayLab entry points, and get a fully working CLI and Web UI without modifying this repo.
 
 ### User Value
 
-Teams can ship their own ReplayLab-powered CLI and Web UI by composing private
-adapters with hostable entry points via DI registration.
+Teams can ship their own ReplayLab-powered CLI and Web UI by composing private adapters with hostable entry points via DI registration.
 
 ### Possible Scope
 
 - Refactor `ReplayLab.Cli` startup into a hostable entry point.
 - Refactor `ReplayLab.Web` startup into a hostable entry point.
 - Define the composition model and ownership boundary for private hosts.
-- Document how private projects register adapters/parsers and consume the
-  hostable entry points.
+- Document how private projects register adapters/parsers and consume the hostable entry points.
 
-### Explicit Out Of Scope
+### Explicit Out Of Scope (at the time of M7)
 
-- Editable Web grid values before replay (`#68`).
-- RFC-compliant CSV parser strategy (`#69`).
-- Desktop AppHost with Photino.NET and self-hosted Web UI (`#70`).
-- New parser library adoption.
-- Desktop shell work beyond the accepted Photino.NET direction.
+- ~~Editable Web grid values before replay (`#68`)~~ — delivered in M9B / PR #95.
+- ~~RFC-compliant CSV parser strategy (`#69`)~~ — delivered in M9A / PR #96.
+- Desktop AppHost with Photino.NET and self-hosted Web UI (`#70`) — delivered in M8.
 - Product UX expansion beyond current CLI/Web workflows.
 - Business-specific adapters.
 
@@ -147,8 +141,147 @@ M7 depends on M6's stable contracts and DI registration pattern.
 
 ### Status
 
-Complete — see `docs/milestones/m7-hostable-entry-points.md` and
-`docs/retrospectives/m7-hostable-entry-points.md`.
+Complete — see `docs/milestones/m7-hostable-entry-points.md` and `docs/retrospectives/m7-hostable-entry-points.md`.
+
+## M9C: Editable Workspace UX Polish
+
+### Goal
+
+Make the editable replay workspace professional enough for demo and daily use.
+
+### Context
+
+The editable grid delivered in M9B supports changing values before replay, row reset, dirty state, and edited payload submission. M9C focuses on product-quality UX rather than adding new backend capability.
+
+Server-side validation hardening tracked in #97 should land alongside or before this milestone.
+
+### Scope
+
+- Improve changed-value display.
+- Replace the visible "Reset row" button with a compact icon/action.
+- Hide or minimize the reset action header.
+- Separate row selection from row editing.
+- Add an explicit row edit action/mode.
+- Prevent accidental select/unselect while editing.
+- Preserve existing replay behavior.
+
+### Linked Issues
+
+- #98 — Polish editable replay workspace UX
+- #97 — Harden editable replay payload validation server-side
+
+### Out Of Scope
+
+- Persistence.
+- Session save/load.
+- New parser/adapter functionality.
+- Dynamic plugin loading.
+
+## M10A: Packageable ReplayLab SDK
+
+### Goal
+
+Make ReplayLab consumable as local NuGet packages by external solutions.
+
+### Context
+
+The strategic adoption path is that a developer can reference ReplayLab packages, provide custom parsers/adapters, and quickly ship a replay tool. This milestone proves local package consumption before any public NuGet publishing decision.
+
+### Scope
+
+- Identify packageable projects.
+- Add or normalize package metadata.
+- Create a local pack script (for example `eng/pack-local.ps1`).
+- Pack packages into `artifacts/packages`.
+- Verify that packages restore from a local feed.
+- Document the package set and local feed workflow.
+
+### Candidate Packages
+
+- `ReplayLab.Core`
+- `ReplayLab.Parsers.Csv`
+- `ReplayLab.Adapters.Mock`
+- `ReplayLab.Adapters.Http`
+- `ReplayLab.Cli.Hosting`
+- `ReplayLab.Web.Hosting`
+
+Investigate whether `ReplayLab.Desktop` should remain an app and whether a new `ReplayLab.Desktop.Hosting` package is needed for reusable desktop bootstrap.
+
+### Linked Issues
+
+- #99 — Package ReplayLab SDK for local NuGet consumption
+- #101 — Extract reusable Desktop hosting seam (if applicable)
+
+### Out Of Scope
+
+- Publishing to nuget.org.
+- Signing packages.
+- Release automation.
+- Dynamic plugin loading.
+
+## M10B: NuGet-based Custom Desktop/Web Tool Sample
+
+### Goal
+
+Provide a realistic external-style sample that references ReplayLab packages, not project references, and demonstrates custom parser/adapter composition.
+
+### Context
+
+The killer adoption story is: reference ReplayLab, customize parser/adapter, and ship a replay tool quickly. The sample should prove that story without using project references.
+
+### Scope
+
+- Add a sample solution under `samples/` (for example `samples/CustomReplayTool`).
+- Add a `NuGet.config` pointing to `artifacts/packages`.
+- Reference ReplayLab packages via `PackageReference`.
+- Implement a fictional custom parser.
+- Implement a fictional custom sender/adapter.
+- Compose the ReplayLab Web and/or Desktop host with the custom services.
+- Add build/run documentation.
+
+### Linked Issues
+
+- #100 — Add NuGet-based custom replay tool sample
+
+### Out Of Scope
+
+- Publishing packages publicly.
+- Dynamic plugins.
+- WCF/private adapter implementation.
+- Installer creation.
+- Persistence/session storage.
+
+## M11: Composition / Extension Model Hardening
+
+### Goal
+
+Improve parser/adapter composition after the package-based sample proves the static composition path.
+
+### Scope
+
+- Clarify DI composition conventions.
+- Decide whether dynamic plugins are needed or whether static package/reference composition is enough for now.
+- Consider `IReplayLabModule` or similar only if justified.
+- Add ADR if this becomes an architectural decision.
+
+### Linked Issues
+
+- #101 — Extract reusable Desktop hosting seam (architecture evaluation)
+
+### Out Of Scope
+
+- Dynamic plugin redesign unless justified.
+- Business-specific adapter packages.
+
+## M12: Local Sessions / Persistence
+
+### Goal
+
+Persist local replay workspace state later.
+
+### Status
+
+**Deferred.** Do not implement before UX and package adoption are proven.
 
 ## Completed Milestones
 
@@ -161,14 +294,16 @@ Complete — see `docs/milestones/m7-hostable-entry-points.md` and
 | M5 | Minimal Web UI |
 | M6 | Private Adapter Extension Model |
 | M7 | Hostable Entry Points |
-| M9B | Editable Replay Workspace |
+| M8 | Desktop AppHost with Photino.NET |
 | M9A | Parser Quality with CsvHelper |
+| M9B | Editable Replay Workspace |
 
 ## Future Milestones
 
 | Milestone Or Track | Candidate Direction |
 | --- | --- |
-| M9A | Parser Quality with CsvHelper | Post-M8 track. Replace the minimal custom CSV parser with CsvHelper to handle real-world CSV inputs. See #91. |
-| Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after M9A and the current editable workspace slice are complete. |
-| M9B | Editable Replay Workspace | Post-M8 track. Allow in-place editing of parsed payload values in the Web UI grid before replay. See #92. |
-| Candidate M10 | Persistence / sessions or additional product-shell candidates | Future track after the current parser-quality and editable-workspace slices are complete. |
+| M9C | Editable Workspace UX Polish — Harden the editable replay workspace UX and server-side validation before broadening the surface. See #98 and #97. |
+| M10A | Packageable ReplayLab SDK — Make ReplayLab consumable as local NuGet packages by external solutions. See #99. |
+| M10B | NuGet-based Custom Desktop/Web Tool Sample — Provide a realistic external-style sample that references ReplayLab packages, not project references. See #100. |
+| M11 | Composition / Extension Model Hardening — Improve parser/adapter composition after the package-based sample proves the static composition path. See #101. |
+| M12 | Local Sessions / Persistence — Deferred. Do not implement before UX and package adoption are proven. |
