@@ -360,6 +360,16 @@ body {
   box-shadow: inset 0 -2px 0 var(--accent-soft);
 }
 
+.tabulator-row.tabulator-row-editing,
+.tabulator-row.tabulator-row-editing.tabulator-row-even {
+  background: #f6fbfa;
+}
+
+.tabulator-row.tabulator-row-editing .tabulator-cell.tabulator-row-header {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
 .row-actions {
   display: inline-flex;
   align-items: center;
@@ -367,6 +377,9 @@ body {
 }
 
 .row-action-button {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
   min-height: 1.65rem;
   border: 1px solid var(--border);
   border-radius: 999px;
@@ -378,6 +391,16 @@ body {
   font-weight: 700;
   line-height: 1;
   padding: 0.25rem 0.45rem;
+}
+
+.row-action-button svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: currentColor;
+}
+
+.row-edit-button {
+  color: var(--accent-strong);
 }
 
 .row-action-button:hover:not(:disabled) {

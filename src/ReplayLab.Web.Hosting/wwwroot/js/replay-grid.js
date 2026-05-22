@@ -41,6 +41,19 @@
     return pill;
   };
 
+  const createIcon = (pathData) => {
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+
+    icon.setAttribute("viewBox", "0 0 24 24");
+    icon.setAttribute("aria-hidden", "true");
+    icon.setAttribute("focusable", "false");
+    path.setAttribute("d", pathData);
+    icon.appendChild(path);
+
+    return icon;
+  };
+
   const actionsFormatter = (cell) => {
     const row = cell.getRow();
     const rowData = row.getData();
@@ -54,9 +67,11 @@
 
     editButton.type = "button";
     editButton.className = "row-action-button row-edit-button";
-    editButton.textContent = isEditing ? "Done" : "Edit";
     editButton.title = isEditing ? "Finish editing row" : "Edit row";
     editButton.setAttribute("aria-label", `${isEditing ? "Finish editing" : "Edit"} row ${rowData._msgId || ""}`.trim());
+    editButton.appendChild(createIcon(isEditing
+      ? "M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"
+      : "M3 17.25V21h3.75L17.8 9.95l-3.75-3.75L3 17.25zm17.7-10.1c.4-.4.4-1 0-1.4l-2.45-2.45a1 1 0 0 0-1.4 0l-1.9 1.9 3.75 3.75 2-1.8z"));
     editButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -65,9 +80,9 @@
 
     resetButton.type = "button";
     resetButton.className = "row-action-button row-reset-button";
-    resetButton.textContent = "Reset";
     resetButton.title = "Reset row changes";
     resetButton.setAttribute("aria-label", `Reset row ${rowData._msgId || ""}`.trim());
+    resetButton.appendChild(createIcon("M12 5V2L7 7l5 5V8a4 4 0 1 1-3.5 5.9l-1.45 1.45A6 6 0 1 0 12 6z"));
     resetButton.hidden = !isDirty;
     resetButton.disabled = !isDirty;
     resetButton.addEventListener("click", (event) => {
@@ -112,8 +127,8 @@
       title: "",
       field: "_actions",
       headerSort: false,
-      minWidth: 116,
-      width: 116,
+      minWidth: 76,
+      width: 76,
       frozen: true,
       formatter: actionsFormatter,
       cssClass: "actions-column",
@@ -147,6 +162,7 @@
     placeholder: "Load a CSV file to populate the replay grid.",
     resizableColumnFit: false,
     selectableRows: true,
+    selectableRowsCheck: (row) => !isRowEditing(row),
     rowHeader: {
       formatter: "rowSelection",
       title: "",
@@ -180,7 +196,7 @@
   });
 
   selectAllButton?.addEventListener("click", () => {
-    grid.selectRow("active");
+    grid.selectRow(grid.getRows("active").filter((row) => !isRowEditing(row)).map((row) => row.getData()._msgId));
   });
 
   deselectAllButton?.addEventListener("click", () => {
@@ -239,9 +255,12 @@
       editingRows.delete(id);
     } else {
       editingRows.add(id);
+      grid.deselectRow(id);
     }
 
+    row.getElement().classList.toggle("tabulator-row-editing", editingRows.has(id));
     row.reformat();
+    updateSelection();
   }
 
   function isCellDirty(cell) {
