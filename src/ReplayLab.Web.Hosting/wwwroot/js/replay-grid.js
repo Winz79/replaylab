@@ -23,6 +23,7 @@
   const rows = Array.isArray(state.rows) ? state.rows : [];
   const csvColumns = Array.isArray(state.csvColumns) ? state.csvColumns : [];
   const selectedIds = new Set(Array.isArray(state.selectedIds) ? state.selectedIds : []);
+  const editingRows = new Set();
   const columnMenu = document.createElement("div");
   let grid;
 
@@ -40,12 +41,45 @@
     return pill;
   };
 
-  const resetRowFormatter = () => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "row-reset-button";
-    button.textContent = "Reset row";
-    return button;
+  const actionsFormatter = (cell) => {
+    const row = cell.getRow();
+    const rowData = row.getData();
+    const isEditing = isRowEditing(row);
+    const isDirty = isRowDirty(row);
+    const container = document.createElement("div");
+    const editButton = document.createElement("button");
+    const resetButton = document.createElement("button");
+
+    container.className = "row-actions";
+
+    editButton.type = "button";
+    editButton.className = "row-action-button row-edit-button";
+    editButton.textContent = isEditing ? "Done" : "Edit";
+    editButton.title = isEditing ? "Finish editing row" : "Edit row";
+    editButton.setAttribute("aria-label", `${isEditing ? "Finish editing" : "Edit"} row ${rowData._msgId || ""}`.trim());
+    editButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleEditMode(row);
+    });
+
+    resetButton.type = "button";
+    resetButton.className = "row-action-button row-reset-button";
+    resetButton.textContent = "Reset";
+    resetButton.title = "Reset row changes";
+    resetButton.setAttribute("aria-label", `Reset row ${rowData._msgId || ""}`.trim());
+    resetButton.hidden = !isDirty;
+    resetButton.disabled = !isDirty;
+    resetButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      resetRow(row);
+      updateSelection();
+      updateResetAllButton();
+    });
+
+    container.append(editButton, resetButton);
+    return container;
   };
 
   const headerMenu = () => {
@@ -74,6 +108,16 @@
   };
 
   const columns = [
+    {
+      title: "",
+      field: "_actions",
+      headerSort: false,
+      minWidth: 116,
+      width: 116,
+      frozen: true,
+      formatter: actionsFormatter,
+      cssClass: "actions-column",
+    },
     { ...baseColumn, title: "Message ID", field: "_msgId", width: 125, frozen: true, visible: false },
     { ...baseColumn, title: "Status", field: "_status", width: 115, formatter: statusFormatter },
     { ...baseColumn, title: "Result", field: "_result", width: 140, visible: false },
@@ -84,22 +128,13 @@
       field: column,
       minWidth: 140,
       editor: "input",
-    })),
-    {
-      title: "Reset row",
-      field: "_reset",
-      headerSort: false,
-      minWidth: 120,
-      width: 120,
-      frozen: true,
-      formatter: resetRowFormatter,
+      editable: (cell) => isRowEditing(cell.getRow()),
       cellClick: (event, cell) => {
-        event.preventDefault();
-        resetRow(cell.getRow());
-        updateSelection();
-        updateResetAllButton();
+        if (isRowEditing(cell.getRow())) {
+          event.stopPropagation();
+        }
       },
-    },
+    })),
   ];
 
   grid = new Tabulator(gridElement, {
@@ -139,7 +174,7 @@
   grid.on("rowSelectionChanged", updateSelection);
 
   grid.on("cellEdited", (cell) => {
-    syncCellDirtyState(cell);
+    syncRowDirtyState(cell.getRow());
     updateSelection();
     updateResetAllButton();
   });
@@ -190,6 +225,25 @@
 
   window.ReplayLabGrid = grid;
 
+  function isRowEditing(row) {
+    return editingRows.has(row.getData()._msgId);
+  }
+
+  function toggleEditMode(row) {
+    const id = row.getData()._msgId;
+    if (!id) {
+      return;
+    }
+
+    if (editingRows.has(id)) {
+      editingRows.delete(id);
+    } else {
+      editingRows.add(id);
+    }
+
+    row.reformat();
+  }
+
   function isCellDirty(cell) {
     const rowData = cell.getRow().getData();
     const field = cell.getField();
@@ -198,6 +252,12 @@
       return false;
     }
     return originalPayload[field] !== cell.getValue();
+  }
+
+  function isRowDirty(row) {
+    const rowData = row.getData();
+    const originalPayload = parseOriginalPayload(rowData._originalPayload);
+    return csvColumns.some((field) => field in originalPayload && originalPayload[field] !== rowData[field]);
   }
 
   function parseOriginalPayload(json) {
@@ -226,16 +286,30 @@
   }
 
   function syncRowDirtyState(row) {
+    row.reformat();
+
     for (const field of csvColumns) {
       const cell = row.getCell(field);
       if (cell) {
         syncCellDirtyState(cell);
       }
     }
+
+    row.getElement().classList.toggle("tabulator-row-dirty", isRowDirty(row));
   }
 
   function syncCellDirtyState(cell) {
-    cell.getElement().classList.toggle("tabulator-cell-dirty", isCellDirty(cell));
+    const dirty = isCellDirty(cell);
+    const element = cell.getElement();
+    const field = cell.getField();
+    const originalPayload = parseOriginalPayload(cell.getRow().getData()._originalPayload);
+
+    element.classList.toggle("tabulator-cell-dirty", dirty);
+    if (dirty && field in originalPayload) {
+      element.title = `Original: ${originalPayload[field] ?? ""}`;
+    } else {
+      element.removeAttribute("title");
+    }
   }
 
   function updateSelection(data) {
@@ -307,19 +381,13 @@
     if (!resetAllButton) {
       return;
     }
-    const hasDirty = grid.getRows().some((row) =>
-      csvColumns.some((field) => {
-        const cell = row.getCell(field);
-        return cell ? isCellDirty(cell) : false;
-      })
-    );
-    resetAllButton.disabled = !hasDirty;
+    resetAllButton.disabled = !grid.getRows().some(isRowDirty);
   }
 
   function renderColumnMenu() {
     columnMenu.replaceChildren();
 
-    for (const column of grid.getColumns().filter((candidate) => candidate.getField())) {
+    for (const column of grid.getColumns().filter((candidate) => candidate.getField() && candidate.getField() !== "_actions")) {
       const label = document.createElement("label");
       const checkbox = document.createElement("input");
 

@@ -11,6 +11,18 @@ public sealed class IndexModel : PageModel
 {
     private static readonly JsonSerializerOptions GridJsonOptions = new(JsonSerializerDefaults.Web);
 
+    private static readonly HashSet<string> InternalGridFields = new(StringComparer.Ordinal)
+    {
+        "_msgId",
+        "_status",
+        "_result",
+        "_error",
+        "_originalPayload",
+        "_reset",
+        "_editMode",
+        "_actions",
+    };
+
     private readonly IWebReplayParser _parser;
     private readonly IReplaySender _sender;
 
@@ -211,7 +223,10 @@ public sealed class IndexModel : PageModel
                     var payload = DeserializePayload(message.Payload);
                     foreach (var (key, value) in payloadEdits)
                     {
-                        payload[key] = value;
+                        if (payload.ContainsKey(key) && !InternalGridFields.Contains(key))
+                        {
+                            payload[key] = value;
+                        }
                     }
 
                     editedMessages.Add(message with { Payload = JsonSerializer.Serialize(payload, GridJsonOptions) });
