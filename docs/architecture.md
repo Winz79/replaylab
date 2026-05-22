@@ -28,29 +28,45 @@ ReplayLab provides the generic foundation: parse inputs, inspect and edit messag
 flowchart TB
     User[User]
 
-    subgraph PublicRepo[ReplayLab public repository]
+    subgraph Apps[Public apps]
+        direction LR
         CLI[ReplayLab.Cli]
         Web[ReplayLab.Web]
         Desktop[ReplayLab.Desktop]
-        CliHosting[ReplayLab.Cli.Hosting]
-        WebHosting[ReplayLab.Web.Hosting]
-        Core[ReplayLab.Core]
-        Csv[ReplayLab.Parsers.Csv]
-        Mock[ReplayLab.Adapters.Mock]
-        Http[ReplayLab.Adapters.Http]
-        Example[ReplayLab.Adapters.Example]
     end
 
-    subgraph ConsumerRepo[Consumer repository]
+    subgraph Hosting[Hostable surfaces]
+        direction LR
+        CliHosting[ReplayLab.Cli.Hosting]
+        WebHosting[ReplayLab.Web.Hosting]
+    end
+
+    subgraph Toolkit[Reusable toolkit]
+        direction TB
+        Core[ReplayLab.Core]
+
+        subgraph Inputs[Parsers]
+            direction LR
+            Csv[ReplayLab.Parsers.Csv]
+        end
+
+        subgraph Outputs[Adapters]
+            direction LR
+            Mock[ReplayLab.Adapters.Mock]
+            Http[ReplayLab.Adapters.Http]
+            Example[ReplayLab.Adapters.Example]
+        end
+    end
+
+    subgraph Consumer[Consumer repository]
+        direction TB
         ConsumerHost[Consumer host app]
         CustomParser[Custom parser]
         CustomSender[Custom sender]
         Mapping[Consumer mapping]
     end
 
-    User --> CLI
-    User --> Web
-    User --> Desktop
+    User --> Apps
 
     CLI --> CliHosting
     Web --> WebHosting
@@ -65,7 +81,6 @@ flowchart TB
 
     ConsumerHost --> CliHosting
     ConsumerHost --> WebHosting
-    ConsumerHost --> Core
     CustomParser --> Core
     CustomSender --> Core
     CustomSender --> Mapping
