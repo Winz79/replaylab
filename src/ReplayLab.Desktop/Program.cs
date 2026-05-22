@@ -19,13 +19,13 @@ internal static class Program
         await app.StartAsync();
 
         var localUrl = DesktopBootstrap.GetLocalUrl(app);
-        
+
         var window = new PhotinoWindow()
             .SetTitle("ReplayLab")
             .SetUseOsDefaultSize(true)
             .SetUseOsDefaultLocation(true)
             .Load(localUrl);
-        
+
         // When the window closes, stop the web host.
         window.RegisterWindowClosingHandler((sender, args) =>
         {
