@@ -117,6 +117,7 @@
   const baseColumn = {
     headerFilter: "input",
     headerMenu,
+    cellClick: (event, cell) => selectRowFromClick(event, cell.getRow()),
     minWidth: 120,
     resizable: true,
     sorter: "string",
@@ -147,7 +148,10 @@
       cellClick: (event, cell) => {
         if (isRowEditing(cell.getRow())) {
           event.stopPropagation();
+          return;
         }
+
+        selectRowFromClick(event, cell.getRow());
       },
     })),
   ];
@@ -194,7 +198,7 @@
       return;
     }
 
-    row.select();
+    selectRow(row);
   });
 
   grid.on("cellEdited", (cell) => {
@@ -255,6 +259,22 @@
 
   function isInteractiveTarget(target) {
     return target instanceof Element && Boolean(target.closest("button, input, textarea, select, a"));
+  }
+
+  function selectRowFromClick(event, row) {
+    if (isRowEditing(row) || isInteractiveTarget(event.target)) {
+      return;
+    }
+
+    event.stopPropagation();
+    selectRow(row);
+  }
+
+  function selectRow(row) {
+    const id = row.getData()._msgId;
+    if (id) {
+      grid.selectRow(id);
+    }
   }
 
   function toggleEditMode(row) {
