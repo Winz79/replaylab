@@ -1,4 +1,4 @@
-# Issue Draft: Scaffold WinUI 3 Desktop Shell with WebView2
+# Issue Draft: Scaffold Cross-Platform Desktop Shell with Photino.NET
 
 > Parent discovery issue: #70
 > Derived from: `docs/discovery/70-desktop-apphost-discovery.md`
@@ -7,26 +7,23 @@
 
 ## Goal
 
-Build a minimal WinUI 3 desktop application that embeds the ReplayLab Web UI inside
-WebView2 by self-hosting ASP.NET Core in-process via the existing M7 hostable Web
-seam (`ReplayLab.Web.Hosting`).
+Build a minimal Photino.NET desktop application that embeds the ReplayLab Web UI
+inside the platform-native web view by self-hosting ASP.NET Core in-process via
+the existing M7 hostable Web seam (`ReplayLab.Web.Hosting`).
 
 ## Scope
 
-1. Create `src/ReplayLab.Desktop` — WinUI 3 packaged desktop project targeting `net10.0`.
+1. Create `src/ReplayLab.Desktop` — Photino.NET desktop project targeting `net10.0`.
 2. Add package references:
-   - `Microsoft.WindowsAppSDK` / WinUI 3 SDK
-   - `Microsoft.Web.WebView2`
+   - `Photino.NET`
    - `Microsoft.AspNetCore.App` (or host builder packages)
    - `ReplayLab.Web.Hosting`
 3. Implement minimal shell:
-   - `App.xaml` + `App.xaml.cs` (WinUI 3 entry)
-   - `MainWindow.xaml` + `MainWindow.xaml.cs`
    - In-process `WebApplication` bootstrap on a free loopback port
-   - WebView2 navigation to the discovered local URL after host is listening
+   - Native web view navigation to the discovered local URL after host is listening
    - Graceful host shutdown on window close
 4. Register `ReplayLab.Desktop` in `ReplayLab.sln`.
-5. Add a smoke / integration test proving the host starts and WebView2 navigates.
+ 5. Add a smoke / integration test proving the host starts and the hosted Web UI responds.
 
 ## Acceptance Criteria
 
@@ -38,9 +35,9 @@ seam (`ReplayLab.Web.Hosting`).
 
 ## Out of Scope
 
-- Cross-platform desktop shell.
-- Single-file / self-contained publishing.
-- WebView2 runtime bundling (assume preinstalled or evergreen).
+- Additional desktop shells beyond the public Photino.NET app host.
+- Packaging beyond the current self-contained publish targets.
+- Runtime bundling beyond the OS/browser prerequisites.
 - Private adapter registration in the public desktop shell (uses M7 safe defaults).
 - Editable grid, parser quality, HTTP sender UI changes.
 - Installer creation (MSIX, WiX, etc.).
@@ -49,13 +46,13 @@ seam (`ReplayLab.Web.Hosting`).
 ## Test Expectations
 
 - Focused test: start the desktop host, assert the local HTTP endpoint responds,
-  assert WebView2 `Source` matches the local URL.
+  assert the discovered local URL is the loopback address used by the shell.
 - Keep test lightweight; avoid full UI automation where possible.
 
 ## Risks
 
-- WinUI 3 project system adds build complexity; verify CI can build it.
-- WebView2 runtime may be missing on some dev machines; document requirement.
+- Linux machines may miss `libwebkit2gtk-4.0`; document requirement.
+- Windows machines may miss WebView2 runtime; document requirement.
 - Kestrel port discovery may race during startup; probe availability before binding.
 
 ## Linked Docs
@@ -66,4 +63,4 @@ seam (`ReplayLab.Web.Hosting`).
 
 ## Suggested Title
 
-`feat: scaffold WinUI 3 desktop AppHost with WebView2 and self-hosted Web UI`
+`feat: scaffold cross-platform desktop AppHost with Photino.NET`
