@@ -39,7 +39,7 @@ Completed foundations include:
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
 | M13 | Release Automation / Portfolio Release | Complete. GitHub Packages workflow delivered and triggered via `v0.13.0-preview.1` tag. Engine bug fixes (#119–#124) included via PR #132. |
 | M14 | SDK Adoption Instrumentation & Polish | Complete. Structured logging (ILogger), XML doc comments, getting-started guide, and GitHub Packages badge delivered. |
-| M15 | Web Deployment & Observability Guide | Next milestone. Dockerize the Web UI, auto-deploy on version tags, Cloudflare Tunnel guide, Seq observability guide. |
+| M15 | Web Deployment & Observability Guide | In progress. #141 (Dockerize), #142 (Deploy), and #144 (Seq guide) delivered. #143 (Cloudflare Tunnel guide) remaining. |
 
 ## Near-Term Priorities
 
@@ -55,8 +55,8 @@ Completed foundations include:
 4. **M14 complete — SDK adoption instrumentation**  
    Structured logging, XML docs, getting-started guide, and GitHub Packages badge delivered via #134–#137.
 
-5. **M15 next — Web deployment & observability**  
-   Dockerize the Web UI, auto-deploy on version tags via GitHub Actions, Cloudflare Tunnel guide, Seq observability guide. Issues #141–#144 created. Plan in `docs/milestones/m15-deployment-observability.md`.
+5. **M15 in progress — Web deployment & observability**  
+   Dockerize (#141), deploy workflow (#142), and Seq guide (#144) delivered. Cloudflare Tunnel guide (#143) remaining. Plan in `docs/milestones/m15-deployment-observability.md`.
 
 6. **Keep M12 persistence deferred**  
    Local sessions and workspace persistence are useful product features, but they are not required to prove the SDK/toolkit story.
@@ -172,6 +172,11 @@ M10A/B proved the packageable SDK works. M11 hardened composition. M13 proved th
 
 ## M15: Web Deployment & Observability Guide
 
+### Status
+
+In progress. #141, #142, and #144 delivered. #143 (Cloudflare Tunnel guide)
+remains.
+
 ### Goal
 
 Make the ReplayLab Web UI deployable and observable. Dockerize the Web app,
@@ -179,8 +184,9 @@ auto-deploy on version tags, and document Cloudflare Tunnel and Seq setup.
 
 ### Context
 
-M14 adds structured logging. M15 makes the logging visible (Seq) and makes
+M14 added structured logging. M15 makes the logging visible (Seq) and makes
 the Web UI reachable (Docker + Cloudflare Tunnel + GitHub Actions).
+#141 (Dockerize), #142 (Deploy workflow), and #144 (Seq guide) are done.
 
 ### Scope
 

@@ -49,7 +49,7 @@ version tags, and document Cloudflare Tunnel and Seq setup.
 
 ### Readiness
 
-Ready for implementation. Issues created, plan complete.
+In progress. #141, #142, #144 delivered. #143 (Cloudflare Tunnel guide) remains.
 
 ---
 

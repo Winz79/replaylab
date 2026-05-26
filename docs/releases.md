@@ -10,7 +10,7 @@ ReplayLab SDK packages are published to GitHub Packages when a version tag is pu
 ## Known tags and next candidate
 
 - `v0.3.0-preview.1` — historical tag present in Git; no GitHub release listed.
-- `v0.13.0-preview.1` — likely next candidate; pending manual tag after #112 is merged and readiness is confirmed.
+- `v0.13.0-preview.1` — released. GitHub Release and packages published.
 
 See [releases/v0.13.0-preview.1.md](releases/v0.13.0-preview.1.md) for release notes and readiness checklist.
 
@@ -75,7 +75,6 @@ Then reference packages in your project:
 ## Out of scope
 
 - NuGet.org publishing (deferred).
-- Docker image publishing (deferred).
-- Live demo deployment (deferred).
+- Docker image publishing — delivered via #141 (Dockerfile, docker-compose) and #142 (ghcr.io push on version tags).
 - Persistence/session features (deferred).
 - Dynamic plugin system (deferred).
