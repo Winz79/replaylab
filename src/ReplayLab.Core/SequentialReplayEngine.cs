@@ -59,9 +59,9 @@ public sealed class SequentialReplayEngine
                 {
                     Success = false,
                     MessageId = message.Id ?? "(unknown)",
-                    ErrorMessage = exception.Message,
+                    ErrorMessage = "The send operation was canceled.",
                     Elapsed = stopwatch.Elapsed,
-                    ExceptionType = typeof(OperationCanceledException).FullName,
+                    ExceptionType = exception.GetType().FullName,
                     ExceptionMessage = exception.Message,
                     ExceptionDetails = exception.ToString()
                 });

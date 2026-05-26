@@ -22,6 +22,14 @@ public class SequentialReplayEngineTests
     }
 
     [Fact]
+    public async Task ReplayAsync_throws_when_batch_messages_is_null()
+    {
+        var engine = new SequentialReplayEngine(new RecordingReplaySender());
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => engine.ReplayAsync(new ReplayBatch(null!)));
+    }
+
+    [Fact]
     public async Task ReplayAsync_sends_messages_sequentially_and_returns_ordered_results()
     {
         var messages = new[]
@@ -187,8 +195,8 @@ public class SequentialReplayEngineTests
         Assert.Equal(3, results.Count);
         Assert.False(results[1].Success);
         Assert.Equal(ReplayResultStatus.Failed, results[1].Status);
-        Assert.Equal("Sender timed out", results[1].ErrorMessage);
-        Assert.Equal(typeof(OperationCanceledException).FullName, results[1].ExceptionType);
+        Assert.Equal("The send operation was canceled.", results[1].ErrorMessage);
+        Assert.Equal(typeof(TaskCanceledException).FullName, results[1].ExceptionType);
         Assert.Equal("message-2", results[1].MessageId);
         Assert.True(results[2].Success);
     }
