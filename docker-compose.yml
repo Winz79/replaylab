@@ -6,6 +6,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:5213
       - ASPNETCORE_ENVIRONMENT=Production
+      - SEQ_SERVER_URL=http://seq:5341
     restart: unless-stopped
 
   seq:

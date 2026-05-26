@@ -40,64 +40,52 @@ dotnet add src/ReplayLab.Web/ReplayLab.Web.csproj package Seq.Extensions.Logging
 > dotnet add src/ReplayLab.Web/ReplayLab.Web.csproj package Seq.Extensions.Logging --version 8.0.0
 > ```
 
-## 3. Configure appsettings.json
+## 3. Activate Seq logging
 
-Open `src/ReplayLab.Web/appsettings.json` and add a `Seq` section to the
-`Logging` block. Your file should look like this:
+ReplayLab uses a runtime opt-in pattern: if the `SEQ_SERVER_URL` environment
+variable is set, the application automatically sends logs to Seq. If the
+variable is absent, behavior is unchanged — logs go to the console only.
 
-```json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    },
-    "Seq": {
-      "ServerUrl": "http://localhost:5341"
-    }
-  },
-  "AllowedHosts": "*"
-}
+### Docker Compose (automatic)
+
+When running the full stack with `docker compose up`, the `web` service already
+has `SEQ_SERVER_URL=http://seq:5341` set in `docker-compose.yml`. No additional
+configuration is needed — Seq logging activates automatically.
+
+### Running outside Docker (manual)
+
+Set the environment variable before starting the application:
+
+```bash
+SEQ_SERVER_URL=http://localhost:5341 dotnet run --project src/ReplayLab.Web/ReplayLab.Web.csproj
 ```
 
-> **Port 5341** is the Seq ingest API endpoint (default). The UI is on port 80
-> but the application sends structured logs to the ingest endpoint.
+> **Port 5341** is the Seq ingest API endpoint (default). The UI is on port 80.
+> The application sends structured logs to the ingest endpoint.
 
-If you want the Seq provider to be the only logging sink and do not need console
-output, you can adjust the log levels. The configuration above keeps the console
-provider active and adds Seq as an additional sink — this is the recommended
-setup so you still see logs in the terminal.
+### SDK consumers
 
-## 4. Register Seq in the logging pipeline
-
-Add `AddSeq` in `src/ReplayLab.Web/Program.cs`:
+If you are embedding ReplayLab in your own application, set the `SEQ_SERVER_URL`
+environment variable before application startup. The reference implementations
+(Web, CLI, Desktop) check for this variable and call `AddSeq` when it is set.
+You can replicate this pattern in your own `Program.cs`:
 
 ```csharp
-using ReplayLab.Web.Hosting;
-
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Logging.AddSeq(builder.Configuration.GetSection("Logging:Seq"));
-
-builder.Services.AddReplayLabWeb();
-
-var app = builder.Build();
-
-if (!app.Environment.IsDevelopment())
+var seqUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL");
+if (!string.IsNullOrWhiteSpace(seqUrl))
 {
-    app.UseExceptionHandler("/Error");
+    builder.Logging.AddSeq(seqUrl);
 }
-
-app.UseRouting();
-app.MapStaticAssets();
-app.MapReplayLabWeb();
-
-app.Run();
 ```
 
-The call to `builder.Logging.AddSeq(...)` registers Seq as an additional
-`ILoggerProvider`. All `ILogger<T>` instances resolved by the container will
-now send structured logs to Seq in addition to the console.
+No `appsettings.json` changes are needed — the Seq server URL is controlled
+entirely through the environment variable.
+
+## 4. Verifying Seq is connected
+
+The call to `AddSeq` registers Seq as an additional `ILoggerProvider`. All
+`ILogger<T>` instances resolved by the container will now send structured logs
+to Seq in addition to the console.
 
 ## 5. Verify Seq is receiving logs
 
