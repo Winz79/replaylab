@@ -1,0 +1,53 @@
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Build artifacts
+**/bin/
+**/obj/
+artifacts/
+
+# Test projects and results
+tests/
+**/TestResults/
+*.trx
+
+# Samples
+samples/
+
+# Docs
+docs/
+*.md
+
+# CI and scripts
+eng/
+scripts/
+
+# Non-Web projects (not needed for Web build)
+src/ReplayLab.Cli/
+src/ReplayLab.Cli.Hosting/
+src/ReplayLab.Desktop/
+src/ReplayLab.Desktop.Hosting/
+src/ReplayLab.Adapters.Http/
+src/ReplayLab.Adapters.Example/
+
+# Environment
+.env
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml

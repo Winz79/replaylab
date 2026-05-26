@@ -1,0 +1,23 @@
+services:
+  web:
+    build: .
+    ports:
+      - "5213:5213"
+    environment:
+      - ASPNETCORE_URLS=http://+:5213
+      - ASPNETCORE_ENVIRONMENT=Production
+    restart: unless-stopped
+
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "80:80"
+      - "5341:5341"
+    environment:
+      - ACCEPT_EULA=Y
+    restart: unless-stopped
+    volumes:
+      - seq-data:/data
+
+volumes:
+  seq-data:
