@@ -1,21 +1,17 @@
 # deploy-web.yml
 #
 # Builds the ReplayLab Web Docker image, pushes it to GitHub Container Registry,
-# and deploys it on the target Docker host via SSH.
+# and deploys it on the Docker host via a self-hosted runner.
 #
 # Triggers:
 #   - Version tag push (v*.*.*) — automated deploy alongside NuGet release
 #   - Manual workflow_dispatch — on-demand deploy
 #
-# Required secrets (configure in repo Settings > Secrets and variables > Actions):
-#   DEPLOY_HOST     — hostname or IP of the Docker host
-#   DEPLOY_SSH_KEY  — private SSH key for DEPLOY_USER@DEPLOY_HOST
-#   DEPLOY_USER     — SSH username on the Docker host
-#
 # Required setup on the Docker host (one-time):
+#   - Self-hosted GitHub Actions runner with label 'dockhost'
 #   - Docker and docker compose plugin installed
-#   - DEPLOY_USER exists with SSH key access
-#   - DEPLOY_USER has permission to run docker commands (docker group or sudo)
+#   - Runner user in docker group
+#   - Directory ~/replaylab-deploy/ writable by runner user
 #   - Port 5213 reachable (or reverse proxy configured)
 
 name: Deploy Web
@@ -90,46 +86,41 @@ jobs:
 
   deploy:
     name: Deploy to Docker host
-    runs-on: ubuntu-latest
+    runs-on: dockhost
     needs: build
     if: success()
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            set -e
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
-            IMAGE="ghcr.io/${{ github.repository_owner }}/replaylab-web:latest"
-            COMPOSE_DIR="$HOME/replaylab-deploy"
+      - name: Deploy via docker compose
+        run: |
+          set -e
 
-            mkdir -p "$COMPOSE_DIR"
+          IMAGE="ghcr.io/${{ github.repository_owner }}/replaylab-web:latest"
+          COMPOSE_DIR="$HOME/replaylab-deploy"
 
-            # Write a minimal docker-compose.yml for the web service.
-            # Seq is expected to run separately (e.g. from the local docker-compose.yml
-            # in the repo). Keep this deploy compose focused on the web service only.
-            cat > "$COMPOSE_DIR/docker-compose.yml" << COMPOSE_EOF
-            services:
-              web:
-                image: ${IMAGE}
-                ports:
-                  - "5213:5213"
-                environment:
-                  - ASPNETCORE_URLS=http://+:5213
-                  - ASPNETCORE_ENVIRONMENT=Production
-                restart: unless-stopped
-            COMPOSE_EOF
+          mkdir -p "$COMPOSE_DIR"
 
-            cd "$COMPOSE_DIR"
+          cat > "$COMPOSE_DIR/docker-compose.yml" << COMPOSE_EOF
+          services:
+            web:
+              image: ${IMAGE}
+              ports:
+                - "5213:5213"
+              environment:
+                - ASPNETCORE_URLS=http://+:5213
+                - ASPNETCORE_ENVIRONMENT=Production
+              restart: unless-stopped
+          COMPOSE_EOF
 
-            echo "Pulling latest image..."
-            docker compose pull web
+          cd "$COMPOSE_DIR"
 
-            echo "Restarting web service..."
-            docker compose up -d --force-recreate web
+          echo "Pulling latest image..."
+          docker compose pull web
 
-            echo "Deploy complete. Web UI should be available at http://${{ secrets.DEPLOY_HOST }}:5213"
+          echo "Restarting web service..."
+          docker compose up -d --force-recreate web
+
+          echo "Deploy complete. Web UI at http://$(hostname -I | awk '{print $1}'):5213"
