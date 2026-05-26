@@ -8,13 +8,25 @@ public sealed class SequentialReplayEngine
 
     public SequentialReplayEngine(IReplaySender sender)
     {
+        ArgumentNullException.ThrowIfNull(sender);
         _sender = sender;
     }
 
+    /// <summary>
+    /// Sends each message in the batch sequentially through the configured sender,
+    /// recording the result for every message.
+    /// </summary>
+    /// <param name="batch">The batch of messages to replay.</param>
+    /// <param name="cancellationToken">A cancellation token that stops processing
+    /// before the next message is sent. An empty batch returns an empty list.</param>
+    /// <returns>An ordered list of <see cref="ReplayResult"/> entries, one per message.</returns>
     public async Task<IReadOnlyList<ReplayResult>> ReplayAsync(
         ReplayBatch batch,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(batch);
+        ArgumentNullException.ThrowIfNull(batch.Messages);
+
         var results = new List<ReplayResult>(batch.Messages.Count);
 
         foreach (var message in batch.Messages)
@@ -30,13 +42,29 @@ public sealed class SequentialReplayEngine
 
                 results.Add(result with
                 {
-                    MessageId = message.Id,
+                    MessageId = message.Id ?? "(unknown)",
                     Elapsed = stopwatch.Elapsed
                 });
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (OperationCanceledException exception)
             {
-                throw;
+                stopwatch.Stop();
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+
+                results.Add(new ReplayResult
+                {
+                    Success = false,
+                    MessageId = message.Id ?? "(unknown)",
+                    ErrorMessage = "The send operation was canceled.",
+                    Elapsed = stopwatch.Elapsed,
+                    ExceptionType = exception.GetType().FullName,
+                    ExceptionMessage = exception.Message,
+                    ExceptionDetails = exception.ToString()
+                });
             }
             catch (Exception exception)
             {
@@ -45,8 +73,8 @@ public sealed class SequentialReplayEngine
                 results.Add(new ReplayResult
                 {
                     Success = false,
-                    MessageId = message.Id,
-                    ErrorMessage = exception.Message,
+                    MessageId = message.Id ?? "(unknown)",
+                    ErrorMessage = "An unexpected error occurred while sending the message.",
                     Elapsed = stopwatch.Elapsed,
                     ExceptionType = exception.GetType().FullName,
                     ExceptionMessage = exception.Message,
