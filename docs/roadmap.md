@@ -8,7 +8,7 @@ The near-term direction is no longer persistence-first. ReplayLab should first f
 
 ## Current Position
 
-M1 through M10B are complete.
+M1 through M13 are complete.
 
 Completed foundations include:
 
@@ -37,7 +37,8 @@ Completed foundations include:
 | M10B | NuGet-based Custom Replay Tool Sample | Complete. External-style sample under `samples/CustomReplayTool` consumes ReplayLab via `PackageReference` and demonstrates custom parser/sender composition with the Web host. Tracked in #100. |
 | M11 | SDK Composition Hardening | Complete. Parser/sender override conventions clarified with TryAdd, composition tests added, and docs updated. Delivered via #113. |
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
-| M13 | Release Automation / Portfolio Release | Ready for release tag. GitHub Packages workflow delivered via #111; release notes and manual tag checklist prepared via #112. |
+| M13 | Release Automation / Portfolio Release | Complete. GitHub Packages workflow delivered and triggered via `v0.13.0-preview.1` tag. Engine bug fixes (#119–#124) included via PR #132. |
+| M14 | SDK Adoption Instrumentation & Polish | Next milestone. Structured logging, XML docs, getting-started guide, and GitHub Packages badge. |
 
 ## Near-Term Priorities
 
@@ -45,12 +46,15 @@ Completed foundations include:
    Parser/sender override conventions clarified with TryAdd, composition tests added, and docs updated. Delivered via #113.
 
 2. **M13 release automation delivered**  
-   GitHub Actions workflow publishes packageable ReplayLab SDK packages to GitHub Packages when a version tag is pushed. Delivered via #111.
+   GitHub Actions workflow publishes packageable ReplayLab SDK packages to GitHub Packages. Tag `v0.13.0-preview.1` pushed. Engine robustness bug fixes (#119–#124) merged via #132.
 
-3. **M13 ready for manual release tagging**
-   GitHub Packages workflow delivered via #111; release notes and manual tag checklist prepared via #112. The likely next tag is `v0.13.0-preview.1`, but the exact tag must be confirmed before creation. Tracked in #112.
+3. **M13 complete — release tagged**  
+   Release `v0.13.0-preview.1` published on GitHub. Packages available via GitHub Packages.
 
-4. **Keep M12 persistence deferred**  
+4. **M14 next — SDK adoption instrumentation**  
+   Add ILogger/structured logging, XML doc comments on all public API, `docs/getting-started.md`, and GitHub Packages badge.
+
+5. **Keep M12 persistence deferred**  
    Local sessions and workspace persistence are useful product features, but they are not required to prove the SDK/toolkit story.
 
 ## M11: SDK Composition Hardening
@@ -113,47 +117,52 @@ Persistence is not part of the immediate roadmap. ReplayLab should first prove S
 
 ## M13: Release Automation / Portfolio Release
 
+### Status
+
+**Complete.** Tag `v0.13.0-preview.1` pushed and release published. Engine robustness fixes (#119–#124) merged via #132.
+
 ### Goal
 
 Turn ReplayLab from a locally packable SDK into a small, releasable developer toolkit.
 
-### Context
+### Delivered
 
-M10A proved local package creation. M10B proved external package consumption through a sample. M11 hardens composition conventions. M13 should prove the delivery path.
-
-### Scope
-
-- Add a GitHub Actions release workflow triggered by version tags such as `v*.*.*`.
-- Restore, build, and test before publishing.
-- Pack selected SDK projects.
-- Publish `.nupkg` files to GitHub Packages using `GITHUB_TOKEN`.
-- Use `--skip-duplicate` for safe reruns.
-- Attach packages to the GitHub Release if practical.
-- Document how to consume packages from GitHub Packages.
-- Prepare release notes for the next portfolio preview release.
-- Confirm the next tag name from existing tags before creating it.
-
-### Package Set
-
-- `ReplayLab.Core`
-- `ReplayLab.Parsers.Csv`
-- `ReplayLab.Adapters.Mock`
-- `ReplayLab.Adapters.Http`
-- `ReplayLab.Cli.Hosting`
-- `ReplayLab.Web.Hosting`
-- `ReplayLab.Desktop.Hosting`
+- GitHub Actions release workflow triggered by version tags (`v*.*.*`).
+- Restore, build, test, pack, and publish pipeline.
+- Selected SDK projects published to GitHub Packages.
+- `--skip-duplicate` for safe reruns.
+- Release notes and manual tag checklist prepared.
+- Engine null-guard, error handling, and cancellation hardening (#119–#124).
 
 ### Linked Issues
 
 - #111 — Publish ReplayLab packages to GitHub Packages on version tag
 - #112 — Prepare next portfolio release
+- #132 — Harden SequentialReplayEngine against nulls and improve error handling
+
+## M14: SDK Adoption Instrumentation & Polish
+
+### Goal
+
+Make the ReplayLab SDK observable, documented, and discoverable for external developers.
+
+### Context
+
+M10A/B proved the packageable SDK works. M11 hardened composition. M13 proved the release path. M14 should add the observability and documentation that makes the SDK production-ready for external consumers.
+
+### Scope
+
+- Add `ILogger`/structured logging to `SequentialReplayEngine`, `CsvParser`, `HttpSender` (via `Microsoft.Extensions.Logging.Abstractions`).
+- Add XML doc comments on all public `ReplayLab.Core` API surfaces.
+- Write `docs/getting-started.md`: NuGet source setup, `PackageReference`, implementing `IMessageParser`/`IReplaySender`, hosting the Web UI.
+- Add GitHub Packages download badge to `README.md`.
 
 ### Out Of Scope
 
-- Publishing to NuGet.org.
-- Installer creation.
-- Persistence/session features.
-- Dynamic plugin system.
+- Persistence/session storage (M12, deferred).
+- NuGet.org publishing.
+- Docker, installers, dynamic plugins.
+- New parser formats or adapter types.
 
 ## Completed Milestones
 
@@ -172,6 +181,8 @@ M10A proved local package creation. M10B proved external package consumption thr
 | M9C | Editable Workspace UX Polish |
 | M10A | Packageable ReplayLab SDK |
 | M10B | NuGet-based Custom Replay Tool Sample |
+| M11 | SDK Composition Hardening |
+| M13 | Release Automation / Portfolio Release |
 
 ## Future / Parking Lot
 
