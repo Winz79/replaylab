@@ -221,6 +221,7 @@ Current behavior:
 | Hostable entry points ADR | [docs/adr/0009-hostable-entry-points.md](docs/adr/0009-hostable-entry-points.md) |
 | Samples | [samples/README.md](samples/README.md) |
 | Releases | [docs/releases.md](docs/releases.md) |
+| Cloudflare Tunnel | [docs/cloudflare-tunnel.md](docs/cloudflare-tunnel.md) |
 
 ## Current status
 
