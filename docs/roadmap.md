@@ -8,7 +8,7 @@ The near-term direction is no longer persistence-first. ReplayLab should first f
 
 ## Current Position
 
-M1 through M14 are complete.
+M1 through M15 are complete.
 
 Completed foundations include:
 
@@ -39,7 +39,7 @@ Completed foundations include:
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
 | M13 | Release Automation / Portfolio Release | Complete. GitHub Packages workflow delivered and triggered via `v0.13.0-preview.1` tag. Engine bug fixes (#119–#124) included via PR #132. |
 | M14 | SDK Adoption Instrumentation & Polish | Complete. Structured logging (ILogger), XML doc comments, getting-started guide, and GitHub Packages badge delivered. |
-| M15 | Web Deployment & Observability Guide | In progress. #141 (Dockerize), #142 (Deploy), and #143 (Cloudflare Tunnel guide) delivered. #144 (Seq observability guide) remaining. |
+| M15 | Web Deployment & Observability Guide | Complete. All four slices delivered: Dockerize, deploy workflow, Cloudflare Tunnel guide, Seq observability guide. |
 
 ## Near-Term Priorities
 
@@ -55,8 +55,8 @@ Completed foundations include:
 4. **M14 complete — SDK adoption instrumentation**  
    Structured logging, XML docs, getting-started guide, and GitHub Packages badge delivered via #134–#137.
 
-5. **M15 in progress — Web deployment & observability**  
-   Dockerize (#141), deploy workflow (#142), and Cloudflare Tunnel guide (#143) delivered. Seq observability guide (#144) remaining. Plan in `docs/milestones/m15-deployment-observability.md`.
+5. **M15 complete — Web deployment & observability**  
+   Dockerize (#141), deploy workflow (#142), Cloudflare Tunnel guide (#143), and Seq observability guide (#144) delivered. Plan in `docs/milestones/m15-deployment-observability.md`.
 
 6. **Keep M12 persistence deferred**  
    Local sessions and workspace persistence are useful product features, but they are not required to prove the SDK/toolkit story.
@@ -174,8 +174,7 @@ M10A/B proved the packageable SDK works. M11 hardened composition. M13 proved th
 
 ### Status
 
-In progress. #141, #142, and #143 delivered. #144 (Seq observability guide)
-remains.
+**Complete.** All four slices (#141–#144) delivered.
 
 ### Goal
 
@@ -184,9 +183,9 @@ auto-deploy on version tags, and document Cloudflare Tunnel and Seq setup.
 
 ### Context
 
-M14 added structured logging. M15 makes the logging visible (Seq) and makes
+M14 added structured logging. M15 made the logging visible (Seq) and
 the Web UI reachable (Docker + Cloudflare Tunnel + GitHub Actions).
-#141 (Dockerize), #142 (Deploy workflow), and #143 (Cloudflare Tunnel guide) are done.
+All four slices are delivered.
 
 ### Scope
 
@@ -229,6 +228,7 @@ the Web UI reachable (Docker + Cloudflare Tunnel + GitHub Actions).
 | M11 | SDK Composition Hardening |
 | M13 | Release Automation / Portfolio Release |
 | M14 | SDK Adoption Instrumentation & Polish |
+| M15 | Web Deployment & Observability Guide |
 
 ## Future / Parking Lot
 

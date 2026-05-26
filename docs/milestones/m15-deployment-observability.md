@@ -2,8 +2,8 @@
 
 ## Status
 
-In progress. #141 (Dockerize Web), #142 (Deploy workflow), and #143 (Cloudflare
-Tunnel guide) delivered. #144 (Seq observability guide) is the remaining slice.
+**Complete.** All four slices delivered: #141 (Dockerize), #142 (Deploy workflow),
+#143 (Cloudflare Tunnel guide), #144 (Seq observability guide).
 
 ## Intent
 
