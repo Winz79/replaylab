@@ -8,6 +8,8 @@ services:
       - ASPNETCORE_ENVIRONMENT=Production
       - SEQ_SERVER_URL=http://seq:5341
     restart: unless-stopped
+    volumes:
+      - dp-keys:/root/.aspnet/DataProtection-Keys
 
   seq:
     image: datalust/seq:latest
@@ -23,3 +25,4 @@ services:
 
 volumes:
   seq-data:
+  dp-keys:
