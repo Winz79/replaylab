@@ -39,6 +39,7 @@ Completed foundations include:
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
 | M13 | Release Automation / Portfolio Release | Complete. GitHub Packages workflow delivered and triggered via `v0.13.0-preview.1` tag. Engine bug fixes (#119–#124) included via PR #132. |
 | M14 | SDK Adoption Instrumentation & Polish | Complete. Structured logging (ILogger), XML doc comments, getting-started guide, and GitHub Packages badge delivered. |
+| M15 | Web Deployment & Observability Guide | Next milestone. Dockerize the Web UI, auto-deploy on version tags, Cloudflare Tunnel guide, Seq observability guide. |
 
 ## Near-Term Priorities
 
@@ -54,7 +55,10 @@ Completed foundations include:
 4. **M14 complete — SDK adoption instrumentation**  
    Structured logging, XML docs, getting-started guide, and GitHub Packages badge delivered via #134–#137.
 
-5. **Keep M12 persistence deferred**  
+5. **M15 next — Web deployment & observability**  
+   Dockerize the Web UI, auto-deploy on version tags via GitHub Actions, Cloudflare Tunnel guide, Seq observability guide. Issues #141–#144 created. Plan in `docs/milestones/m15-deployment-observability.md`.
+
+6. **Keep M12 persistence deferred**  
    Local sessions and workspace persistence are useful product features, but they are not required to prove the SDK/toolkit story.
 
 ## M11: SDK Composition Hardening
@@ -165,6 +169,39 @@ M10A/B proved the packageable SDK works. M11 hardened composition. M13 proved th
 - NuGet.org publishing.
 - Docker, installers, dynamic plugins.
 - New parser formats or adapter types.
+
+## M15: Web Deployment & Observability Guide
+
+### Goal
+
+Make the ReplayLab Web UI deployable and observable. Dockerize the Web app,
+auto-deploy on version tags, and document Cloudflare Tunnel and Seq setup.
+
+### Context
+
+M14 adds structured logging. M15 makes the logging visible (Seq) and makes
+the Web UI reachable (Docker + Cloudflare Tunnel + GitHub Actions).
+
+### Scope
+
+- Multi-stage Dockerfile + docker-compose (Web + Seq).
+- GitHub Actions deploy workflow (`deploy-web.yml`) triggered by version tags.
+- Cloudflare Tunnel setup guide (`docs/cloudflare-tunnel.md`).
+- Seq observability guide (`docs/observability-seq.md`).
+
+### Linked Issues
+
+- #141 — Dockerize ReplayLab.Web with multi-stage build and docker-compose (Web + Seq)
+- #142 — GitHub Actions deploy-web workflow triggered by version tags
+- #143 — Write Cloudflare Tunnel setup guide for self-hosted Web UI
+- #144 — Write Seq observability guide for structured logging
+
+### Out Of Scope
+
+- Kubernetes, managed cloud, Cloudflare Pages/Workers.
+- Desktop or CLI deployment.
+- Seq code dependency in any ReplayLab project.
+- New parser or adapter types.
 
 ## Completed Milestones
 

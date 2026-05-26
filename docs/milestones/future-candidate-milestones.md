@@ -4,50 +4,54 @@ This file collects post-M13 candidate milestone dossiers. These are planning
 artifacts, not final commitments. Promote a candidate only after its value,
 dependencies, risks, and required artifacts are accepted.
 
-## Candidate M14: SDK Adoption Instrumentation & Polish
+## ~~Candidate M14: SDK Adoption Instrumentation & Polish~~ → COMPLETE
+
+**Delivered.** Issues #134–#137. Closeout via #148.
+
+---
+
+## Candidate M15: Web Deployment & Observability Guide
 
 ### Goal
 
-Add observability and documentation to make the SDK production-ready for
-external developers.
+Make the ReplayLab Web UI deployable and observable. Dockerize, auto-deploy on
+version tags, and document Cloudflare Tunnel and Seq setup.
 
 ### User Value
 
-- Developers can see structured logs from the engine, parser, and sender.
-- All public API surfaces have IntelliSense documentation.
-- A getting-started guide reduces time-to-first-replay.
-- A badge on the README signals available packages.
+- Developers can see a running instance of the Web UI without cloning the repo.
+- Docker Compose gives a one-command local setup (Web + Seq).
+- Cloudflare Tunnel guide provides zero-cost HTTPS for self-hosted deployments.
+- Seq guide turns M14's structured logging into visible runtime behavior.
 
 ### Dependency On Previous Work
 
-- Builds on M10A/M10B (packageable SDK), M11 (composition hardening), M13 (release path).
+- Builds on M14 (structured logging) for the Seq guide.
+- Web app already exists — no new code needed, just packaging and deployment.
 
 ### Required Artifacts
 
-- Plan doc: `docs/plans/m14-sdk-adoption-instrumentation.md`
-- PRD update if behavior contracts change.
+- Plan doc: `docs/milestones/m15-deployment-observability.md` (created).
+- Issues #141–#144 created under milestone #16.
 
 ### Candidate Slices
 
-- Add `ILogger`/structured logging to `SequentialReplayEngine`, `CsvParser`, `HttpSender` using `Microsoft.Extensions.Logging.Abstractions`.
-- Add XML doc comments on all public `ReplayLab.Core` API surfaces.
-- Write `docs/getting-started.md`: NuGet source setup, `PackageReference`, implementing `IMessageParser`/`IReplaySender`, hosting the Web UI.
-- Add GitHub Packages download badge to `README.md`.
+- Dockerize `ReplayLab.Web` with multi-stage build + docker-compose (Web + Seq).
+- GitHub Actions deploy workflow triggering on version tags.
+- Cloudflare Tunnel setup guide (`docs/cloudflare-tunnel.md`).
+- Seq observability guide (`docs/observability-seq.md`).
 
 ### Explicit Non-Goals
 
-- Persistence or session storage (M12, deferred).
-- NuGet.org publishing.
-- Docker, installers, dynamic plugins.
-- New parser formats or adapter types.
+- Kubernetes, managed cloud, Cloudflare Pages/Workers.
+- Desktop or CLI deployment.
+- Seq code dependency.
 
 ### Readiness
 
-Ready for planning. Promote to active milestone after conductor reviews the plan.
+Ready for implementation. Issues created, plan complete.
 
-### Recommended Next Action
-
-Run `plan-milestone` skill on M14 to produce a detailed milestone plan and create implementation issues.
+---
 
 ## Candidate M12: Local Sessions / Persistence
 
