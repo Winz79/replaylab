@@ -8,7 +8,7 @@ The near-term direction is no longer persistence-first. ReplayLab should first f
 
 ## Current Position
 
-M1 through M13 are complete.
+M1 through M14 are complete.
 
 Completed foundations include:
 
@@ -38,7 +38,7 @@ Completed foundations include:
 | M11 | SDK Composition Hardening | Complete. Parser/sender override conventions clarified with TryAdd, composition tests added, and docs updated. Delivered via #113. |
 | M12 | Local Sessions / Persistence | Deferred / optional. Do not implement before SDK adoption and release automation are proven. |
 | M13 | Release Automation / Portfolio Release | Complete. GitHub Packages workflow delivered and triggered via `v0.13.0-preview.1` tag. Engine bug fixes (#119–#124) included via PR #132. |
-| M14 | SDK Adoption Instrumentation & Polish | Next milestone. Structured logging, XML docs, getting-started guide, and GitHub Packages badge. |
+| M14 | SDK Adoption Instrumentation & Polish | Complete. Structured logging (ILogger), XML doc comments, getting-started guide, and GitHub Packages badge delivered. |
 
 ## Near-Term Priorities
 
@@ -51,8 +51,8 @@ Completed foundations include:
 3. **M13 complete — release tagged**  
    Release `v0.13.0-preview.1` published on GitHub. Packages available via GitHub Packages.
 
-4. **M14 next — SDK adoption instrumentation**  
-   Add ILogger/structured logging, XML doc comments on all public API, `docs/getting-started.md`, and GitHub Packages badge.
+4. **M14 complete — SDK adoption instrumentation**  
+   Structured logging, XML docs, getting-started guide, and GitHub Packages badge delivered via #134–#137.
 
 5. **Keep M12 persistence deferred**  
    Local sessions and workspace persistence are useful product features, but they are not required to prove the SDK/toolkit story.
@@ -142,7 +142,9 @@ Turn ReplayLab from a locally packable SDK into a small, releasable developer to
 
 ## M14: SDK Adoption Instrumentation & Polish
 
-### Goal
+### Status
+
+**Complete.** All four slices delivered: structured logging (#134), XML docs (#135), getting-started guide (#136), GitHub Packages badge (#137).
 
 Make the ReplayLab SDK observable, documented, and discoverable for external developers.
 
@@ -183,6 +185,7 @@ M10A/B proved the packageable SDK works. M11 hardened composition. M13 proved th
 | M10B | NuGet-based Custom Replay Tool Sample |
 | M11 | SDK Composition Hardening |
 | M13 | Release Automation / Portfolio Release |
+| M14 | SDK Adoption Instrumentation & Polish |
 
 ## Future / Parking Lot
 
