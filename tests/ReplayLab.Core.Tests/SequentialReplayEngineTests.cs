@@ -5,6 +5,23 @@ namespace ReplayLab.Core.Tests;
 public class SequentialReplayEngineTests
 {
     [Fact]
+    public void ReplayAsync_throws_when_sender_is_null()
+    {
+        Assert.Throws<ArgumentNullException>(() => new SequentialReplayEngine(null!));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_throws_when_batch_is_null()
+    {
+        var engine = new SequentialReplayEngine(new RecordingReplaySender());
+
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(
+            () => engine.ReplayAsync(null!));
+
+        Assert.Equal("batch", exception.ParamName);
+    }
+
+    [Fact]
     public async Task ReplayAsync_sends_messages_sequentially_and_returns_ordered_results()
     {
         var messages = new[]
@@ -93,7 +110,7 @@ public class SequentialReplayEngineTests
         Assert.Equal(3, results.Count);
         Assert.False(results[1].Success);
         Assert.Equal(ReplayResultStatus.Failed, results[1].Status);
-        Assert.Equal("Sender exploded", results[1].ErrorMessage);
+        Assert.Equal("An unexpected error occurred while sending the message.", results[1].ErrorMessage);
         Assert.Equal(typeof(InvalidOperationException).FullName, results[1].ExceptionType);
         Assert.Equal("Sender exploded", results[1].ExceptionMessage);
         Assert.Contains(nameof(InvalidOperationException), results[1].ExceptionDetails);
@@ -171,7 +188,44 @@ public class SequentialReplayEngineTests
         Assert.False(results[1].Success);
         Assert.Equal(ReplayResultStatus.Failed, results[1].Status);
         Assert.Equal("Sender timed out", results[1].ErrorMessage);
-        Assert.Equal(typeof(TaskCanceledException).FullName, results[1].ExceptionType);
+        Assert.Equal(typeof(OperationCanceledException).FullName, results[1].ExceptionType);
+        Assert.Equal("message-2", results[1].MessageId);
+        Assert.True(results[2].Success);
+    }
+
+    [Fact]
+    public async Task ReplayAsync_captures_operation_canceled_exception_from_sender_as_failure()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("message-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("message-3", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        using var internalCts = new CancellationTokenSource();
+        internalCts.Cancel();
+        var sender = new RecordingReplaySender(message =>
+        {
+            if (message.Id == "message-2")
+            {
+                throw new OperationCanceledException(internalCts.Token);
+            }
+
+            return Task.FromResult(new ReplayResult
+            {
+                Success = true,
+                MessageId = message.Id
+            });
+        });
+        var engine = new SequentialReplayEngine(sender);
+
+        var results = await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Equal(["message-1", "message-2", "message-3"], sender.SentMessageIds);
+        Assert.Equal(3, results.Count);
+        Assert.False(results[1].Success);
+        Assert.Equal(ReplayResultStatus.Failed, results[1].Status);
+        Assert.Equal(typeof(OperationCanceledException).FullName, results[1].ExceptionType);
         Assert.Equal("message-2", results[1].MessageId);
         Assert.True(results[2].Success);
     }
