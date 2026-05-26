@@ -5,6 +5,7 @@ WORKDIR /app
 # Copy solution and shared props for restore
 COPY ReplayLab.sln .
 COPY Directory.Build.props .
+COPY global.json .
 
 # Copy csproj files for restore layer caching
 COPY src/ReplayLab.Web/ReplayLab.Web.csproj src/ReplayLab.Web/

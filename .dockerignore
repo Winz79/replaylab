@@ -14,6 +14,19 @@
 **/bin/
 **/obj/
 artifacts/
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# Solution-level artifacts
+CodeCoverage/
 
 # Test projects and results
 tests/
@@ -47,7 +60,10 @@ src/ReplayLab.Adapters.Example/
 .DS_Store
 Thumbs.db
 
-# Docker
+# AI config
+.ai/
+
+# Docker (avoid recursive inclusion)
 Dockerfile
 .dockerignore
 docker-compose.yml
