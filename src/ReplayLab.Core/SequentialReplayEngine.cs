@@ -1,15 +1,18 @@
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace ReplayLab.Core;
 
 public sealed class SequentialReplayEngine
 {
     private readonly IReplaySender _sender;
+    private readonly ILogger<SequentialReplayEngine>? _logger;
 
-    public SequentialReplayEngine(IReplaySender sender)
+    public SequentialReplayEngine(IReplaySender sender, ILogger<SequentialReplayEngine>? logger = null)
     {
         ArgumentNullException.ThrowIfNull(sender);
         _sender = sender;
+        _logger = logger;
     }
 
     /// <summary>
@@ -27,18 +30,30 @@ public sealed class SequentialReplayEngine
         ArgumentNullException.ThrowIfNull(batch);
         ArgumentNullException.ThrowIfNull(batch.Messages);
 
+        var batchStopwatch = Stopwatch.StartNew();
         var results = new List<ReplayResult>(batch.Messages.Count);
+        var messageIndex = 0;
+        var totalMessages = batch.Messages.Count;
+
+        _logger?.LogInformation("Starting sequential replay of {MessageCount} messages", totalMessages);
 
         foreach (var message in batch.Messages)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            messageIndex++;
             var stopwatch = Stopwatch.StartNew();
+
+            _logger?.LogDebug("Sending message {MessageId} ({MessageIndex}/{TotalMessages})",
+                message.Id, messageIndex, totalMessages);
 
             try
             {
                 var result = await _sender.SendAsync(message, cancellationToken);
                 stopwatch.Stop();
+
+                _logger?.LogDebug("Message {MessageId} sent successfully in {ElapsedMs}ms",
+                    message.Id, (long)stopwatch.Elapsed.TotalMilliseconds);
 
                 results.Add(result with
                 {
@@ -55,6 +70,8 @@ public sealed class SequentialReplayEngine
                     throw;
                 }
 
+                _logger?.LogWarning("Message {MessageId} was canceled", message.Id);
+
                 results.Add(new ReplayResult
                 {
                     Success = false,
@@ -70,6 +87,9 @@ public sealed class SequentialReplayEngine
             {
                 stopwatch.Stop();
 
+                _logger?.LogError(exception, "Message {MessageId} failed: {ErrorMessage}",
+                    message.Id, exception.Message);
+
                 results.Add(new ReplayResult
                 {
                     Success = false,
@@ -82,6 +102,15 @@ public sealed class SequentialReplayEngine
                 });
             }
         }
+
+        batchStopwatch.Stop();
+
+        var successCount = results.Count(r => r.Success);
+        var failureCount = results.Count(r => !r.Success);
+
+        _logger?.LogInformation(
+            "Replay complete: {SuccessCount} succeeded, {FailureCount} failed out of {TotalMessages} in {TotalElapsedMs}ms",
+            successCount, failureCount, totalMessages, (long)batchStopwatch.Elapsed.TotalMilliseconds);
 
         return results;
     }

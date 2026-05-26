@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using ReplayLab.Core;
 
 namespace ReplayLab.Core.Tests;
@@ -8,6 +9,86 @@ public class SequentialReplayEngineTests
     public void ReplayAsync_throws_when_sender_is_null()
     {
         Assert.Throws<ArgumentNullException>(() => new SequentialReplayEngine(null!));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_batch_start_and_complete_at_information_level()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("msg-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender();
+        var logger = new SpyLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        var infoEntries = logger.Entries.Where(e => e.Level == LogLevel.Information).ToList();
+        Assert.Contains(infoEntries, e => e.Message.Contains("Starting sequential replay of"));
+        Assert.Contains(infoEntries, e => e.Message.Contains("Replay complete:"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_per_message_at_debug_level()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("msg-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender();
+        var logger = new SpyLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        var debugEntries = logger.Entries.Where(e => e.Level == LogLevel.Debug).ToList();
+        Assert.Contains(debugEntries, e => e.Message.Contains("Sending message"));
+        Assert.Contains(debugEntries, e => e.Message.Contains("sent successfully"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_sender_exceptions_at_error_level()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("msg-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender(_ =>
+            Task.FromException<ReplayResult>(new InvalidOperationException("boom")));
+        var logger = new SpyLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        var errorEntries = logger.Entries.Where(e => e.Level == LogLevel.Error).ToList();
+        Assert.Contains(errorEntries, e => e.Message.Contains("failed") && e.Message.Contains("boom"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_sender_cancellation_at_warning_level()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("msg-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("msg-2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender(message =>
+        {
+            if (message.Id == "msg-1")
+            {
+                throw new TaskCanceledException("timed out");
+            }
+
+            return Task.FromResult(new ReplayResult { Success = true, MessageId = message.Id });
+        });
+        var logger = new SpyLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        var warningEntries = logger.Entries.Where(e => e.Level == LogLevel.Warning).ToList();
+        Assert.Contains(warningEntries, e => e.Message.Contains("was canceled"));
     }
 
     [Fact]
@@ -256,6 +337,20 @@ public class SequentialReplayEngineTests
         {
             SentMessageIds.Add(message.Id);
             return _send(message);
+        }
+    }
+
+    private sealed class SpyLogger<T> : ILogger<T>
+    {
+        public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
         }
     }
 }

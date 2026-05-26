@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ReplayLab.Adapters.Http;
 using ReplayLab.Core;
 
@@ -52,6 +53,49 @@ public class HttpReplaySenderTests
     }
 
     [Fact]
+    public async Task SendAsync_logs_request_dispatch_at_debug_level()
+    {
+        var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.Accepted));
+        using var client = new HttpClient(handler);
+        var logger = new SpyLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        var debugEntries = logger.Entries.Where(e => e.Level == LogLevel.Debug).ToList();
+        Assert.Contains(debugEntries, e => e.Message.Contains("Sending HTTP POST") && e.Message.Contains("https://example.test/replay"));
+    }
+
+    [Fact]
+    public async Task SendAsync_logs_non_success_status_at_warning_level()
+    {
+        var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        using var client = new HttpClient(handler);
+        var logger = new SpyLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        var warningEntries = logger.Entries.Where(e => e.Level == LogLevel.Warning).ToList();
+        Assert.Contains(warningEntries, e => e.Message.Contains("returned 500"));
+    }
+
+    [Fact]
+    public async Task SendAsync_logs_request_exception_at_error_level()
+    {
+        var handler = new RecordingHttpMessageHandler(_ =>
+            Task.FromException<HttpResponseMessage>(new HttpRequestException("Connection refused")));
+        using var client = new HttpClient(handler);
+        var logger = new SpyLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        var errorEntries = logger.Entries.Where(e => e.Level == LogLevel.Error).ToList();
+        Assert.Contains(errorEntries, e => e.Message.Contains("failed") && e.Message.Contains("Connection refused"));
+    }
+
+    [Fact]
     public async Task SendAsync_propagates_cancellation_when_replay_token_is_canceled()
     {
         using var cancellation = new CancellationTokenSource();
@@ -99,6 +143,20 @@ public class HttpReplaySenderTests
                 ? null
                 : request.Content.ReadAsStringAsync(cancellationToken).GetAwaiter().GetResult();
             return _sendAsync(request);
+        }
+    }
+
+    private sealed class SpyLogger<T> : ILogger<T>
+    {
+        public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
         }
     }
 }
