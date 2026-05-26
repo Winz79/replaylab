@@ -2,7 +2,8 @@
 
 ## Status
 
-Planned. Issues #141–#144 created. Awaiting implementation.
+In progress. #141 (Dockerize Web), #142 (Deploy workflow), and #144 (Seq guide)
+delivered. #143 (Cloudflare Tunnel guide) is the remaining slice.
 
 ## Intent
 
