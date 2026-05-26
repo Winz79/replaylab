@@ -5,6 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
     <IsPackable>true</IsPackable>
     <PackageId>ReplayLab.Core</PackageId>
     <Description>Generic replay engine contracts and models for building replay and testing toolkits.</Description>

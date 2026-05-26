@@ -3,11 +3,22 @@ using Microsoft.Extensions.Logging;
 
 namespace ReplayLab.Core;
 
+/// <summary>
+/// Coordinates the sequential replay of a batch of messages through a configured
+/// <see cref="IReplaySender"/>, collecting a <see cref="ReplayResult"/> for each message.
+/// </summary>
 public sealed class SequentialReplayEngine
 {
     private readonly IReplaySender _sender;
     private readonly ILogger<SequentialReplayEngine>? _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SequentialReplayEngine"/> class.
+    /// </summary>
+    /// <param name="sender">The sender responsible for dispatching each message.</param>
+    /// <param name="logger">An optional logger for structured diagnostic output.
+    /// When <c>null</c>, logging is disabled.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="sender"/> is <c>null</c>.</exception>
     public SequentialReplayEngine(IReplaySender sender, ILogger<SequentialReplayEngine>? logger = null)
     {
         ArgumentNullException.ThrowIfNull(sender);
@@ -23,6 +34,10 @@ public sealed class SequentialReplayEngine
     /// <param name="cancellationToken">A cancellation token that stops processing
     /// before the next message is sent. An empty batch returns an empty list.</param>
     /// <returns>An ordered list of <see cref="ReplayResult"/> entries, one per message.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="batch"/>
+    /// or <paramref name="batch.Messages"/> is <c>null</c>.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when the operation is
+    /// canceled through the <paramref name="cancellationToken"/>.</exception>
     public async Task<IReadOnlyList<ReplayResult>> ReplayAsync(
         ReplayBatch batch,
         CancellationToken cancellationToken = default)
