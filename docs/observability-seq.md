@@ -147,7 +147,7 @@ filter:
 | `SourceContext` | Events from a specific class |
 
 Click any log event to expand it and inspect its structured properties
-(`MessageCount`, `MessageId`, `StatusCode`, `ElapsedMs`, etc.).
+(`MessageCount`, `SuccessCount`, `FailureCount`, `TotalElapsedMs`, `MessageId`, `StatusCode`, etc.).
 
 ## 6. What you should see
 
@@ -162,7 +162,7 @@ event in the Seq UI.
 | Replay started | Information | `Starting sequential replay of {MessageCount} messages` |
 | Message canceled | Warning | `Message {MessageId} was canceled` |
 | Message failed | Error | `Message {MessageId} failed: {ErrorMessage}` |
-| Replay complete | Information | `Replay complete: x succeeded, y failed, z canceled (elapsed: ...ms)` |
+| Replay complete | Information | `Replay complete: {SuccessCount} succeeded, {FailureCount} failed out of {TotalMessages} in {TotalElapsedMs}ms` |
 
 ### CsvReplayMessageParser
 
