@@ -212,6 +212,7 @@ Current behavior:
 
 | Topic | Link |
 | --- | --- |
+| Getting started | [docs/getting-started.md](docs/getting-started.md) |
 | Architecture | [docs/architecture.md](docs/architecture.md) |
 | Roadmap | [docs/roadmap.md](docs/roadmap.md) |
 | Packageable SDK plan | [docs/plans/m10-packageable-sdk.md](docs/plans/m10-packageable-sdk.md) |
