@@ -1,0 +1,133 @@
+# deploy-web.yml
+#
+# Builds the ReplayLab Web Docker image, pushes it to GitHub Container Registry,
+# and deploys it on the target Docker host via SSH.
+#
+# Triggers:
+#   - Version tag push (v*.*.*) — automated deploy alongside NuGet release
+#   - Manual workflow_dispatch — on-demand deploy
+#
+# Required secrets (configure in repo Settings > Secrets and variables > Actions):
+#   DEPLOY_HOST     — hostname or IP of the Docker host
+#   DEPLOY_SSH_KEY  — private SSH key for DEPLOY_USER@DEPLOY_HOST
+#   DEPLOY_USER     — SSH username on the Docker host
+#
+# Required setup on the Docker host (one-time):
+#   - Docker and docker compose plugin installed
+#   - DEPLOY_USER exists with SSH key access
+#   - DEPLOY_USER has permission to run docker commands (docker group or sudo)
+#   - Port 5213 reachable (or reverse proxy configured)
+
+name: Deploy Web
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/replaylab-web
+
+jobs:
+  build:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: global.json
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ReplayLab.sln
+
+      - name: Build
+        run: dotnet build ReplayLab.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ReplayLab.sln --configuration Release --no-build
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest
+            type=raw,value=latest,enable=${{ github.event_name == 'workflow_dispatch' }}
+            type=sha,prefix=,format=short
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Docker host
+    runs-on: ubuntu-latest
+    needs: build
+    if: success()
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+
+            IMAGE="ghcr.io/${{ github.repository_owner }}/replaylab-web:latest"
+            COMPOSE_DIR="$HOME/replaylab-deploy"
+
+            mkdir -p "$COMPOSE_DIR"
+
+            # Write a minimal docker-compose.yml for the web service.
+            # Seq is expected to run separately (e.g. from the local docker-compose.yml
+            # in the repo). Keep this deploy compose focused on the web service only.
+            cat > "$COMPOSE_DIR/docker-compose.yml" << COMPOSE_EOF
+            services:
+              web:
+                image: ${IMAGE}
+                ports:
+                  - "5213:5213"
+                environment:
+                  - ASPNETCORE_URLS=http://+:5213
+                  - ASPNETCORE_ENVIRONMENT=Production
+                restart: unless-stopped
+            COMPOSE_EOF
+
+            cd "$COMPOSE_DIR"
+
+            echo "Pulling latest image..."
+            docker compose pull web
+
+            echo "Restarting web service..."
+            docker compose up -d --force-recreate web
+
+            echo "Deploy complete. Web UI should be available at http://${{ secrets.DEPLOY_HOST }}:5213"
