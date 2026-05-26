@@ -222,6 +222,7 @@ Current behavior:
 | Samples | [samples/README.md](samples/README.md) |
 | Releases | [docs/releases.md](docs/releases.md) |
 | Cloudflare Tunnel | [docs/cloudflare-tunnel.md](docs/cloudflare-tunnel.md) |
+| Seq observability | [docs/observability-seq.md](docs/observability-seq.md) |
 
 ## Current status
 
