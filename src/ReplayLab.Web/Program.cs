@@ -2,6 +2,12 @@ using ReplayLab.Web.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var seqUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL");
+if (!string.IsNullOrWhiteSpace(seqUrl))
+{
+    builder.Logging.AddSeq(seqUrl);
+}
+
 builder.Services.AddReplayLabWeb();
 
 var app = builder.Build();

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Photino.NET;
 using ReplayLab.Web.Hosting;
 
@@ -20,6 +21,12 @@ public static class ReplayLabDesktopHost
     public static WebApplication BuildApp(string[] args, Action<IServiceCollection>? configureServices = null)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        var seqUrl = Environment.GetEnvironmentVariable("SEQ_SERVER_URL");
+        if (!string.IsNullOrWhiteSpace(seqUrl))
+        {
+            builder.Logging.AddSeq(seqUrl);
+        }
 
         builder.WebHost.UseUrls("http://127.0.0.1:0");
         builder.WebHost.UseStaticWebAssets();
