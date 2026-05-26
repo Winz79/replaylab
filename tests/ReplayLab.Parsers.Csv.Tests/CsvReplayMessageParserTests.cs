@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace ReplayLab.Parsers.Csv.Tests;
 
@@ -156,10 +157,106 @@ public class CsvReplayMessageParserTests
         Assert.Equal("new", payload.RootElement.GetProperty("status").GetString());
     }
 
+    [Fact]
+    public async Task ParseAsync_logs_parse_start_and_completion_information()
+    {
+        const string csv = """
+            name,status
+            alpha,new
+            """;
+        var logger = new FakeLogger<CsvReplayMessageParser>();
+
+        await ParseWithLogger(csv, logger);
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Information && e.Message.Contains("Starting CSV parse"));
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Information && e.Message.Contains("CSV parse complete: 1 messages"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_logs_header_detection_at_debug_level()
+    {
+        const string csv = """
+            name,status,category
+            alpha,new,test
+            """;
+        var logger = new FakeLogger<CsvReplayMessageParser>();
+
+        await ParseWithLogger(csv, logger);
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Detected CSV header with 3 columns"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_logs_per_record_parse_at_debug_level()
+    {
+        const string csv = """
+            name,status
+            alpha,new
+            beta,done
+            """;
+        var logger = new FakeLogger<CsvReplayMessageParser>();
+
+        await ParseWithLogger(csv, logger);
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Parsed CSV row") && e.Message.Contains("as record"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_logs_field_count_mismatch_warning_before_throwing()
+    {
+        const string csv = """
+            name,status
+            alpha,new,extra
+            """;
+        var logger = new FakeLogger<CsvReplayMessageParser>();
+
+        var exception = await Assert.ThrowsAsync<CsvParseException>(() =>
+            ParseWithLogger(csv, logger));
+
+        Assert.Contains("row 2", exception.Message);
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Warning && e.Message.Contains("has") && e.Message.Contains("fields but header has"));
+    }
+
+    [Fact]
+    public async Task ParseAsync_works_without_logger()
+    {
+        const string csv = """
+            name,status
+            alpha,new
+            """;
+
+        var batch = await Parse(csv);
+
+        Assert.Single(batch.Messages);
+    }
+
     private static async Task<Core.ReplayBatch> Parse(string csv)
     {
         var parser = new CsvReplayMessageParser();
         await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
         return await parser.ParseAsync(stream);
+    }
+
+    private static async Task<Core.ReplayBatch> ParseWithLogger(
+        string csv,
+        ILogger<CsvReplayMessageParser> logger)
+    {
+        var parser = new CsvReplayMessageParser(logger);
+        await using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
+        return await parser.ParseAsync(stream);
+    }
+
+    private sealed class FakeLogger<T> : ILogger<T>
+    {
+        public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+        IDisposable? ILogger.BeginScope<TState>(TState state) => null;
+
+        bool ILogger.IsEnabled(LogLevel logLevel) => true;
+
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
+        }
     }
 }

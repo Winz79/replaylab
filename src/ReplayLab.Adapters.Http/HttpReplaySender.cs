@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ReplayLab.Core;
 
 namespace ReplayLab.Adapters.Http;
@@ -8,11 +9,16 @@ public sealed class HttpReplaySender : IReplaySender
 {
     private readonly HttpClient _httpClient;
     private readonly HttpReplaySenderOptions _options;
+    private readonly ILogger<HttpReplaySender>? _logger;
 
-    public HttpReplaySender(HttpClient httpClient, HttpReplaySenderOptions options)
+    public HttpReplaySender(
+        HttpClient httpClient,
+        HttpReplaySenderOptions options,
+        ILogger<HttpReplaySender>? logger = null)
     {
         _httpClient = httpClient;
         _options = options;
+        _logger = logger;
     }
 
     public async Task<ReplayResult> SendAsync(
@@ -20,6 +26,9 @@ public sealed class HttpReplaySender : IReplaySender
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
+        _logger?.LogDebug("Sending HTTP POST {MessageId} to {EndpointUrl}",
+            message.Id, _options.EndpointUrl);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, _options.EndpointUrl)
         {
@@ -40,6 +49,9 @@ public sealed class HttpReplaySender : IReplaySender
                 };
             }
 
+            _logger?.LogWarning("HTTP POST {MessageId} returned {StatusCode} ({ReasonPhrase})",
+                message.Id, (int)response.StatusCode, response.ReasonPhrase ?? response.StatusCode.ToString());
+
             return new ReplayResult
             {
                 Success = false,
@@ -49,10 +61,14 @@ public sealed class HttpReplaySender : IReplaySender
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
+            _logger?.LogDebug("HTTP POST {MessageId} was canceled", message.Id);
             throw;
         }
         catch (Exception exception)
         {
+            _logger?.LogError(exception, "HTTP POST {MessageId} failed: {ErrorMessage}",
+                message.Id, exception.Message);
+
             return new ReplayResult
             {
                 Success = false,

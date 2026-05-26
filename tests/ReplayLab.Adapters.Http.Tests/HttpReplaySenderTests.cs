@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ReplayLab.Adapters.Http;
 using ReplayLab.Core;
 
@@ -67,6 +68,92 @@ public class HttpReplaySenderTests
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()), cancellation.Token));
+    }
+
+    [Fact]
+    public async Task SendAsync_logs_request_dispatch_at_debug_level()
+    {
+        var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.Accepted));
+        using var client = new HttpClient(handler);
+        var logger = new FakeLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Sending HTTP POST record-1 to https://example.test/replay"));
+    }
+
+    [Fact]
+    public async Task SendAsync_logs_warning_for_non_success_status_code()
+    {
+        var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.InternalServerError));
+        using var client = new HttpClient(handler);
+        var logger = new FakeLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Warning && e.Message.Contains("HTTP POST record-1 returned 500"));
+    }
+
+    [Fact]
+    public async Task SendAsync_logs_error_for_request_exception()
+    {
+        var handler = new RecordingHttpMessageHandler(_ =>
+            Task.FromException<HttpResponseMessage>(new HttpRequestException("Connection refused")));
+        using var client = new HttpClient(handler);
+        var logger = new FakeLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Error && e.Message.Contains("HTTP POST record-1 failed: Connection refused"));
+    }
+
+    [Fact]
+    public async Task SendAsync_logs_debug_when_cancellation_is_propagated()
+    {
+        using var cancellation = new CancellationTokenSource();
+        var handler = new RecordingHttpMessageHandler(async _ =>
+        {
+            cancellation.Cancel();
+            await Task.Delay(Timeout.InfiniteTimeSpan, cancellation.Token);
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        });
+        using var client = new HttpClient(handler);
+        var logger = new FakeLogger<HttpReplaySender>();
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")), logger);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()), cancellation.Token));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("HTTP POST record-1 was canceled"));
+    }
+
+    [Fact]
+    public async Task SendAsync_works_without_logger()
+    {
+        var handler = new RecordingHttpMessageHandler(_ => new HttpResponseMessage(HttpStatusCode.Accepted));
+        using var client = new HttpClient(handler);
+        var sender = new HttpReplaySender(client, new HttpReplaySenderOptions(new Uri("https://example.test/replay")));
+
+        var result = await sender.SendAsync(new ReplayMessage("record-1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()));
+
+        Assert.True(result.Success);
+    }
+
+    private sealed class FakeLogger<T> : ILogger<T>
+    {
+        public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+        IDisposable? ILogger.BeginScope<TState>(TState state) => null;
+
+        bool ILogger.IsEnabled(LogLevel logLevel) => true;
+
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
+        }
     }
 
     private sealed class RecordingHttpMessageHandler(

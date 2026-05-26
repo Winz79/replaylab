@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using ReplayLab.Core;
 
 namespace ReplayLab.Core.Tests;
@@ -236,6 +237,125 @@ public class SequentialReplayEngineTests
         Assert.Equal(typeof(OperationCanceledException).FullName, results[1].ExceptionType);
         Assert.Equal("message-2", results[1].MessageId);
         Assert.True(results[2].Success);
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_batch_start_and_completion_information()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("m1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("m2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var logger = new FakeLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(new RecordingReplaySender(), logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Information && e.Message.Contains("Starting sequential replay of 2 messages"));
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Information && e.Message.Contains("Replay complete: 2 succeeded, 0 failed out of 2"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_per_message_send_and_success_at_debug_level()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("m1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("m2", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var logger = new FakeLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(new RecordingReplaySender(), logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Sending message m1 (1/2)"));
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Message m1 sent successfully"));
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Sending message m2 (2/2)"));
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Debug && e.Message.Contains("Message m2 sent successfully"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_error_when_sender_throws()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("failing", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender(_ =>
+            throw new InvalidOperationException("Boom"));
+        var logger = new FakeLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Error && e.Message.Contains("Message failing failed: Boom"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_logs_warning_when_sender_cancels_without_replay_token_cancellation()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("canceled", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender(_ =>
+            throw new OperationCanceledException("Sender canceled internally"));
+        var logger = new FakeLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Warning && e.Message.Contains("Message canceled was canceled"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_reports_failure_counts_in_completion_log()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("ok", "{}", new Dictionary<string, string>(), new Dictionary<string, string>()),
+            new ReplayMessage("fail", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var sender = new RecordingReplaySender(message =>
+            message.Id == "fail"
+                ? throw new InvalidOperationException("Boom")
+                : Task.FromResult(new ReplayResult { Success = true, MessageId = message.Id }));
+        var logger = new FakeLogger<SequentialReplayEngine>();
+        var engine = new SequentialReplayEngine(sender, logger);
+
+        await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Contains(logger.Entries, e => e.Level == LogLevel.Information && e.Message.Contains("1 succeeded, 1 failed out of 2"));
+    }
+
+    [Fact]
+    public async Task ReplayAsync_engine_works_without_logger()
+    {
+        var messages = new[]
+        {
+            new ReplayMessage("m1", "{}", new Dictionary<string, string>(), new Dictionary<string, string>())
+        };
+        var engine = new SequentialReplayEngine(new RecordingReplaySender());
+
+        var results = await engine.ReplayAsync(new ReplayBatch(messages));
+
+        Assert.Single(results);
+        Assert.True(results[0].Success);
+    }
+
+    private sealed class FakeLogger<T> : ILogger<T>
+    {
+        public List<(LogLevel Level, string Message)> Entries { get; } = [];
+
+        IDisposable? ILogger.BeginScope<TState>(TState state) => null;
+
+        bool ILogger.IsEnabled(LogLevel logLevel) => true;
+
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            Entries.Add((logLevel, formatter(state, exception)));
+        }
     }
 
     private sealed class RecordingReplaySender(
