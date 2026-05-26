@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/sebastienwitz/replaylab/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastienwitz/replaylab/actions/workflows/ci.yml)
 [![Release](https://github.com/sebastienwitz/replaylab/actions/workflows/release.yml/badge.svg)](https://github.com/sebastienwitz/replaylab/actions/workflows/release.yml)
+[![GitHub Packages](https://img.shields.io/badge/packages-github-blue?logo=github)](https://github.com/sebastienwitz/replaylab/pkgs/nuget/ReplayLab.Core)
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Roadmap](https://img.shields.io/badge/roadmap-active-0A7EA4.svg)](docs/roadmap.md)
