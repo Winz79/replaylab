@@ -1,0 +1,69 @@
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Build artifacts
+**/bin/
+**/obj/
+artifacts/
+[Dd]ebug/
+[Rr]elease/
+[Rr]eleases/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+
+# Solution-level artifacts
+CodeCoverage/
+
+# Test projects and results
+tests/
+**/TestResults/
+*.trx
+
+# Samples
+samples/
+
+# Docs
+docs/
+*.md
+
+# CI and scripts
+eng/
+scripts/
+
+# Non-Web projects (not needed for Web build)
+src/ReplayLab.Cli/
+src/ReplayLab.Cli.Hosting/
+src/ReplayLab.Desktop/
+src/ReplayLab.Desktop.Hosting/
+src/ReplayLab.Adapters.Http/
+src/ReplayLab.Adapters.Example/
+
+# Environment
+.env
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI config
+.ai/
+
+# Docker (avoid recursive inclusion)
+Dockerfile
+.dockerignore
+docker-compose.yml
