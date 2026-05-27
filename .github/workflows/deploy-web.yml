@@ -1,22 +1,15 @@
 # deploy-web.yml
 #
 # Builds the ReplayLab Web Docker image, pushes it to GitHub Container Registry,
-# and deploys it on the target Docker host via SSH.
+# and deploys it on the dockhost self-hosted runner.
 #
 # Triggers:
 #   - Version tag push (v*.*.*) — automated deploy alongside NuGet release
 #   - Manual workflow_dispatch — on-demand deploy
 #
-# Required secrets (configure in repo Settings > Secrets and variables > Actions):
-#   DEPLOY_HOST     — hostname or IP of the Docker host
-#   DEPLOY_SSH_KEY  — private SSH key for DEPLOY_USER@DEPLOY_HOST
-#   DEPLOY_USER     — SSH username on the Docker host
-#
-# Required setup on the Docker host (one-time):
-#   - Docker and docker compose plugin installed
-#   - DEPLOY_USER exists with SSH key access
-#   - DEPLOY_USER has permission to run docker commands (docker group or sudo)
-#   - Port 5213 reachable (or reverse proxy configured)
+# Fork protection: the deploy job only runs on the upstream repository.
+# In repo Settings → Actions → General → Fork pull request workflows, set
+# "Require approval for all outside collaborators" as an additional guard.
 
 name: Deploy Web
 
@@ -32,6 +25,7 @@ permissions:
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/replaylab-web
+  COMPOSE_DIR: /home/gh-runner/replaylab-deploy
 
 jobs:
   build:
@@ -89,47 +83,63 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: Deploy to Docker host
-    runs-on: ubuntu-latest
+    name: Deploy on dockhost
+    runs-on: dockhost
     needs: build
-    if: success()
+    if: success() && github.repository == 'sebastienwitz/replaylab'
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script: |
-            set -e
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-            IMAGE="ghcr.io/${{ github.repository_owner }}/replaylab-web:latest"
-            COMPOSE_DIR="$HOME/replaylab-deploy"
+      - name: Deploy web and seq
+        run: |
+          set -e
 
-            mkdir -p "$COMPOSE_DIR"
+          cat > "$COMPOSE_DIR/docker-compose.yml" << 'COMPOSE_EOF'
+          services:
+            web:
+              image: ghcr.io/sebastienwitz/replaylab-web:latest
+              ports:
+                - "5213:5213"
+              environment:
+                - ASPNETCORE_URLS=http://+:5213
+                - ASPNETCORE_ENVIRONMENT=Production
+                - SEQ_SERVER_URL=http://seq:5341
+              restart: unless-stopped
+              volumes:
+                - dp-keys:/root/.aspnet/DataProtection-Keys
 
-            # Write a minimal docker-compose.yml for the web service.
-            # Seq is expected to run separately (e.g. from the local docker-compose.yml
-            # in the repo). Keep this deploy compose focused on the web service only.
-            cat > "$COMPOSE_DIR/docker-compose.yml" << COMPOSE_EOF
-            services:
-              web:
-                image: ${IMAGE}
-                ports:
-                  - "5213:5213"
-                environment:
-                  - ASPNETCORE_URLS=http://+:5213
-                  - ASPNETCORE_ENVIRONMENT=Production
-                restart: unless-stopped
-            COMPOSE_EOF
+            seq:
+              image: datalust/seq:latest
+              ports:
+                - "8222:80"
+                - "5341:5341"
+              environment:
+                - ACCEPT_EULA=Y
+                - SEQ_FIRSTRUN_NOAUTHENTICATION=true
+              restart: unless-stopped
+              volumes:
+                - seq-data:/data
 
-            cd "$COMPOSE_DIR"
+          volumes:
+            seq-data:
+            dp-keys:
+          COMPOSE_EOF
 
-            echo "Pulling latest image..."
-            docker compose pull web
+          cd "$COMPOSE_DIR"
 
-            echo "Restarting web service..."
-            docker compose up -d --force-recreate web
+          echo "Pulling latest web image..."
+          docker compose pull web
 
-            echo "Deploy complete. Web UI should be available at http://${{ secrets.DEPLOY_HOST }}:5213"
+          echo "Redeploying web..."
+          docker compose up -d --force-recreate web
+
+          echo "Ensuring seq is running..."
+          docker compose up -d seq
+
+          echo "Deploy complete. Web UI at http://localhost:5213"
